@@ -1,3 +1,4 @@
+import gleam/bool
 import gleam/float
 import gleam/int
 import gleam/io
@@ -25,23 +26,25 @@ fn break_string(str: String, times: Int) -> Result(String, String) {
   let newliner = fn(acc: List(String), elem: String) -> List(String) {
     // Don't know why `let assert` is needed
     let assert [first, ..rest] = acc
+
     case string.length(first) >= len / times {
       True -> [elem, first, ..rest]
       False -> [elem <> first, ..rest]
     }
   }
-  case len % times {
-    0 -> {
-      str
-      |> string.split("")
-      // `newliner` will leave it reversed. We reverse now before folding, so we don't just reverse the row order
-      |> list.reverse
-      |> list.fold([""], newliner)
-      |> string.join("\n")
-      |> Ok
-    }
-    _ -> Error("Number of splits doesn't go into the string's length")
-  }
+
+  use <- bool.guard(
+    len % times != 0,
+    Error("Number of splits doesn't go into the string's length"),
+  )
+
+  str
+  |> string.split("")
+  // `newliner` will leave it reversed. We reverse now before folding, so we don't just reverse the row order
+  |> list.reverse
+  |> list.fold([""], newliner)
+  |> string.join("\n")
+  |> Ok
 }
 
 // Power function for integers, without needing to truncate
@@ -59,35 +62,35 @@ pub fn to_string(board: BinBoard) -> String {
   |> string.pad_start(board.cols * board.rows, "0")
   // Make the string the length of the board
   |> break_string(board.rows)
-  |> result.unwrap_both
   // Definitely bad practice, but Result on a tostring feels gross. I'm sure I'll like it with more experience
+  |> result.unwrap_both
 }
 
 /// Returns whether the coordinate is filled
 /// Will return an error if the position is invalid
 pub fn get_pos(board: BinBoard, pos: Coord) {
-  case pos.row > board.rows || pos.col > board.cols {
-    True -> Error("Invalid board position!")
-    False -> {
-      // 0 corresponds to top left of board
-      let index = pos.row * board.cols + pos.col
-      // Number of indices
-      let positions = board.rows * board.cols
+  use <- bool.guard(
+    pos.row > board.rows || pos.col > board.cols,
+    Error("Invalid board position!"),
+  )
 
-      // Subtract 1 so if index is 0, we get 2^{pos - 1}. For a 2x2,
-      // This would be 2^3, which is what corresponds to the first
-      // bit of a 4-bit binary number. From there, index just moves us
-      // right by the correct number of bits
-      let complement = power(2, positions - 1 - index)
+  // 0 corresponds to top left of board
+  let index = pos.row * board.cols + pos.col
+  // Number of indices
+  let positions = board.rows * board.cols
 
-      // We have an integer where the only bit that's on is the one
-      // corresponding to the given index. We now bitwise and to
-      // see if the bit is on in the data
-      let anded = int.bitwise_and(board.data, complement)
+  // Subtract 1 so if index is 0, we get 2^{pos - 1}. For a 2x2,
+  // This would be 2^3, which is what corresponds to the first
+  // bit of a 4-bit binary number. From there, index just moves us
+  // right by the correct number of bits
+  let complement = power(2, positions - 1 - index)
 
-      { anded > 0 } |> Ok
-    }
-  }
+  // We have an integer where the only bit that's on is the one
+  // corresponding to the given index. We now bitwise and to
+  // see if the bit is on in the data
+  let anded = int.bitwise_and(board.data, complement)
+
+  { anded > 0 } |> Ok
 }
 
 pub fn main() {
