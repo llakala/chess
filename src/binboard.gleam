@@ -68,14 +68,18 @@ pub fn to_string(board: BinBoard) -> String {
 
 /// Returns whether the coordinate is filled
 /// Will return an error if the position is invalid
-pub fn get_pos(board: BinBoard, pos: Coord) {
+pub fn get_pos(board: BinBoard, pos: Coord) -> Result(Bool, String) {
+  // We let the row and col have 1-based indexing for QOL
+  // Be careful not to use the one from pos by accident!
+  let col = pos.col - 1
+  let row = pos.row - 1
   use <- bool.guard(
-    pos.row > board.rows || pos.col > board.cols,
+    row >= board.rows || col >= board.cols,
     Error("Invalid board position!"),
   )
 
   // 0 corresponds to top left of board
-  let index = pos.row * board.cols + pos.col
+  let index = row * board.cols + col
   // Number of indices
   let positions = board.rows * board.cols
 
