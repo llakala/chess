@@ -1,3 +1,4 @@
+import chess/coord.{type Coord}
 import gleam/bool
 import gleam/float
 import gleam/int
@@ -10,10 +11,6 @@ import gleam/string
 // the number of valid rows and columns
 pub type BinBoard {
   BinBoard(cols: Int, rows: Int, data: Int)
-}
-
-pub type Coord {
-  Coord(col: Int, row: Int)
 }
 
 /// Break a string into N sections, separated on newlines.
@@ -69,17 +66,13 @@ pub fn to_string(board: BinBoard) -> String {
 /// Returns whether the coordinate is filled
 /// Will return an error if the position is invalid
 pub fn get_pos(board: BinBoard, pos: Coord) -> Result(Bool, String) {
-  // We let the row and col have 1-based indexing for QOL
-  // Be careful not to use the one from pos by accident!
-  let col = pos.col - 1
-  let row = pos.row - 1
   use <- bool.guard(
-    row >= board.rows || col >= board.cols,
+    pos.row >= board.rows || pos.col >= board.cols,
     Error("Invalid board position!"),
   )
 
   // 0 corresponds to top left of board
-  let index = row * board.cols + col
+  let index = pos.index
   // Number of indices
   let positions = board.rows * board.cols
 
@@ -98,13 +91,14 @@ pub fn get_pos(board: BinBoard, pos: Coord) -> Result(Bool, String) {
 }
 
 pub fn main() {
-  let value = 0b000010001
-  let my_board = BinBoard(3, 3, value)
+  let value = 0b0001
+  let my_board = BinBoard(2, 2, value)
   io.println("Board:")
   my_board |> to_string |> io.println
 
   io.println("")
-  let pos = Coord(3, 3)
+  let pos = coord.new(1, 1)
+  coord.to_string(pos) |> io.println
 
   case get_pos(my_board, pos) {
     Ok(val) -> val |> bool.to_string |> io.println
