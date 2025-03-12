@@ -1,0 +1,1 @@
+-record(coord, {col :: integer(), row :: integer()}).
