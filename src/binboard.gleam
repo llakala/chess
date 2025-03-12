@@ -98,15 +98,16 @@ pub fn get_pos(board: BinBoard, pos: Coord) -> Result(Bool, String) {
 }
 
 pub fn main() {
-  let value = 9
-  let my_board = BinBoard(2, 2, value)
+  let value = 0b000010001
+  let my_board = BinBoard(3, 3, value)
   io.println("Board:")
   my_board |> to_string |> io.println
 
   io.println("")
-  // let pos = Coord(1, 0)
-  //
-  // use var <- result.try(get_pos(my_board, pos))
-  // io.debug(var)
-  // Ok(var)
+  let pos = Coord(3, 3)
+
+  case get_pos(my_board, pos) {
+    Ok(val) -> val |> bool.to_string |> io.println
+    Error(val) -> io.println("Error: " <> val)
+  }
 }
