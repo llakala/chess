@@ -1,1 +1,0 @@
--record(bin_board, {cols :: integer(), rows :: integer(), data :: integer()}).
