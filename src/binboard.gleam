@@ -23,7 +23,8 @@ fn break_string(str: String, times: Int) -> Result(String, String) {
   // Pure function on a list of characters to add newlines every time we
   // reach the row's length
   let newliner = fn(acc: List(String), elem: String) -> List(String) {
-    let assert [first, ..rest] = acc // Don't know why `let assert` is needed
+    // Don't know why `let assert` is needed
+    let assert [first, ..rest] = acc
     case string.length(first) >= len / times {
       True -> [elem, first, ..rest]
       False -> [elem <> first, ..rest]
@@ -33,7 +34,8 @@ fn break_string(str: String, times: Int) -> Result(String, String) {
     0 -> {
       str
       |> string.split("")
-      |> list.reverse // `newliner` will leave it reversed. We reverse now before folding, so we don't just reverse the row order
+      // `newliner` will leave it reversed. We reverse now before folding, so we don't just reverse the row order
+      |> list.reverse
       |> list.fold([""], newliner)
       |> string.join("\n")
       |> Ok
@@ -46,17 +48,19 @@ fn break_string(str: String, times: Int) -> Result(String, String) {
 fn power(num: Int, power: Int) -> Int {
   let power = power |> int.to_float
   int.power(num, power)
-    // Should be impossible, there's no way to get undefined for integers
-    |> result.unwrap(0.0)
-    |> float.truncate
+  // Should be impossible, there's no way to get undefined for integers
+  |> result.unwrap(0.0)
+  |> float.truncate
 }
 
 pub fn to_string(board: BinBoard) -> String {
   board.data
   |> int.to_base2
-  |> string.pad_start(board.cols * board.rows, "0") // Make the string the length of the board
+  |> string.pad_start(board.cols * board.rows, "0")
+  // Make the string the length of the board
   |> break_string(board.rows)
-  |> result.unwrap_both // Definitely bad practice, but Result on a tostring feels gross. I'm sure I'll like it with more experience
+  |> result.unwrap_both
+  // Definitely bad practice, but Result on a tostring feels gross. I'm sure I'll like it with more experience
 }
 
 /// Returns whether the coordinate is filled
@@ -65,8 +69,10 @@ pub fn get_pos(board: BinBoard, pos: Coord) {
   case pos.row > board.rows || pos.col > board.cols {
     True -> Error("Invalid board position!")
     False -> {
-      let index = pos.row * board.cols + pos.col // 0 corresponds to top left of board
-      let positions = board.rows * board.cols  // Number of indices
+      // 0 corresponds to top left of board
+      let index = pos.row * board.cols + pos.col
+      // Number of indices
+      let positions = board.rows * board.cols
 
       // Subtract 1 so if index is 0, we get 2^{pos - 1}. For a 2x2,
       // This would be 2^3, which is what corresponds to the first
