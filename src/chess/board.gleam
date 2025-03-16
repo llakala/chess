@@ -2,11 +2,12 @@
 import chess/array
 
 import chess/coord.{type Coord}
-import chess/piece
+import chess/piece.{type Piece, fen_to_piece, piece_to_value}
 
 import gleam/bool
-import gleam/io
+import gleam/list
 import gleam/result
+import gleam/string
 
 import iv.{type Array}
 
@@ -14,26 +15,6 @@ import iv.{type Array}
 // the number of valid rows and columns
 pub type Board {
   Board(cols: Int, rows: Int, data: Array(Int))
-}
-
-pub fn main() {
-  let values: List(Int) = [0, 1, 2, 3]
-  let board: Result(String, String) =
-    values |> iv.from_list |> Board(2, 2, _) |> to_string
-
-  io.println("Board:")
-  case board {
-    Ok(value) -> value |> io.println
-    Error(value) -> { "Error: " <> value } |> io.println
-  }
-  // io.println("")
-  // let pos = coord.new(1, 1)
-  // coord.to_string(pos) |> io.pri|ntln
-  //
-  // case get_pos(my_board, pos) {
-  //   Ok(val) -> val |> bool.to_string |> io.println
-  //   Error(val) -> io.println("Error: " <> val)
-  // }
 }
 
 pub fn to_string(board: Board) -> Result(String, String) {
@@ -60,9 +41,9 @@ fn format_list(lst: Array(String), times: Int) -> Result(String, String) {
   |> Ok
 }
 
-/// Returns whether the coordinate is filled
+/// Returns the piece at the given coordinate
 /// Will return an error if the position is invalid
-pub fn get_pos(board: Board, pos: Coord) -> Result(Bool, String) {
+pub fn get_pos(board: Board, pos: Coord) -> Result(Piece, String) {
   use <- bool.guard(
     pos.row >= board.rows || pos.col >= board.cols,
     Error("Invalid board position!"),
@@ -77,5 +58,5 @@ pub fn get_pos(board: Board, pos: Coord) -> Result(Bool, String) {
     piece_at_index |> piece.value_to_piece,
   )
 
-  { piece_type != piece.None } |> Ok
+  piece_type |> Ok
 }
