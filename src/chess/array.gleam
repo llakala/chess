@@ -24,7 +24,7 @@ pub fn sized_chunk(
   let current_chunk = iv.new()
   let chunk_len = len / num_chunks
   let acc = iv.new()
-  split_board_loop(contents, current_chunk, chunk_len, acc)
+  sized_chunk_loop(contents, current_chunk, chunk_len, acc)
   |> Ok
 }
 
@@ -59,7 +59,8 @@ fn intersperse_loop(
   }
 }
 
-fn split_board_loop(
+/// Recursive functio
+fn sized_chunk_loop(
   // The contents that haven't been processed yet. If an error, we're done looping
   contents: Result(Array(String), Nil),
   // The current chunk that's being filled
@@ -73,21 +74,26 @@ fn split_board_loop(
   use <- bool.guard(result.is_error(contents), acc)
 
   // We've already guarded against an error above, so we're safe to unwrap
-  let contents = contents |> result.unwrap(iv.new())
-  let elem = iv.first(contents) |> result.unwrap("")
+  // Still, just in case, we include the string `ERROR` if somehow we got
+  // an error anyways
+  let contents = contents |> result.unwrap(iv.wrap("ERROR"))
+  let elem = iv.first(contents) |> result.unwrap("ERROR")
   let contents = contents |> iv.rest
 
   // Whether the current chunk is full
   case iv.length(current_chunk) >= chunk_len {
     False -> {
       let current_chunk = current_chunk |> iv.append(elem)
-      split_board_loop(contents, current_chunk, chunk_len, acc)
+      sized_chunk_loop(contents, current_chunk, chunk_len, acc)
     }
     True -> {
       // Append the current chunk to the accumulator now that it's done
       let acc = acc |> iv.append(current_chunk)
-      let current_chunk = iv.new() |> iv.append(elem)
-      split_board_loop(contents, current_chunk, chunk_len, acc)
+
+      // Start the next chunk with the first element that doesn't fit in the previous chunk
+      let current_chunk = iv.wrap(elem)
+
+      sized_chunk_loop(contents, current_chunk, chunk_len, acc)
     }
   }
 }
