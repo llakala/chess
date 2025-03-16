@@ -17,6 +17,24 @@ pub type Board {
   Board(cols: Int, rows: Int, data: Array(Int))
 }
 
+/// Returns the piece at the given coordinate
+/// Will return an error if the position is invalid
+pub fn get_pos(board: Board, pos: Coord) -> Result(Piece, String) {
+  use <- bool.guard(
+    pos.row >= board.rows || pos.col >= board.cols,
+    Error("Invalid board position!"),
+  )
+
+  // 0 corresponds to top left of board
+  let index: Int = pos.index
+  use piece_at_index: Int <- result.try(
+    board.data |> iv.get(index) |> result.replace_error("Index invalid!"),
+  )
+  use piece_type: piece.Piece <- result.try(piece_at_index |> piece.from_value)
+
+  piece_type |> Ok
+}
+
 pub fn to_string(board: Board) -> Result(String, String) {
   case
     board.data
@@ -39,22 +57,4 @@ fn format_list(lst: Array(String), times: Int) -> Result(String, String) {
   |> iv.map(array.join(_, ", "))
   |> array.join("\n")
   |> Ok
-}
-
-/// Returns the piece at the given coordinate
-/// Will return an error if the position is invalid
-pub fn get_pos(board: Board, pos: Coord) -> Result(Piece, String) {
-  use <- bool.guard(
-    pos.row >= board.rows || pos.col >= board.cols,
-    Error("Invalid board position!"),
-  )
-
-  // 0 corresponds to top left of board
-  let index: Int = pos.index
-  use piece_at_index: Int <- result.try(
-    board.data |> iv.get(index) |> result.replace_error("Index invalid!"),
-  )
-  use piece_type: piece.Piece <- result.try(piece_at_index |> piece.from_value)
-
-  piece_type |> Ok
 }
