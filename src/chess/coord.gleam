@@ -1,7 +1,7 @@
 import gleam/int
 
 // We asume we'll be playing chess, so rows should be 8 long
-const row_len = 8
+const row_len: Int = 8
 
 pub type Coord {
   Coord(col: Int, row: Int, index: Int)
@@ -10,7 +10,7 @@ pub type Coord {
 /// Generate a new coord based on a row and column.
 /// Assumes a row length of 8
 pub fn new(col col: Int, row row: Int) -> Coord {
-  let index = row * row_len + col
+  let index: Int = row * row_len + col
 
   Coord(col, row, index)
 }
@@ -19,8 +19,8 @@ pub fn new(col col: Int, row row: Int) -> Coord {
 /// Generate a new coord based on an index
 /// Assumes a row length of 8
 pub fn new_from_index(index: Int) -> Coord {
-  let col = index % row_len
-  let row = index / row_len
+  let col: Int = index % row_len
+  let row: Int = index / row_len
 
   Coord(col, row, index)
 }

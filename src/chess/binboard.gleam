@@ -13,8 +13,9 @@ pub type BinBoard {
 }
 
 pub fn main() {
-  let values = [0, 1, 2, 3]
-  let board = values |> iv.from_list |> BinBoard(2, 2, _) |> to_string
+  let values: List(Int) = [0, 1, 2, 3]
+  let board: Result(String, String) =
+    values |> iv.from_list |> BinBoard(2, 2, _) |> to_string
 
   io.println("Board:")
   case board {
@@ -47,8 +48,9 @@ pub fn to_string(board: BinBoard) -> Result(String, String) {
 /// Break a list of strings into N sections, separated on newlines.
 /// Returns an error if string wasn't divisible by number of times
 fn format_list(lst: Array(String), times: Int) -> Result(String, String) {
-  use res <- result.try(array.sized_chunk(lst, times))
-  res
+  use chunked: Array(Array(String)) <- result.try(array.sized_chunk(lst, times))
+
+  chunked
   |> iv.map(array.join(_, ", "))
   |> array.join("\n")
   |> Ok
@@ -63,10 +65,13 @@ pub fn get_pos(board: BinBoard, pos: Coord) -> Result(Bool, String) {
   )
 
   // 0 corresponds to top left of board
-  let index = pos.index
-  use piece_at_index <- result.try(
+  let index: Int = pos.index
+  use piece_at_index: Int <- result.try(
     board.data |> iv.get(index) |> result.replace_error("Index invalid!"),
   )
-  use piece_type <- result.try(piece_at_index |> piece.value_to_piece)
+  use piece_type: piece.Piece <- result.try(
+    piece_at_index |> piece.value_to_piece,
+  )
+
   { piece_type != piece.None } |> Ok
 }

@@ -14,7 +14,7 @@ pub fn sized_chunk(
   arr: Array(String),
   num_chunks: Int,
 ) -> Result(Array(Array(String)), String) {
-  let len = iv.length(arr)
+  let len: Int = iv.length(arr)
   use <- bool.guard(
     len % num_chunks != 0,
     Error("Number of splits doesn't go into the string's length"),
