@@ -46,7 +46,8 @@ fn intersperse_loop(
   acc: Array(String),
 ) -> Array(String) {
   // If it's an error, we're done looping
-  case contents |> result.unwrap(iv.new()) |> iv.is_empty {
+  let contents_empty = contents |> result.unwrap(iv.new()) |> iv.is_empty
+  case contents_empty {
     True -> iv.reverse(acc)
     _ -> {
       // We can safely unwrap because we're done looping
