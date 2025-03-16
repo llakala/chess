@@ -1,66 +1,57 @@
+import chess/array
 import chess/coord.{type Coord}
+import chess/piece
 import gleam/bool
-import gleam/float
-import gleam/int
 import gleam/io
-import gleam/list
 import gleam/result
-import gleam/string
+import iv.{type Array}
 
 // TODO: use a `new` function to make sure data can't be more than
 // the number of valid rows and columns
 pub type BinBoard {
-  BinBoard(cols: Int, rows: Int, data: Int)
+  BinBoard(cols: Int, rows: Int, data: Array(Int))
 }
 
-/// Break a string into N sections, separated on newlines.
-/// Returns an error if string wasn't divisible by number of times
-fn break_string(str: String, times: Int) -> Result(String, String) {
-  let len = string.length(str)
+pub fn main() {
+  let values = [0, 1, 2, 3]
+  let board = values |> iv.from_list |> BinBoard(2, 2, _) |> to_string
 
-  // Pure function on a list of characters to add newlines every time we
-  // reach the row's length
-  let newliner = fn(acc: List(String), elem: String) -> List(String) {
-    // Don't know why `let assert` is needed
-    let assert [first, ..rest] = acc
-
-    case string.length(first) >= len / times {
-      True -> [elem, first, ..rest]
-      False -> [elem <> first, ..rest]
-    }
+  io.println("Board:")
+  case board {
+    Ok(value) -> value |> io.println
+    Error(value) -> { "Error: " <> value } |> io.println
   }
+  // io.println("")
+  // let pos = coord.new(1, 1)
+  // coord.to_string(pos) |> io.pri|ntln
+  //
+  // case get_pos(my_board, pos) {
+  //   Ok(val) -> val |> bool.to_string |> io.println
+  //   Error(val) -> io.println("Error: " <> val)
+  // }
+}
 
-  use <- bool.guard(
-    len % times != 0,
-    Error("Number of splits doesn't go into the string's length"),
-  )
+pub fn to_string(board: BinBoard) -> Result(String, String) {
+  case
+    board.data
+    |> iv.try_map(piece.value_to_piece)
+  {
+    Error(value) -> Error(value)
+    Ok(value) ->
+      value
+      |> iv.map(piece.piece_to_string)
+      |> format_list(board.rows)
+  }
+}
 
-  str
-  |> string.split("")
-  // `newliner` will leave it reversed. We reverse now before folding, so we don't just reverse the row order
-  |> list.reverse
-  |> list.fold([""], newliner)
-  |> string.join("\n")
+/// Break a list of strings into N sections, separated on newlines.
+/// Returns an error if string wasn't divisible by number of times
+fn format_list(lst: Array(String), times: Int) -> Result(String, String) {
+  use res <- result.try(array.sized_chunk(lst, times))
+  res
+  |> iv.map(array.join(_, ", "))
+  |> array.join("\n")
   |> Ok
-}
-
-// Power function for integers, without needing to truncate
-fn power(num: Int, power: Int) -> Int {
-  let power = power |> int.to_float
-  int.power(num, power)
-  // Should be impossible, there's no way to get undefined for integers
-  |> result.unwrap(0.0)
-  |> float.truncate
-}
-
-pub fn to_string(board: BinBoard) -> String {
-  board.data
-  |> int.to_base2
-  |> string.pad_start(board.cols * board.rows, "0")
-  // Make the string the length of the board
-  |> break_string(board.rows)
-  // Definitely bad practice, but Result on a tostring feels gross. I'm sure I'll like it with more experience
-  |> result.unwrap_both
 }
 
 /// Returns whether the coordinate is filled
@@ -73,35 +64,9 @@ pub fn get_pos(board: BinBoard, pos: Coord) -> Result(Bool, String) {
 
   // 0 corresponds to top left of board
   let index = pos.index
-  // Number of indices
-  let positions = board.rows * board.cols
-
-  // Subtract 1 so if index is 0, we get 2^{pos - 1}. For a 2x2,
-  // This would be 2^3, which is what corresponds to the first
-  // bit of a 4-bit binary number. From there, index just moves us
-  // right by the correct number of bits
-  let complement = power(2, positions - 1 - index)
-
-  // We have an integer where the only bit that's on is the one
-  // corresponding to the given index. We now bitwise and to
-  // see if the bit is on in the data
-  let anded = int.bitwise_and(board.data, complement)
-
-  { anded > 0 } |> Ok
-}
-
-pub fn main() {
-  let value = 0b0001
-  let my_board = BinBoard(2, 2, value)
-  io.println("Board:")
-  my_board |> to_string |> io.println
-
-  io.println("")
-  let pos = coord.new(1, 1)
-  coord.to_string(pos) |> io.println
-
-  case get_pos(my_board, pos) {
-    Ok(val) -> val |> bool.to_string |> io.println
-    Error(val) -> io.println("Error: " <> val)
-  }
+  use piece_at_index <- result.try(
+    board.data |> iv.get(index) |> result.replace_error("Index invalid!"),
+  )
+  use piece_type <- result.try(piece_at_index |> piece.value_to_piece)
+  { piece_type != piece.None } |> Ok
 }
