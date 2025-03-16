@@ -5,8 +5,8 @@ pub type Color {
 
 pub fn color_to_value(color: Color) {
   case color {
-    White -> 0
-    Black -> 8
+    White -> 8
+    Black -> 0
   }
 }
 
