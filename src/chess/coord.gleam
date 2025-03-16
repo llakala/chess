@@ -9,7 +9,7 @@ pub type Coord {
 
 /// Generate a new coord based on a row and column.
 /// Assumes a row length of 8
-pub fn new(col col: Int, row row: Int) -> Coord {
+pub fn from_pair(col col: Int, row row: Int) -> Coord {
   let index: Int = row * row_len + col
 
   Coord(col, row, index)
@@ -18,7 +18,7 @@ pub fn new(col col: Int, row row: Int) -> Coord {
 // TODO: Catch error if `index > 63`
 /// Generate a new coord based on an index
 /// Assumes a row length of 8
-pub fn new_from_index(index: Int) -> Coord {
+pub fn from_index(index: Int) -> Coord {
   let col: Int = index % row_len
   let row: Int = index / row_len
 

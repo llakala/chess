@@ -2,7 +2,7 @@
 import chess/array
 
 import chess/coord.{type Coord}
-import chess/piece.{type Piece, fen_to_piece, piece_to_value}
+import chess/piece.{type Piece}
 
 import gleam/bool
 import gleam/list
@@ -20,12 +20,12 @@ pub type Board {
 pub fn to_string(board: Board) -> Result(String, String) {
   case
     board.data
-    |> iv.try_map(piece.value_to_piece)
+    |> iv.try_map(piece.from_value)
   {
     Error(value) -> Error(value)
     Ok(value) ->
       value
-      |> iv.map(piece.piece_to_string)
+      |> iv.map(piece.to_string)
       |> format_list(board.rows)
   }
 }
@@ -54,9 +54,7 @@ pub fn get_pos(board: Board, pos: Coord) -> Result(Piece, String) {
   use piece_at_index: Int <- result.try(
     board.data |> iv.get(index) |> result.replace_error("Index invalid!"),
   )
-  use piece_type: piece.Piece <- result.try(
-    piece_at_index |> piece.value_to_piece,
-  )
+  use piece_type: piece.Piece <- result.try(piece_at_index |> piece.from_value)
 
   piece_type |> Ok
 }

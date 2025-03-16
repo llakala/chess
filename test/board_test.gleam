@@ -28,7 +28,7 @@ const piece_list = [
 pub fn to_string_test() {
   let board =
     piece_list
-    |> list.map(piece.piece_to_value)
+    |> list.map(piece.to_value)
     |> iv.from_list
     |> board.Board(8, 2, _)
 
@@ -42,11 +42,11 @@ pub fn to_string_test() {
 pub fn get_pos_test() {
   let board =
     piece_list
-    |> list.map(piece.piece_to_value)
+    |> list.map(piece.to_value)
     |> iv.from_list
     |> board.Board(8, 2, _)
 
-  coord.new(3, 1)
+  coord.from_pair(3, 1)
   |> board.get_pos(board, _)
   |> should.equal(White |> King |> Ok)
 }

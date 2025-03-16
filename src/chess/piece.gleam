@@ -1,4 +1,4 @@
-import chess/color.{type Color, Black, White, color_to_string, color_to_value}
+import chess/color.{type Color, Black, White}
 import gleam/int
 
 pub type Piece {
@@ -11,20 +11,20 @@ pub type Piece {
   King(color: Color)
 }
 
-pub fn piece_to_value(piece: Piece) -> Int {
+pub fn to_value(piece: Piece) -> Int {
   // If white, adds 8 to the value
   case piece {
     None -> 0
-    Pawn(color) -> 1 + color_to_value(color)
-    Rook(color) -> 2 + color_to_value(color)
-    Bishop(color) -> 3 + color_to_value(color)
-    Knight(color) -> 4 + color_to_value(color)
-    Queen(color) -> 5 + color_to_value(color)
-    King(color) -> 6 + color_to_value(color)
+    Pawn(color) -> 1 + color.to_value(color)
+    Rook(color) -> 2 + color.to_value(color)
+    Bishop(color) -> 3 + color.to_value(color)
+    Knight(color) -> 4 + color.to_value(color)
+    Queen(color) -> 5 + color.to_value(color)
+    King(color) -> 6 + color.to_value(color)
   }
 }
 
-pub fn value_to_piece(value: Int) -> Result(Piece, String) {
+pub fn from_value(value: Int) -> Result(Piece, String) {
   case value {
     0 -> None |> Ok
 
@@ -48,20 +48,20 @@ pub fn value_to_piece(value: Int) -> Result(Piece, String) {
   }
 }
 
-pub fn piece_to_string(piece: Piece) -> String {
+pub fn to_string(piece: Piece) -> String {
   case piece {
     None -> "Empty"
-    Pawn(color) -> color_to_string(color) <> " Pawn"
-    Rook(color) -> color_to_string(color) <> " Rook"
-    Bishop(color) -> color_to_string(color) <> " Bishop"
-    Knight(color) -> color_to_string(color) <> " Knight"
-    Queen(color) -> color_to_string(color) <> " Queen"
-    King(color) -> color_to_string(color) <> " King"
+    Pawn(color) -> color.to_string(color) <> " Pawn"
+    Rook(color) -> color.to_string(color) <> " Rook"
+    Bishop(color) -> color.to_string(color) <> " Bishop"
+    Knight(color) -> color.to_string(color) <> " Knight"
+    Queen(color) -> color.to_string(color) <> " Queen"
+    King(color) -> color.to_string(color) <> " King"
   }
 }
 
 /// Doesn't take the *entire* fen string: just the first part encoding the board
-pub fn fen_to_piece(char: String) {
+pub fn from_fen(char: String) {
   case char {
     "p" -> Pawn(Black) |> Ok
     "P" -> Pawn(White) |> Ok
