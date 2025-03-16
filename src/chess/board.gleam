@@ -12,14 +12,14 @@ import iv.{type Array}
 
 // TODO: use a `new` function to make sure data can't be more than
 // the number of valid rows and columns
-pub type BinBoard {
-  BinBoard(cols: Int, rows: Int, data: Array(Int))
+pub type Board {
+  Board(cols: Int, rows: Int, data: Array(Int))
 }
 
 pub fn main() {
   let values: List(Int) = [0, 1, 2, 3]
   let board: Result(String, String) =
-    values |> iv.from_list |> BinBoard(2, 2, _) |> to_string
+    values |> iv.from_list |> Board(2, 2, _) |> to_string
 
   io.println("Board:")
   case board {
@@ -36,7 +36,7 @@ pub fn main() {
   // }
 }
 
-pub fn to_string(board: BinBoard) -> Result(String, String) {
+pub fn to_string(board: Board) -> Result(String, String) {
   case
     board.data
     |> iv.try_map(piece.value_to_piece)
@@ -62,7 +62,7 @@ fn format_list(lst: Array(String), times: Int) -> Result(String, String) {
 
 /// Returns whether the coordinate is filled
 /// Will return an error if the position is invalid
-pub fn get_pos(board: BinBoard, pos: Coord) -> Result(Bool, String) {
+pub fn get_pos(board: Board, pos: Coord) -> Result(Bool, String) {
   use <- bool.guard(
     pos.row >= board.rows || pos.col >= board.cols,
     Error("Invalid board position!"),
