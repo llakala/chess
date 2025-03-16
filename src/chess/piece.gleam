@@ -24,18 +24,6 @@ pub fn piece_to_value(piece: Piece) -> Int {
   }
 }
 
-pub fn piece_to_string(piece: Piece) -> String {
-  case piece {
-    None -> "Empty"
-    Pawn(color) -> color_to_string(color) <> " Pawn"
-    Rook(color) -> color_to_string(color) <> " Rook"
-    Bishop(color) -> color_to_string(color) <> " Bishop"
-    Knight(color) -> color_to_string(color) <> " Knight"
-    Queen(color) -> color_to_string(color) <> " Queen"
-    King(color) -> color_to_string(color) <> " King"
-  }
-}
-
 pub fn value_to_piece(value: Int) -> Result(Piece, String) {
   case value {
     0 -> None |> Ok
@@ -57,5 +45,36 @@ pub fn value_to_piece(value: Int) -> Result(Piece, String) {
     _ ->
       { "Invalid value " <> int.to_string(value) <> " encountered" }
       |> Error
+  }
+}
+
+pub fn piece_to_string(piece: Piece) -> String {
+  case piece {
+    None -> "Empty"
+    Pawn(color) -> color_to_string(color) <> " Pawn"
+    Rook(color) -> color_to_string(color) <> " Rook"
+    Bishop(color) -> color_to_string(color) <> " Bishop"
+    Knight(color) -> color_to_string(color) <> " Knight"
+    Queen(color) -> color_to_string(color) <> " Queen"
+    King(color) -> color_to_string(color) <> " King"
+  }
+}
+
+/// Doesn't take the *entire* fen string: just the first part encoding the board
+pub fn fen_to_piece(char: String) {
+  case char {
+    "p" -> Pawn(Black) |> Ok
+    "P" -> Pawn(White) |> Ok
+    "n" -> Knight(Black) |> Ok
+    "N" -> Knight(White) |> Ok
+    "b" -> Bishop(Black) |> Ok
+    "B" -> Bishop(White) |> Ok
+    "r" -> Rook(Black) |> Ok
+    "R" -> Rook(White) |> Ok
+    "q" -> Queen(Black) |> Ok
+    "Q" -> Queen(White) |> Ok
+    "k" -> King(Black) |> Ok
+    "K" -> King(White) |> Ok
+    _ -> Error("Invalid character " <> char <> "for fen decoding!")
   }
 }
