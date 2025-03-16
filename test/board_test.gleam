@@ -49,4 +49,8 @@ pub fn get_pos_test() {
   coord.from_pair(3, 1)
   |> board.get_pos(board, _)
   |> should.equal(White |> King |> Ok)
+
+  coord.from_pair(3, 7)
+  |> board.get_pos(board, _)
+  |> should.equal(Error("Invalid board position!"))
 }
