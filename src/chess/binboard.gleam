@@ -1,9 +1,13 @@
+// My own helper functions for working with `iv` arrays
 import chess/array
+
 import chess/coord.{type Coord}
 import chess/piece
+
 import gleam/bool
 import gleam/io
 import gleam/result
+
 import iv.{type Array}
 
 // TODO: use a `new` function to make sure data can't be more than
