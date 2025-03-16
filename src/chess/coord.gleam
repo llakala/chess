@@ -32,8 +32,10 @@ pub fn from_index(index: Int) -> Coord {
 ///
 /// ## Examples
 ///
+/// ```gleam
 /// coord.new(2,3) |> to_string
 /// // -> "(2,3)"
+/// ```
 pub fn to_string(pos: Coord) -> String {
   "(" <> int.to_string(pos.col) <> ", " <> int.to_string(pos.row) <> ")"
 }
