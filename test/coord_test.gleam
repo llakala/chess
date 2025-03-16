@@ -25,4 +25,9 @@ pub fn from_pair_test() {
   |> should.equal(
     "Invalid column `8` passed. Columns can only have value 0-7" |> Error,
   )
+
+  coord.from_pair(0, 8)
+  |> should.equal(
+    "Invalid row `8` passed. Rows can only have value 0-7" |> Error,
+  )
 }
