@@ -15,7 +15,7 @@ import iv.{type Array}
 // TODO: use a `new` function to make sure data can't be more than
 // the number of valid rows and columns
 pub type Board {
-  Board(cols: Int, rows: Int, data: Array(Int))
+  Board(cols: Int, rows: Int, data: Array(Piece))
 }
 
 /// Returns the piece at the given coordinate
@@ -48,25 +48,26 @@ pub fn get_pos(board: Board, pos: Position) -> Result(Piece, String) {
 
   // 0 corresponds to top left of board
   let index: Int = position.get_index(pos)
-  use piece_at_index: Int <- result.try(
+  use piece: Piece <- result.try(
     board.data |> iv.get(index) |> result.replace_error("Index invalid!"),
   )
-  use piece_type: piece.Piece <- result.try(piece_at_index |> piece.from_value)
 
-  piece_type |> Ok
+  piece |> Ok
 }
 
 pub fn to_string(board: Board) -> Result(String, String) {
-  case
-    board.data
-    |> iv.try_map(piece.from_value)
-  {
-    Error(value) -> Error(value)
-    Ok(value) ->
-      value
-      |> iv.map(piece.to_string)
-      |> format_list(board.rows)
-  }
+  board.data
+  |> iv.map(piece.to_string)
+  |> format_list(board.rows)
+}
+
+/// Doesn't take the *entire* fen string: just the first part encoding the board
+pub fn from_fen(fen: String) -> Result(Board, String) {
+  use pieces <- result.try(
+    fen |> string.split("") |> list.try_map(piece.from_fen),
+  )
+
+  pieces |> iv.from_list |> Board(8, 8, _) |> Ok
 }
 
 /// Break a list of strings into N sections, separated on newlines.

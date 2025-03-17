@@ -2,7 +2,6 @@ import chess/board
 import chess/color.{White}
 import chess/piece.{Bishop, King, Knight, Pawn, Queen, Rook}
 import chess/position
-import gleam/list
 import gleam/result
 import gleeunit/should
 import iv
@@ -27,25 +26,19 @@ const piece_list = [
 ]
 
 pub fn to_string_test() {
-  let board =
-    piece_list
-    |> list.map(piece.to_value)
-    |> iv.from_list
-    |> board.Board(8, 2, _)
+  let board = piece_list |> iv.from_list |> board.Board(8, 2, _)
 
   board.to_string(board)
   |> should.equal(
     "♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙\n♖, ♘, ♗, ♔, ♕, ♗, ♘, ♖"
     |> Ok,
   )
+
+  Ok(Nil)
 }
 
 pub fn get_pos_test() {
-  let board =
-    piece_list
-    |> list.map(piece.to_value)
-    |> iv.from_list
-    |> board.Board(8, 2, _)
+  let board = piece_list |> iv.from_list |> board.Board(8, 2, _)
 
   use pos <- result.try(position.new(col: 3, row: 1))
   pos
