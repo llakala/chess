@@ -35,7 +35,7 @@ pub fn to_string_test() {
 
   board.to_string(board)
   |> should.equal(
-    "White Pawn, White Pawn, White Pawn, White Pawn, White Pawn, White Pawn, White Pawn, White Pawn\nWhite Rook, White Knight, White Bishop, White King, White Queen, White Bishop, White Knight, White Rook"
+    "♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙\n♖, ♘, ♗, ♔, ♕, ♗, ♘, ♖"
     |> Ok,
   )
 }

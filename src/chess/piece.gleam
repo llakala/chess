@@ -51,12 +51,18 @@ pub fn from_value(value: Int) -> Result(Piece, String) {
 pub fn to_string(piece: Piece) -> String {
   case piece {
     None -> "Empty"
-    Pawn(color) -> color.to_string(color) <> " Pawn"
-    Rook(color) -> color.to_string(color) <> " Rook"
-    Bishop(color) -> color.to_string(color) <> " Bishop"
-    Knight(color) -> color.to_string(color) <> " Knight"
-    Queen(color) -> color.to_string(color) <> " Queen"
-    King(color) -> color.to_string(color) <> " King"
+    Pawn(White) -> "♙"
+    Pawn(Black) -> "♟"
+    Rook(White) -> "♖"
+    Rook(Black) -> "♜"
+    Bishop(White) -> "♗"
+    Bishop(Black) -> "♝"
+    Knight(White) -> "♘"
+    Knight(Black) -> "♞"
+    Queen(White) -> "♕"
+    Queen(Black) -> "♛"
+    King(White) -> "♔"
+    King(Black) -> "♚"
   }
 }
 

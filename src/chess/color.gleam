@@ -9,10 +9,3 @@ pub fn to_value(color: Color) {
     Black -> 0
   }
 }
-
-pub fn to_string(color: Color) {
-  case color {
-    White -> "White"
-    Black -> "Black"
-  }
-}
