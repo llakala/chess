@@ -1,7 +1,7 @@
 import chess/board
 import chess/color.{White}
-import chess/coord
 import chess/piece.{Bishop, King, Knight, Pawn, Queen, Rook}
+import chess/position
 import gleam/list
 import gleam/result
 import gleeunit/should
@@ -47,13 +47,16 @@ pub fn get_pos_test() {
     |> iv.from_list
     |> board.Board(8, 2, _)
 
-  use pos <- result.try(coord.from_pair(3, 1))
-  board.get_pos(board, pos)
+  use pos <- result.try(position.new(col: 3, row: 1))
+  pos
+  |> board.get_pos(board, _)
   |> should.equal(White |> King |> Ok)
 
-  use pos <- result.try(coord.from_pair(3, 7))
+  use pos <- result.try(position.new(3, 7))
   board.get_pos(board, pos)
-  |> should.equal(Error("Invalid board position!"))
+  |> should.equal(Error(
+    "Tried to access row index `7`, but the board only had `2` rows!",
+  ))
 
   Ok(Nil)
 }

@@ -1,8 +1,9 @@
 // My own helper functions for working with `iv` arrays
 import chess/array
+import gleam/int
 
-import chess/coord.{type Coord}
 import chess/piece.{type Piece}
+import chess/position.{type Position}
 
 import gleam/bool
 import gleam/list
@@ -19,14 +20,34 @@ pub type Board {
 
 /// Returns the piece at the given coordinate
 /// Will return an error if the position is invalid
-pub fn get_pos(board: Board, pos: Coord) -> Result(Piece, String) {
+pub fn get_pos(board: Board, pos: Position) -> Result(Piece, String) {
+  let row = pos.row
+  let col = pos.col
+  let rows = board.rows
+  let cols = board.cols
   use <- bool.guard(
-    pos.row >= board.rows || pos.col >= board.cols,
-    Error("Invalid board position!"),
+    row >= rows,
+    Error(
+      "Tried to access row index `"
+      <> row |> int.to_string
+      <> "`, but the board only had `"
+      <> board.rows |> int.to_string
+      <> "` rows!",
+    ),
+  )
+  use <- bool.guard(
+    col >= cols,
+    Error(
+      "Tried to access column index `"
+      <> col |> int.to_string
+      <> "`, but the board only had `"
+      <> board.cols |> int.to_string
+      <> "` columns!",
+    ),
   )
 
   // 0 corresponds to top left of board
-  let index: Int = pos.index
+  let index: Int = position.get_index(pos)
   use piece_at_index: Int <- result.try(
     board.data |> iv.get(index) |> result.replace_error("Index invalid!"),
   )

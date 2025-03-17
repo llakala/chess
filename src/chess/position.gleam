@@ -3,20 +3,20 @@ import gleam/int
 import gleam/result
 import gleam/string
 
+// TODO: Consider making opaque to prevent direct access
+/// This shouldn't be accessed directly. Rather, the `position.new` function should be used, as it checks for invalid inputs.
+pub type Position {
+  Position(col: Int, row: Int)
+}
+
 // We asume we'll be playing chess, so rows/cols should be 8 long
 const row_len: Int = 8
 
 const col_len: Int = 8
 
-// TODO: Consider making opaque to prevent direct access
-/// This shouldn't be accessed directly. Rather, the `coord.from_pair` or `coord.from_index` functinos should be used, as they check for invalid inputs.
-pub type Coord {
-  Coord(col: Int, row: Int, index: Int)
-}
-
-/// Generate a new coord based on a row and column.
-/// Assumes a row length of 8, and errors if it received value outside of that
-pub fn from_pair(col col: Int, row row: Int) -> Result(Coord, String) {
+/// Generate a new position based on a 0-based column and row index.
+/// Assumes a row/col length of 8, and errors if it received value outside of that
+pub fn new(col col: Int, row row: Int) -> Result(Position, String) {
   use <- bool.guard(
     col > col_len - 1 && col > 0,
     Error(
@@ -34,39 +34,20 @@ pub fn from_pair(col col: Int, row row: Int) -> Result(Coord, String) {
     ),
   )
 
-  let index: Int = row * row_len + col
-
-  Coord(col, row, index) |> Ok
+  Position(col, row) |> Ok
 }
 
-// TODO: Catch error if `index > 63`
-/// Generate a new coord based on an index
-/// Assumes a row length of 8
-pub fn from_index(index: Int) -> Coord {
-  let col: Int = index % row_len
-  let row: Int = index / row_len
-
-  Coord(col, row, index)
+/// Get the index of a position. 0 corresponds to the top left corner, and 63 corresponds to the bottom right.
+pub fn get_index(pos: Position) {
+  pos.row * row_len + pos.col
 }
 
-/// Returns a string representation of the coordinate, showing its row and column
-///
-/// ## Examples
-///
-/// ```gleam
-/// coord.new(2,3) |> to_string
-/// // -> "(2,3)"
-/// ```
-pub fn to_string(pos: Coord) -> String {
-  "(" <> int.to_string(pos.col) <> ", " <> int.to_string(pos.row) <> ")"
-}
+pub fn to_algebraic(pos: Position) -> String {
+  let row = pos.row
+  let col = pos.col
 
-pub fn to_algebraic(coord: Coord) -> String {
-  let row = coord.row
-  let col = coord.col
-
-  // We don't check errors, under the expectation that `coord.from_pair`
-  // is how a coordinate is initialized, and errors are checked there.
+  // We don't check errors, under the expectation that `new()`
+  // is how a position is initialized, and errors are checked there.
   // Not using the function and calling the record itself is a skill issue,
   // and I'm not going to make the type opaque just to protect you from yourself
   let rank = row |> int.add(1) |> int.to_string
@@ -79,14 +60,15 @@ pub fn to_algebraic(coord: Coord) -> String {
     5 -> "f"
     6 -> "g"
     7 -> "h"
-    _ -> "ERROR"
+
     // Just in case
+    _ -> "ERROR"
   }
   file <> rank
 }
 
-/// Get a Coord from algebraic notation. Returns an error if the algebraic notation was invalid
-pub fn from_algebraic(str: String) -> Result(Coord, String) {
+/// Get a position from algebraic notation. Returns an error if the algebraic notation was invalid
+pub fn from_algebraic(str: String) -> Result(Position, String) {
   use <- bool.guard(string.length(str) != 2, Error("Invalid string!"))
 
   use #(file, rank) <- result.try(
@@ -99,8 +81,8 @@ pub fn from_algebraic(str: String) -> Result(Coord, String) {
   use col <- result.try(file |> parse_file)
   use row <- result.try(rank |> parse_rank)
 
-  // No need to pipe into Ok, from_pair returns a result already. `result.try` means if we got an error earlier, it's already been handled
-  from_pair(col, row)
+  // No need to pipe into Ok, `new()` returns a result already. `result.try` means if we got an error earlier, it's already been handled
+  new(col, row)
 }
 
 /// Parse the algebraic notation for a file, and return an error if it's invalid
