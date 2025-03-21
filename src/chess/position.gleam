@@ -25,6 +25,7 @@ pub fn new(col col: Int, row row: Int) -> Result(Position, String) {
       <> "` passed. Columns can only have value 0-7",
     ),
   )
+
   use <- bool.guard(
     row > row_len - 1 && row > 0,
     Error(
@@ -64,6 +65,7 @@ pub fn to_algebraic(pos: Position) -> String {
     // Just in case
     _ -> "ERROR"
   }
+
   file <> rank
 }
 
@@ -78,6 +80,7 @@ pub fn from_algebraic(str: String) -> Result(Position, String) {
       "Somehow, the popped grapheme wasn't of length 2, even though I already checked for that!",
     ),
   )
+
   use col <- result.try(file |> parse_file)
   use row <- result.try(rank |> parse_rank)
 
@@ -96,6 +99,7 @@ fn parse_file(file: String) -> Result(Int, String) {
     "f" -> 5 |> Ok
     "g" -> 6 |> Ok
     "h" -> 7 |> Ok
+
     _ ->
       Error(
         "Invalid algebraic notation file `"

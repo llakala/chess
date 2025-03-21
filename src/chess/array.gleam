@@ -52,9 +52,12 @@ fn intersperse_loop(
     _ -> {
       // We can safely unwrap because we're done looping
       let contents = contents |> result.unwrap(iv.new())
+
       let first = contents |> iv.first |> result.unwrap("ERROR")
       let rest = contents |> iv.rest
+
       let acc = iv.from_list([first, separator]) |> iv.concat(acc)
+
       intersperse_loop(rest, separator, acc)
     }
   }

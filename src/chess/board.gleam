@@ -42,6 +42,7 @@ pub fn create(data: Array(Piece)) -> Result(Board, String) {
       <> "`!",
     ),
   )
+
   data |> Board |> Ok
 }
 
@@ -55,6 +56,7 @@ pub fn get_pos(board: Board, pos: Position) -> Result(Piece, String) {
   // 0 corresponds to top left of board
   let index: Int = position.get_index(pos)
   let length = board.data |> iv.length
+
   use <- bool.guard(
     index >= length,
     Error(
@@ -126,6 +128,7 @@ pub fn to_string(board: Board) -> Result(String, String) {
 fn pos_is_valid(pos: Position) -> Result(Nil, String) {
   let row = pos.row
   let col = pos.col
+
   use <- bool.guard(
     row >= num_rows,
     Error(
@@ -136,6 +139,7 @@ fn pos_is_valid(pos: Position) -> Result(Nil, String) {
       <> "` rows!",
     ),
   )
+
   use <- bool.guard(
     col >= num_cols,
     Error(
@@ -146,6 +150,7 @@ fn pos_is_valid(pos: Position) -> Result(Nil, String) {
       <> "` columns!",
     ),
   )
+
   Ok(Nil)
 }
 
@@ -175,6 +180,7 @@ fn from_fen_loop(fen: String, board: Board, col: Int, row: Int) {
       col + skippable > 8,
       Error("Was told to skip more squares than there were left in the row!"),
     )
+
     // It's fine to just skip the empty spaces, since we initialize the
     // list to be full of None
     from_fen_loop(rest, board, col + skippable, row)

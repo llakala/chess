@@ -71,16 +71,22 @@ pub fn from_fen(char: String) {
   case char {
     "p" -> Pawn(Black) |> Ok
     "P" -> Pawn(White) |> Ok
+
     "n" -> Knight(Black) |> Ok
     "N" -> Knight(White) |> Ok
+
     "b" -> Bishop(Black) |> Ok
     "B" -> Bishop(White) |> Ok
+
     "r" -> Rook(Black) |> Ok
     "R" -> Rook(White) |> Ok
+
     "q" -> Queen(Black) |> Ok
     "Q" -> Queen(White) |> Ok
+
     "k" -> King(Black) |> Ok
     "K" -> King(White) |> Ok
+
     _ -> Error("Invalid character `" <> char <> "` for fen decoding!")
   }
 }
