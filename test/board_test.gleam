@@ -77,7 +77,14 @@ const full = [
 
 pub fn to_string_test() {
   let empty_board = board.empty()
-  let full_board = iv.initialise(64, fn(_) { Pawn(White) }) |> board.Board
+
+  // Gleeunit doesn't seem to check that result.try always passes, which I
+  // expected it to. We make a temp variable and assert that the result is
+  // Ok to simulate tehis
+  let board_result = iv.initialise(64, fn(_) { Pawn(White) }) |> board.create
+  board_result |> should.be_ok
+
+  use full_board <- result.try(board_result)
 
   board.to_string(empty_board)
   |> should.equal(
