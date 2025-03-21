@@ -1,4 +1,5 @@
 import chess/board
+import chess/choose
 import chess/color.{Black, White}
 import chess/piece.{Bishop, King, Knight, None, Pawn, Queen, Rook}
 import chess/position
@@ -117,19 +118,25 @@ pub fn get_pos_test() {
 }
 
 pub fn from_fen_test() {
-  let output = board.from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+  let board_result: Result(board.Board, String) =
+    board.from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
 
-  case output {
-    Error(err) -> io.println("Error: \n" <> err)
-    Ok(val) ->
-      val
-      |> board.to_string
-      |> result.unwrap("Failed tostring!")
-      |> string.append("\n", _)
-      |> io.println
-  }
+  use board <- choose.cases(board_result, on_error: fn(err_value) {
+    io.println("Failed to convert from fen: \n" <> err_value)
+    should.fail()
+  })
 
-  output
+  use string <- choose.cases(board.to_string(board), on_error: fn(err_value) {
+    io.println("to_string failed: \n" <> err_value)
+    should.fail()
+  })
+
+  // Note that this only prints if the test fails! Little unintuitive from gleeunit, but whatever
+  string
+  |> string.append("\n", _)
+  |> io.println
+
+  board_result
   |> result.map(fn(board) { board.data |> iv.to_list })
   |> should.equal(Ok(full))
 }
