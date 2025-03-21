@@ -81,6 +81,6 @@ pub fn from_fen(char: String) {
     "Q" -> Queen(White) |> Ok
     "k" -> King(Black) |> Ok
     "K" -> King(White) |> Ok
-    _ -> Error("Invalid character " <> char <> "for fen decoding!")
+    _ -> Error("Invalid character `" <> char <> "` for fen decoding!")
   }
 }
