@@ -42,25 +42,29 @@ pub fn from_value(value: Int) -> Result(Piece, String) {
     13 -> Queen(White) |> Ok
     14 -> King(White) |> Ok
 
-    _ ->
-      { "Invalid value " <> int.to_string(value) <> " encountered" }
-      |> Error
+    _ -> Error("Invalid value " <> int.to_string(value) <> " encountered")
   }
 }
 
 pub fn to_string(piece: Piece) -> String {
   case piece {
     None -> "0"
+
     Pawn(White) -> "♙"
     Pawn(Black) -> "♟"
+
     Rook(White) -> "♖"
     Rook(Black) -> "♜"
+
     Bishop(White) -> "♗"
     Bishop(Black) -> "♝"
+
     Knight(White) -> "♘"
     Knight(Black) -> "♞"
+
     Queen(White) -> "♕"
     Queen(Black) -> "♛"
+
     King(White) -> "♔"
     King(Black) -> "♚"
   }

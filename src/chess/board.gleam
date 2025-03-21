@@ -24,7 +24,9 @@ pub type Board {
 /// Create empty board
 pub fn empty() -> Board {
   let none = piece.None
-  iv.initialise(num_rows * num_cols, fn(_) { none }) |> Board
+  let data = iv.initialise(num_rows * num_cols, fn(_) { none })
+
+  Board(data)
 }
 
 /// Create a board with some initial data
@@ -43,7 +45,7 @@ pub fn create(data: Array(Piece)) -> Result(Board, String) {
     ),
   )
 
-  data |> Board |> Ok
+  Board(data) |> Ok
 }
 
 /// Returns the piece at the given coordinate
@@ -72,7 +74,7 @@ pub fn get_pos(board: Board, pos: Position) -> Result(Piece, String) {
     board.data |> iv.get(index) |> result.replace_error("Index invalid!"),
   )
 
-  piece |> Ok
+  Ok(piece)
 }
 
 /// Set the board's position at the given coordinate
@@ -107,7 +109,8 @@ pub fn set_pos(
       "Failed to set value at index `" <> index |> int.to_string <> "`!",
     ),
   )
-  data |> Board |> Ok
+
+  Board(data) |> Ok
 }
 
 pub fn to_string(board: Board) -> Result(String, String) {

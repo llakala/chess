@@ -119,7 +119,8 @@ fn parse_rank(rank: String) -> Result(Int, String) {
 
   case rank_value {
     // Subtract one to make the index 0-based
-    1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 -> rank_value - 1 |> Ok
+    1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 -> Ok(rank_value - 1)
+
     _ ->
       Error(
         "Invalid algebraic notation rank `"
