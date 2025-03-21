@@ -50,7 +50,7 @@ pub fn from_value(value: Int) -> Result(Piece, String) {
 
 pub fn to_string(piece: Piece) -> String {
   case piece {
-    None -> "Empty"
+    None -> "0"
     Pawn(White) -> "♙"
     Pawn(Black) -> "♟"
     Rook(White) -> "♖"

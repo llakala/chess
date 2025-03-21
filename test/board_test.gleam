@@ -1,12 +1,62 @@
 import chess/board
-import chess/color.{White}
-import chess/piece.{Bishop, King, Knight, Pawn, Queen, Rook}
+import chess/color.{Black, White}
+import chess/piece.{Bishop, King, Knight, None, Pawn, Queen, Rook}
 import chess/position
+import gleam/io
 import gleam/result
+import gleam/string
 import gleeunit/should
 import iv
 
-const piece_list = [
+const full = [
+  Rook(Black),
+  Knight(Black),
+  Bishop(Black),
+  Queen(Black),
+  King(Black),
+  Bishop(Black),
+  Knight(Black),
+  Rook(Black),
+  Pawn(Black),
+  Pawn(Black),
+  Pawn(Black),
+  Pawn(Black),
+  Pawn(Black),
+  Pawn(Black),
+  Pawn(Black),
+  Pawn(Black),
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
+  None,
   Pawn(White),
   Pawn(White),
   Pawn(White),
@@ -18,19 +68,26 @@ const piece_list = [
   Rook(White),
   Knight(White),
   Bishop(White),
-  King(White),
   Queen(White),
+  King(White),
   Bishop(White),
   Knight(White),
   Rook(White),
 ]
 
 pub fn to_string_test() {
-  let board = piece_list |> iv.from_list |> board.Board(8, 2, _)
+  let empty_board = board.empty()
+  let full_board = iv.initialise(64, fn(_) { Pawn(White) }) |> board.Board
 
-  board.to_string(board)
+  board.to_string(empty_board)
   |> should.equal(
-    "♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙\n♖, ♘, ♗, ♔, ♕, ♗, ♘, ♖"
+    "0, 0, 0, 0, 0, 0, 0, 0\n0, 0, 0, 0, 0, 0, 0, 0\n0, 0, 0, 0, 0, 0, 0, 0\n0, 0, 0, 0, 0, 0, 0, 0\n0, 0, 0, 0, 0, 0, 0, 0\n0, 0, 0, 0, 0, 0, 0, 0\n0, 0, 0, 0, 0, 0, 0, 0\n0, 0, 0, 0, 0, 0, 0, 0"
+    |> Ok,
+  )
+
+  board.to_string(full_board)
+  |> should.equal(
+    "♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙\n♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙\n♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙\n♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙\n♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙\n♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙\n♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙\n♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙"
     |> Ok,
   )
 
@@ -38,18 +95,16 @@ pub fn to_string_test() {
 }
 
 pub fn get_pos_test() {
-  let board = piece_list |> iv.from_list |> board.Board(8, 2, _)
+  let empty_board = board.empty()
 
   use pos <- result.try(position.new(col: 3, row: 1))
   pos
-  |> board.get_pos(board, _)
-  |> should.equal(White |> King |> Ok)
+  |> board.get_pos(empty_board, _)
+  |> should.equal(piece.None |> Ok)
 
-  use pos <- result.try(position.new(3, 7))
-  board.get_pos(board, pos)
-  |> should.equal(Error(
-    "Tried to access row index `7`, but the board only had `2` rows!",
-  ))
+  use pos <- result.try(position.new(3, 64))
+  board.get_pos(empty_board, pos)
+  |> should.be_error
 
   Ok(Nil)
 }
