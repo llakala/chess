@@ -34,8 +34,9 @@ pub fn empty() -> Board {
 pub fn create(data: Array(Piece)) -> Result(Board, String) {
   let size = num_rows * num_cols
   let length = data |> iv.length
+
   use <- bool.guard(
-    length == size,
+    length != size,
     Error(
       "Boards can only be created with data of length `"
       <> size |> int.to_string
