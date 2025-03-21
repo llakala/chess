@@ -108,3 +108,21 @@ pub fn get_pos_test() {
 
   Ok(Nil)
 }
+
+pub fn from_fen_test() {
+  let output = board.from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+
+  case output {
+    Error(err) -> io.println("Error: \n" <> err)
+    Ok(val) ->
+      val
+      |> board.to_string
+      |> result.unwrap("Failed tostring!")
+      |> string.append("\n", _)
+      |> io.println
+  }
+
+  output
+  |> result.map(fn(board) { board.data |> iv.to_list })
+  |> should.equal(Ok(full))
+}
