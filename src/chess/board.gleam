@@ -109,9 +109,18 @@ pub fn set_pos(
 }
 
 pub fn to_string(board: Board) -> Result(String, String) {
-  board.data
-  |> iv.map(piece.to_string)
-  |> format_list(num_rows)
+  // data represented as a list of rows, each of which is a list of single characters
+  use data_rows: Array(Array(String)) <- result.try(array.sized_chunk(
+    board.data |> iv.map(piece.to_string),
+    num_rows,
+  ))
+
+  data_rows
+  // Join each element in a row together with comma separators
+  |> iv.map(array.join(_, ", "))
+  // Join each row together with newlines
+  |> array.join("\n")
+  |> Ok
 }
 
 fn pos_is_valid(pos: Position) -> Result(Nil, String) {
@@ -193,15 +202,4 @@ fn from_fen_loop(fen: String, board: Board, col: Int, row: Int) {
       from_fen_loop(rest, new_board, col + 1, row)
     }
   }
-}
-
-/// Break a list of strings into N sections, separated on newlines.
-/// Returns an error if string wasn't divisible by number of times
-fn format_list(lst: Array(String), times: Int) -> Result(String, String) {
-  use chunked: Array(Array(String)) <- result.try(array.sized_chunk(lst, times))
-
-  chunked
-  |> iv.map(array.join(_, ", "))
-  |> array.join("\n")
-  |> Ok
 }
