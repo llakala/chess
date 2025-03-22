@@ -136,9 +136,9 @@ fn pos_is_valid(pos: Position) -> Result(Nil, String) {
   use <- bool.guard(
     row >= num_rows,
     Error(
-      "Tried to access row index `"
-      <> row |> int.to_string
-      <> "`, but the board only had `"
+      "Tried to access row #"
+      <> row + 1 |> int.to_string
+      <> ", but the board only had `"
       <> num_rows |> int.to_string
       <> "` rows!",
     ),
@@ -147,9 +147,9 @@ fn pos_is_valid(pos: Position) -> Result(Nil, String) {
   use <- bool.guard(
     col >= num_cols,
     Error(
-      "Tried to access column index `"
-      <> col |> int.to_string
-      <> "`, but the board only had `"
+      "Tried to access column #"
+      <> col + 1 |> int.to_string
+      <> ", but the board only had `"
       <> num_cols |> int.to_string
       <> "` columns!",
     ),
