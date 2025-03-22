@@ -1,5 +1,6 @@
+import birdie
 import chess/position
-import gleam/result
+import gleam/string
 import gleeunit/should
 
 pub fn from_algebraic_test() {
@@ -8,13 +9,11 @@ pub fn from_algebraic_test() {
 }
 
 pub fn to_algebraic_test() {
-  use pos <- result.try(position.new(0, 0))
+  let assert Ok(pos) = position.new(0, 0)
   pos |> position.to_algebraic |> should.equal("a1")
 
-  use pos <- result.try(position.new(7, 7))
+  let assert Ok(pos) = position.new(7, 7)
   pos |> position.to_algebraic |> should.equal("h8")
-
-  Ok(Nil)
 }
 
 pub fn from_pair_test() {
@@ -22,12 +21,10 @@ pub fn from_pair_test() {
   position.new(7, 7) |> should.equal(position.Position(7, 7) |> Ok)
 
   position.new(8, 0)
-  |> should.equal(
-    "Invalid column `8` passed. Columns can only have value 0-7" |> Error,
-  )
+  |> string.inspect
+  |> birdie.snap(title: "Invalid column")
 
   position.new(0, 8)
-  |> should.equal(
-    "Invalid row `8` passed. Rows can only have value 0-7" |> Error,
-  )
+  |> string.inspect
+  |> birdie.snap(title: "Invalid row")
 }
