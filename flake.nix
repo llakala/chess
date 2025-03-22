@@ -40,33 +40,16 @@
       }
     );
 
-    # Basic gleam development stuff. In an ideal world I would have hex
-    # packages here, but Nix doesn't have much gleam stuff right now, so
-    # we leave those to be installed on the Gleam side.
-    gleamPackages = forAllSystems
-    (
-      pkgs:
-      {
-        inherit (pkgs)
-          gleam
-          erlang_27
-          rebar3;
-      }
-    );
-
     devShells = forAllSystems
     (
       pkgs:
       {
-        default = pkgs.mkShellNoCC
+        default = import ./shell.nix
         {
-          # makes an attrset into a list
-          # // isn't associative, so be careful to not clobber packages with the same name!
-          packages = builtins.attrValues
-          (
-            self.gleamPackages.${pkgs.system}
-            // self.legacyPackages.${pkgs.system}
-          );
+          inherit pkgs;
+
+          # attrValues turns a list into an attrset
+          extraPackages = builtins.attrValues self.legacyPackages.${pkgs.system};
         };
       }
     );
