@@ -13,11 +13,4 @@ let gleamPackages = with pkgs;
 in pkgs.mkShellNoCC
 {
   packages = extraPackages ++ gleamPackages;
-
-  shellHook =
-  ''
-    export ROOT_DIR=$(${pkgs.git}/bin/git rev-parse --show-toplevel)
-
-    cd $rootDir
-  '';
 }
