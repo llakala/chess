@@ -29,6 +29,18 @@ pub fn empty() -> Board {
   Board(data)
 }
 
+/// Create the beginning chess arrangement, with all the pieces on their
+/// starting squares
+pub fn initial() -> Board {
+  // This is hardcoded, so it should always work
+  // If it fails, from_fen should have failed too
+  // Maybe I should be handling the error better, but truthfully
+  // I just want a full board
+  let assert Ok(board) = from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+
+  board
+}
+
 /// Create a board with some initial data
 /// Returns an error if the data was of an invalid length
 pub fn create(data: Array(Piece)) -> Result(Board, String) {
