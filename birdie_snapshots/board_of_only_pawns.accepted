@@ -1,6 +1,8 @@
 ---
 version: 1.2.6
 title: Board of only pawns
+file: ./test/board/to_string.gleam
+test_name: to_string_full_board_test
 ---
 ♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙
 ♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙

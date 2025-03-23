@@ -1,7 +1,7 @@
 ---
 version: 1.2.6
 title: Invalid row
-file: ./test/position_test.gleam
+file: ./test/position/position.gleam
 test_name: from_pair_test
 ---
 Error("Invalid row `8` passed. Rows can only have value 0-7")
