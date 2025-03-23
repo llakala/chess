@@ -3,7 +3,7 @@ import chess/array
 import chess/choose
 import gleam/int
 
-import chess/piece.{type Piece}
+import chess/piece.{type Piece, None}
 import chess/position.{type Position}
 
 import gleam/bool
@@ -59,6 +59,31 @@ pub fn create(data: Array(Piece)) -> Result(Board, String) {
   )
 
   Board(data) |> Ok
+}
+
+/// Simple move function that moves a piece to another place on the board,
+/// capturing if another piece is at the target square. This function
+/// doesn't encode any logic about legal moves - you can make a piece go
+/// anywhere with this as it stands.
+pub fn move(board: Board, from: Position, to: Position) -> Result(Board, String) {
+  use piece <- result.try(get_pos(board, from))
+
+  use <- bool.guard(
+    piece == None,
+    Error(
+      "Tried to move piece at position "
+      <> from |> position.to_algebraic
+      <> ", but there was no piece there!",
+    ),
+  )
+
+  // Delete the piece from its current position
+  use board <- result.try(set_pos(board, from, None))
+
+  // And move it to its new position
+  use board <- result.try(set_pos(board, to, piece))
+
+  Ok(board)
 }
 
 /// Returns the piece at the given coordinate
