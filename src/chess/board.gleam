@@ -68,8 +68,9 @@ pub fn get_pos(board: Board, pos: Position) -> Result(Piece, String) {
   let pos_valid = pos_is_valid(pos)
   use _ <- result.try(pos_valid)
 
-  // 0 corresponds to top left of board
-  let index: Int = position.get_index(pos)
+  // 0 corresponds to bottom left of board, in relation to the player
+  let index: Int = position.to_player_index(pos)
+
   let length = board.data |> iv.length
 
   use <- bool.guard(
@@ -100,8 +101,9 @@ pub fn set_pos(
   // Error out early if the position is invalid
   use _ <- result.try(pos_is_valid(pos))
 
-  // 0 corresponds to top left of board
-  let index: Int = position.get_index(pos)
+  // 0 corresponds to bottom left of the board, in relation to the player
+  let index: Int = position.to_player_index(pos)
+
   let length = board.data |> iv.length
 
   use <- bool.guard(
@@ -183,7 +185,12 @@ fn from_fen_loop(fen: String, board: Board, col: Int, row: Int) {
   let res = string.pop_grapheme(fen)
 
   // If we pop the grapheme and get an error, the fen string is over
-  use <- bool.guard(res |> result.is_error, Ok(board))
+  // Reverse the array, since popping the grapheme puts things in the
+  // reverse order
+  use <- bool.guard(
+    res |> result.is_error,
+    board.data |> iv.reverse |> Board |> Ok,
+  )
 
   // Don't know of a better way to do this. We've already mapped the error away, so now what?
   let assert Ok(#(cur, rest)) = res

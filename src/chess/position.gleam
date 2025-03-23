@@ -38,9 +38,16 @@ pub fn new(col col: Int, row row: Int) -> Result(Position, String) {
   Position(col, row) |> Ok
 }
 
-/// Get the index of a position. 0 corresponds to the top left corner, and 63 corresponds to the bottom right.
-pub fn get_index(pos: Position) {
-  pos.row * row_len + pos.col
+/// Get the index of a position, oriented so it's intuitive as white.
+/// This does NOT give you the index of a position in the data. instead, (0, 0) corresponds to the bottom left of the data here. This is for easy
+/// conversions between Position and index
+pub fn to_player_index(pos: Position) {
+  let row = pos.row
+  let col = pos.col
+
+  let bottom_left = { row_len * col_len } - { 1 * row_len }
+
+  bottom_left - { row * row_len } + col
 }
 
 pub fn to_algebraic(pos: Position) -> String {
