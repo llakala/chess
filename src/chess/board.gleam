@@ -16,7 +16,7 @@ const num_rows = 8
 const num_cols = 8
 
 // TODO: consider making opaque and using a get_data function
-pub type Board {
+pub opaque type Board {
   Board(data: Array(Piece))
 }
 
@@ -58,6 +58,12 @@ pub fn create(data: Array(Piece)) -> Result(Board, String) {
   )
 
   Board(data) |> Ok
+}
+
+/// Getter function to access the board's data, since boards are
+/// opaque
+pub fn get_data(board: Board) -> Array(Piece) {
+  board.data
 }
 
 /// Returns the piece at the given coordinate
