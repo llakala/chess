@@ -1,49 +1,30 @@
+import chess/constants.{col_len, row_len}
+import chess/file.{type File}
+import chess/rank.{type Rank}
+
 import gleam/bool
-import gleam/int
 import gleam/result
 import gleam/string
 
-// TODO: Consider making opaque to prevent direct access
-/// This shouldn't be accessed directly. Rather, the `position.new` function should be used, as it checks for invalid inputs.
 pub type Position {
-  Position(col: Int, row: Int)
+  Position(file: File, rank: Rank)
 }
 
-// We asume we'll be playing chess, so rows/cols should be 8 long
-const row_len: Int = 8
-
-const col_len: Int = 8
-
 /// Generate a new position based on a 0-based column and row index.
-/// Assumes a row/col length of 8, and errors if it received value outside of that
+/// Errors if it receives value outside of the row/col length
 pub fn new(col col: Int, row row: Int) -> Result(Position, String) {
-  use <- bool.guard(
-    col > col_len - 1 && col > 0,
-    Error(
-      "Invalid column `"
-      <> col |> int.to_string
-      <> "` passed. Columns can only have value 0-7",
-    ),
-  )
+  use rank <- result.try(row |> rank.from_index)
+  use file <- result.try(col |> file.from_index)
 
-  use <- bool.guard(
-    row > row_len - 1 && row > 0,
-    Error(
-      "Invalid row `"
-      <> row |> int.to_string
-      <> "` passed. Rows can only have value 0-7",
-    ),
-  )
-
-  Position(col, row) |> Ok
+  Position(rank:, file:) |> Ok
 }
 
 /// Get the index of a position, oriented so it's intuitive as white.
 /// This does NOT give you the index of a position in the data. instead, (0, 0) corresponds to the bottom left of the data here. This is for easy
 /// conversions between Position and index
 pub fn to_player_index(pos: Position) {
-  let row = pos.row
-  let col = pos.col
+  let row = pos.rank |> rank.to_index
+  let col = pos.file |> file.to_index
 
   let bottom_left = { row_len * col_len } - { 1 * row_len }
 
@@ -51,27 +32,8 @@ pub fn to_player_index(pos: Position) {
 }
 
 pub fn to_algebraic(pos: Position) -> String {
-  let row = pos.row
-  let col = pos.col
-
-  // We don't check errors, under the expectation that `new()`
-  // is how a position is initialized, and errors are checked there.
-  // Not using the function and calling the record itself is a skill issue,
-  // and I'm not going to make the type opaque just to protect you from yourself
-  let rank = row |> int.add(1) |> int.to_string
-  let file = case col {
-    0 -> "a"
-    1 -> "b"
-    2 -> "c"
-    3 -> "d"
-    4 -> "e"
-    5 -> "f"
-    6 -> "g"
-    7 -> "h"
-
-    // Just in case
-    _ -> "ERROR"
-  }
+  let file = pos.file |> file.to_string
+  let rank = pos.rank |> rank.to_string
 
   file <> rank
 }
@@ -80,7 +42,7 @@ pub fn to_algebraic(pos: Position) -> String {
 pub fn from_algebraic(str: String) -> Result(Position, String) {
   use <- bool.guard(string.length(str) != 2, Error("Invalid string!"))
 
-  use #(file, rank) <- result.try(
+  use #(file_str, rank_str) <- result.try(
     str
     |> string.pop_grapheme
     |> result.replace_error(
@@ -88,51 +50,12 @@ pub fn from_algebraic(str: String) -> Result(Position, String) {
     ),
   )
 
-  use col <- result.try(file |> parse_file)
-  use row <- result.try(rank |> parse_rank)
+  use file <- result.try(file_str |> file.new)
+  use rank <- result.try(rank_str |> rank.new)
 
-  // No need to pipe into Ok, `new()` returns a result already. `result.try` means if we got an error earlier, it's already been handled
-  new(col, row)
-}
-
-/// Parse the algebraic notation for a file, and return an error if it's invalid
-fn parse_file(file: String) -> Result(Int, String) {
-  case file {
-    "a" -> 0 |> Ok
-    "b" -> 1 |> Ok
-    "c" -> 2 |> Ok
-    "d" -> 3 |> Ok
-    "e" -> 4 |> Ok
-    "f" -> 5 |> Ok
-    "g" -> 6 |> Ok
-    "h" -> 7 |> Ok
-
-    _ ->
-      Error(
-        "Invalid algebraic notation file `"
-        <> file
-        <> "` passed! Files are only expected to be a-h.",
-      )
-  }
-}
-
-/// Parse the algebraic notation for a rank, and return an error if it's invalid
-fn parse_rank(rank: String) -> Result(Int, String) {
-  use rank_value <- result.try(
-    rank
-    |> int.parse
-    |> result.replace_error("Encountered non-numeric row `" <> rank <> "`!"),
-  )
-
-  case rank_value {
-    // Subtract one to make the index 0-based
-    1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 -> Ok(rank_value - 1)
-
-    _ ->
-      Error(
-        "Invalid algebraic notation rank `"
-        <> rank
-        <> "` passed! Ranks are only expected to be 1-8.",
-      )
-  }
+  // The `new()` function expects integers, not Ranks and Files. We use
+  // the record directly, since we're within the type, and we already
+  // validated both the rank and file. A function to handle this kind of
+  // thing in the future might be nice, but it's fine for now.
+  Position(rank:, file:) |> Ok
 }

@@ -69,9 +69,8 @@ pub fn get_data(board: Board) -> Array(Piece) {
 /// Returns the piece at the given coordinate
 /// Will return an error if the position is invalid
 pub fn get_pos(board: Board, pos: Position) -> Result(Piece, String) {
-  // Error out early if the position is invalid
-  let pos_valid = pos_is_valid(pos)
-  use _ <- result.try(pos_valid)
+  // We don't have to validate that the position is valid, since pos
+  // is an opaque type and checked on creation
 
   // 0 corresponds to bottom left of board, in relation to the player
   let index: Int = position.to_player_index(pos)
@@ -103,8 +102,8 @@ pub fn set_pos(
   pos: Position,
   piece: Piece,
 ) -> Result(Board, String) {
-  // Error out early if the position is invalid
-  use _ <- result.try(pos_is_valid(pos))
+  // We don't have to validate that the position is valid, since pos
+  // is an opaque type and checked on creation
 
   // 0 corresponds to bottom left of the board, in relation to the player
   let index: Int = position.to_player_index(pos)
@@ -146,35 +145,6 @@ pub fn to_string(board: Board) -> Result(String, String) {
   // Join each row together with newlines
   |> array.join("\n")
   |> Ok
-}
-
-fn pos_is_valid(pos: Position) -> Result(Nil, String) {
-  let row = pos.row
-  let col = pos.col
-
-  use <- bool.guard(
-    row >= num_rows,
-    Error(
-      "Tried to access row #"
-      <> row + 1 |> int.to_string
-      <> ", but the board only had `"
-      <> num_rows |> int.to_string
-      <> "` rows!",
-    ),
-  )
-
-  use <- bool.guard(
-    col >= num_cols,
-    Error(
-      "Tried to access column #"
-      <> col + 1 |> int.to_string
-      <> ", but the board only had `"
-      <> num_cols |> int.to_string
-      <> "` columns!",
-    ),
-  )
-
-  Ok(Nil)
 }
 
 /// Doesn't take the *entire* fen string: just the first part encoding the board

@@ -2,6 +2,6 @@
 version: 1.2.6
 title: Invalid column
 file: ./test/position/position.gleam
-test_name: from_pair_test
+test_name: failing_new_test
 ---
-Error("Invalid column `8` passed. Columns can only have value 0-7")
+Error("Invalid index `8` passed! File indices are only expected to be 0-7.")

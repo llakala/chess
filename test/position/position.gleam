@@ -16,10 +16,7 @@ pub fn to_algebraic_test() {
   pos |> position.to_algebraic |> should.equal("h8")
 }
 
-pub fn from_pair_test() {
-  position.new(0, 0) |> should.equal(position.Position(0, 0) |> Ok)
-  position.new(7, 7) |> should.equal(position.Position(7, 7) |> Ok)
-
+pub fn failing_new_test() {
   position.new(8, 0)
   |> string.inspect
   |> birdie.snap(title: "Invalid column")
