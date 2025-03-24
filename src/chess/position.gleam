@@ -38,6 +38,15 @@ pub fn to_algebraic(pos: Position) -> String {
   file <> rank
 }
 
+/// Takes a classical index (0 being the top left) and turn it into a
+/// Position.
+pub fn from_data_index(index: Int) -> Result(Position, String) {
+  let row = index / row_len
+  let col = index % row_len
+
+  new(row:, col:)
+}
+
 /// Get a position from algebraic notation. Returns an error if the algebraic notation was invalid
 pub fn from_algebraic(str: String) -> Result(Position, String) {
   use <- bool.guard(string.length(str) != 2, Error("Invalid string!"))

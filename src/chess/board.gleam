@@ -6,9 +6,11 @@ import gleam/string
 
 import chess/array
 import chess/choose
+import chess/color.{type Color}
 import chess/constants.{col_len, num_cols, num_rows, row_len}
 import chess/piece.{type Piece}
 import chess/position.{type Position}
+import chess/square.{type Square, Square}
 
 import iv.{type Array}
 
@@ -142,6 +144,32 @@ pub fn to_string(board: Board) -> Result(String, String) {
   // Join each row together with newlines
   |> array.join("\n")
   |> Ok
+}
+
+/// Get all pieces of a given color. Returns an array of Squares, because
+/// to do anything with a piece, you need to know where it is
+pub fn get_pieces(board: Board, color: Color) -> Array(Square) {
+  board.data
+  |> iv.index_fold(
+    from: iv.new(),
+    with: fn(accum: Array(Square), piece: Piece, index: Int) -> Array(Square) {
+      // If the piece has no color, it's None - skip it and move on
+      use piece_color <- choose.cases(piece |> piece.get_color, on_error: fn(_) {
+        accum
+      })
+
+      // If it's a different color, don't add it to the accumulator
+      use <- bool.guard(color != piece_color, accum)
+
+      // TODO: stop using `let assert`. I was having a hellish time
+      // with trying to make a `try_index_map` function for iv, and
+      // if the index is ever invalid here, that should've been
+      // handled in Board creation or in `from_data_index` tests.
+      let assert Ok(pos) = position.from_data_index(index)
+      let square = Square(piece, pos)
+      iv.append(accum, square)
+    },
+  )
 }
 
 /// Doesn't take the *entire* fen string: just the first part encoding the board

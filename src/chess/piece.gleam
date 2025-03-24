@@ -11,6 +11,18 @@ pub type Piece {
   King(color: Color)
 }
 
+pub fn get_color(piece: Piece) -> Result(Color, String) {
+  case piece {
+    None -> Error("Piece is None, can't be given a color!")
+    Pawn(color)
+    | Rook(color)
+    | Bishop(color)
+    | Knight(color)
+    | Queen(color)
+    | King(color) -> Ok(color)
+  }
+}
+
 pub fn to_value(piece: Piece) -> Int {
   // If white, adds 8 to the value
   case piece {
