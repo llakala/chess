@@ -6,14 +6,11 @@ import gleam/string
 
 import chess/array
 import chess/choose
+import chess/constants.{col_len, num_cols, num_rows, row_len}
 import chess/piece.{type Piece}
 import chess/position.{type Position}
 
 import iv.{type Array}
-
-const num_rows = 8
-
-const num_cols = 8
 
 // TODO: consider making opaque and using a get_data function
 pub opaque type Board {
@@ -43,7 +40,7 @@ pub fn initial() -> Board {
 /// Create a board with some initial data
 /// Returns an error if the data was of an invalid length
 pub fn create(data: Array(Piece)) -> Result(Board, String) {
-  let size = num_rows * num_cols
+  let size = row_len * col_len
   let length = data |> iv.length
 
   use <- bool.guard(
