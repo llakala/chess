@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Distance upright from e6 should be 2!
+file: ./test/position/distance.gleam
+test_name: up_right_test
+---
+2

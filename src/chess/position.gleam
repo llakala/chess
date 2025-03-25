@@ -1,6 +1,10 @@
-import chess/constants.{col_len, row_len}
+import chess/constants.{col_len, num_cols, num_rows, row_len}
+import chess/direction.{
+  type Direction, Down, DownLeft, DownRight, Left, Right, Up, UpLeft, UpRight,
+}
 import chess/file.{type File}
 import chess/rank.{type Rank}
+import gleam/int
 
 import gleam/bool
 import gleam/result
@@ -17,6 +21,28 @@ pub fn new(col col: Int, row row: Int) -> Result(Position, String) {
   use file <- result.try(col |> file.from_index)
 
   Position(rank:, file:) |> Ok
+}
+
+/// Return the distance to the edge of the board when moving in a given
+/// direction.
+pub fn distance_to_edge(pos: Position, dir: Direction) {
+  let down_dist = pos.rank |> rank.to_index
+  let up_dist = num_rows - 1 - down_dist
+
+  let left_dist = pos.file |> file.to_index
+  let right_dist = num_cols - 1 - left_dist
+
+  case dir {
+    Up -> up_dist
+    Down -> down_dist
+    Left -> left_dist
+    Right -> right_dist
+
+    UpLeft -> int.min(up_dist, left_dist)
+    UpRight -> int.min(up_dist, right_dist)
+    DownLeft -> int.min(down_dist, left_dist)
+    DownRight -> int.min(down_dist, right_dist)
+  }
 }
 
 /// Get the index of a position, oriented so it's intuitive as white.
