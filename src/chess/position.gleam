@@ -45,6 +45,28 @@ pub fn from_index(col col: Int, row row: Int) -> Result(Position, String) {
   Position(rank:, file:) |> Ok
 }
 
+/// Take an existing position, a distance, and a direction, and return a new
+/// position. This will fail if the direction went off the board - it's recommended
+/// to use `distance_to_edge` to choose a maximum distance for a given direciton.
+pub fn from_offset(
+  pos: Position,
+  distance: Int,
+  direction: Direction,
+) -> Result(Position, String) {
+  let row = pos.rank |> rank.to_index
+  let col = pos.file |> file.to_index
+  case direction {
+    Up -> from_index(row: row + distance, col: col)
+    Down -> from_index(row: row - distance, col: col)
+    Right -> from_index(row:, col: col + distance)
+    Left -> from_index(row:, col: col - distance)
+    UpRight -> from_index(row: row + distance, col: col + distance)
+    UpLeft -> from_index(row: row + distance, col: col - distance)
+    DownRight -> from_index(row: row - distance, col: col + distance)
+    DownLeft -> from_index(row: row - distance, col: col - distance)
+  }
+}
+
 /// Takes a classical index (0 being the top left) and turn it into a
 /// Position.
 pub fn from_data_index(index: Int) -> Result(Position, String) {
