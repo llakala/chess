@@ -72,7 +72,7 @@ pub fn get_pos(board: Board, pos: Position) -> Result(Piece, String) {
   // is an opaque type and checked on creation
 
   // 0 corresponds to bottom left of board, in relation to the player
-  let index: Int = position.to_player_index(pos)
+  let index: Int = position.to_index(pos)
 
   let length = board.data |> iv.length
 
@@ -105,7 +105,7 @@ pub fn set_pos(
   // is an opaque type and checked on creation
 
   // 0 corresponds to bottom left of the board, in relation to the player
-  let index: Int = position.to_player_index(pos)
+  let index: Int = position.to_index(pos)
 
   let length = board.data |> iv.length
 
@@ -225,7 +225,7 @@ fn from_fen_loop(fen: String, board: Board, col: Int, row: Int) {
     False, False -> {
       use piece <- result.try(piece.from_fen(cur))
 
-      use pos <- result.try(position.new(col, row))
+      use pos <- result.try(position.from_index(col, row))
       use new_board <- result.try(set_pos(board, pos, piece))
 
       from_fen_loop(rest, new_board, col + 1, row)

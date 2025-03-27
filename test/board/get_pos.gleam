@@ -5,7 +5,7 @@ import gleam/string
 
 pub fn get_pos_passing_test() {
   let board = board.initial()
-  let assert Ok(pos) = position.from_algebraic("e2")
+  let assert Ok(pos) = position.new("e2")
 
   let assert Ok(value_at_pos) = board.get_pos(board, pos)
 
