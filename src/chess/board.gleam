@@ -154,7 +154,7 @@ pub fn get_pieces(board: Board, color: Color) -> Array(Square) {
     from: iv.new(),
     with: fn(accum: Array(Square), piece: Piece, index: Int) -> Array(Square) {
       // If the piece has no color, it's None - skip it and move on
-      use piece_color <- choose.cases(piece |> piece.get_color, on_error: fn(_) {
+      use piece_color <- choose.cases(piece |> piece.to_color, on_error: fn(_) {
         accum
       })
 
