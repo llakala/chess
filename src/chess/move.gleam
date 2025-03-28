@@ -1,7 +1,16 @@
+import chess/array
 import chess/board.{type Board}
+import chess/color.{Black, White}
+import chess/piece.{type Piece, Knight, Pawn}
 import chess/position.{type Position}
+import chess/sliding
 import chess/square
+
+import gleam/bool
+import gleam/int
 import gleam/result
+
+import iv.{type Array}
 
 pub opaque type Move {
   Move(current: Position, new: Position)
@@ -58,4 +67,56 @@ pub fn move(board: Board, move: Move) -> Result(Board, String) {
   use board <- result.try(board.set_pos(board, to, piece))
 
   Ok(board)
+}
+
+pub fn sliding_legal_moves(
+  board: Board,
+  old_pos: Position,
+  piece: Piece,
+) -> Result(Array(Move), String) {
+  use <- bool.guard(
+    piece == Knight(Black)
+      || piece == Knight(White)
+      || piece == Pawn(Black)
+      || piece == Pawn(White),
+    Error(
+      "Pawns and knights aren't sliding pieces, so their legal moves have to be found differently!",
+    ),
+  )
+
+  let color = piece.color
+
+  // Get a list of directions that a piece is allowed to go.
+  todo
+  |> iv.map(fn(dir) {
+    // Distance until another piece is found, or we hit a wall. Will be inclusive
+    // if the other piece is an enemy, so we have the chance to capture it.
+    let obstructed_distance =
+      board.obstructed_distance(board, old_pos, dir, color)
+
+    // Distance that a sliding piece can go. Returns an error if the piece doesn't
+    // slide (pawn or knight), but we've already handled that above.
+    let assert Ok(piece_distance) = sliding.piece_distance(piece, dir)
+
+    let max_distance = int.min(piece_distance, obstructed_distance)
+
+    let distances = iv.range(1, max_distance)
+
+    // from_offset returns a result, but if it ever fails, we must've somehow had
+    // invalid logic. Insta-fail. Then create a new move using the type constructor.
+    // The constructor can fail, so we end up with a Result.
+    iv.map(distances, fn(dist) {
+      let assert Ok(new_pos) = position.from_offset(old_pos, dist, dir)
+
+      // This can fail if old_pos points to None. We technically haven't checked
+      // this yet - although it might be better to check this earlier since it would
+      // apply for all moves. Might be nice for if `new()` adds more legality checks
+      // in the future.
+      new(board, old_pos, new_pos)
+    })
+  })
+  // Need to flatten because we have multiple arrays for each direction internally
+  |> iv.flatten
+  // If any of the calls to `new()` returned an error, something went wrong.
+  |> array.all_ok
 }
