@@ -63,3 +63,55 @@ pub fn move(board: Board, move: Move) -> Result(Board, String) {
 
   Ok(board)
 }
+
+/// Generates a list of all the positions in a given direction
+pub fn sliding_legal_moves(board: Board, pos: Position, piece: Piece) {
+  use <- bool.guard(
+    piece == None,
+    Error(
+      "Piece is of value None (representing an empty square). Can't slide anywhere!",
+    ),
+  )
+
+  use <- bool.guard(
+    piece == Knight(Black)
+      || piece == Knight(White)
+      || piece == Pawn(Black)
+      || piece == Pawn(White),
+    Error(
+      "Pawns and knights aren't sliding pieces, so their legal moves have to be found differently!",
+    ),
+  )
+
+  // to_color only returns an error if the piece is None. If it fails, the logic
+  // must be wrong above for filtering out None.
+  let assert Ok(color) = piece.to_color(piece)
+
+  // Get a list of directions that a piece is allowed to go.
+  todo
+  |> iv.map(fn(dir) {
+    // Distance until another piece is found, or we hit a wall. Will be inclusive
+    // if the other piece is an enemy, so we have the chance to capture it.
+    let obstructed_distance = board.obstructed_distance(board, pos, dir, color)
+
+    // Distance that a sliding piece can go. Returns an error if the piece doesn't
+    // slide (pawn or knight), but we've already handled that above.
+    let assert Ok(piece_distance) = sliding.piece_distance(piece, dir)
+
+    let max_distance = int.min(piece_distance, obstructed_distance)
+
+    let distances = iv.range(1, max_distance)
+
+    // Generate a move for each distance. from_offset returns a result, but if
+    // it ever fails, we must've somehow had invalid logic. Insta-fail. Probably
+    // bad practice, but I'm okay with it for now.
+    iv.map(distances, fn(dist) {
+      let assert Ok(new_pos) = position.from_offset(pos, dist, dir)
+      new_pos
+    })
+  })
+  // We get an array for each direction, which contains an array of the valid
+  // moves in that direction.
+  |> iv.flatten
+  |> Ok
+}
