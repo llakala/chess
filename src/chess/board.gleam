@@ -10,6 +10,7 @@ import chess/color.{type Color}
 import chess/constants.{col_len, num_cols, num_rows, row_len}
 import chess/piece.{type Piece}
 import chess/position.{type Position}
+import chess/sliding.{type SlidingDirection}
 import chess/square.{type Square, Square}
 
 import iv.{type Array}
@@ -170,6 +171,59 @@ pub fn get_pieces(board: Board, color: Color) -> Array(Square) {
       iv.append(accum, square)
     },
   )
+}
+
+/// Return the number of squares in a direction until you either bump into a wall
+/// or hit another piece. Useful for determining the number of valid moves for
+/// a piece in a direction.
+pub fn obstructed_distance(
+  board board: Board,
+  position position: Position,
+  direction direction: SlidingDirection,
+  color color: Color,
+) -> Int {
+  obstructed_distance_loop(board, position, direction, color, 0)
+}
+
+fn obstructed_distance_loop(
+  board: Board,
+  pos: Position,
+  dir: SlidingDirection,
+  color: Color,
+  accumulated_distance: Int,
+) -> Int {
+  // Get the next posiiton in the direction. If from_offset returns an error, we've
+  // gone too far and gone off the board edge -- return the accumulated distance
+  // immediately
+  use new_pos <- choose.cases(
+    position.from_offset(pos, 1, dir),
+    on_error: fn(_) { accumulated_distance },
+  )
+
+  // The error should've already been checked above.
+  let assert Ok(piece) = get_pos(board, new_pos)
+
+  // Get the color of the new position. If `to_color` returns an error, the position
+  // must've been empty. In that case, simply keep the loop going, adding 1 to the
+  // accumulated distance
+  use other_color <- choose.cases(piece |> piece.to_color, on_error: fn(_) {
+    obstructed_distance_loop(
+      board,
+      new_pos,
+      dir,
+      color,
+      accumulated_distance + 1,
+    )
+  })
+
+  case color == other_color {
+    // Other piece is an enemy and can be captured - so it's the max distance
+    // we can go in that direction.
+    False -> accumulated_distance + 1
+
+    // Other piece is a friend - can't capture it. Stop at our current distance.
+    True -> accumulated_distance
+  }
 }
 
 /// Doesn't take the *entire* fen string: just the first part encoding the board
