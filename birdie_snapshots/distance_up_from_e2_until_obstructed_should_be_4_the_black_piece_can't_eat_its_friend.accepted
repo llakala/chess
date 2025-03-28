@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Distance up from e2 until obstructed should be 4 - the black piece can't eat its friend!
+file: ./test/board/obstructed.gleam
+test_name: until_friend_test
+---
+4

@@ -6,9 +6,11 @@ import gleam/string
 
 import chess/array
 import chess/choose
+import chess/color.{type Color}
 import chess/constants.{col_len, num_cols, num_rows, row_len}
 import chess/piece
 import chess/position.{type Position}
+import chess/sliding.{type Direction}
 import chess/square.{type Square}
 
 import iv.{type Array}
@@ -142,6 +144,61 @@ pub fn to_string(board: Board) -> Result(String, String) {
   // Join each row together with newlines
   |> array.join("\n")
   |> Ok
+}
+
+/// Return the number of squares in a direction until you either bump into a wall
+/// or hit another piece. Useful for determining the number of valid moves for
+/// a piece in a direction.
+pub fn obstructed_distance(
+  board board: Board,
+  position position: Position,
+  direction direction: Direction,
+  color color: Color,
+) -> Int {
+  obstructed_distance_loop(board, position, direction, color, 0)
+}
+
+fn obstructed_distance_loop(
+  board: Board,
+  pos: Position,
+  dir: Direction,
+  color: Color,
+  accumulated_distance: Int,
+) -> Int {
+  // Get the next posiiton in the direction. If from_offset returns an error, we've
+  // gone too far and gone off the board edge -- return the accumulated distance
+  // immediately
+  use new_pos <- choose.cases(
+    position.from_offset(pos, 1, dir),
+    on_error: fn(_) { accumulated_distance },
+  )
+
+  // The error should've already been checked above.
+  let assert Ok(square) = get_pos(board, new_pos)
+
+  // Convert the square into a piece. If `to_piece` returns an error, the square
+  // must've been empty. In that case, simply keep the loop going, adding 1 to the
+  // accumulated distance
+  use piece <- choose.cases(square |> square.to_piece, on_error: fn(_) {
+    obstructed_distance_loop(
+      board,
+      new_pos,
+      dir,
+      color,
+      accumulated_distance + 1,
+    )
+  })
+
+  // Whether the color of the piece we started at equals the color of the
+  // current piece we found when traveling that direction
+  case color == piece.color {
+    // Other piece is an enemy and can be captured - so it's the max distance
+    // we can go in that direction.
+    False -> accumulated_distance + 1
+
+    // Other piece is a friend - can't capture it. Stop at our current distance.
+    True -> accumulated_distance
+  }
 }
 
 /// Doesn't take the *entire* fen string: just the first part encoding the board

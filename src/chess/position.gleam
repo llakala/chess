@@ -47,7 +47,8 @@ pub fn from_index(col col: Int, row row: Int) -> Result(Position, String) {
 
 /// Take an existing position, a distance, and a direction, and return a new
 /// position. This will fail if the direction went off the board - it's recommended
-/// to use `distance_to_edge` to choose a maximum distance for a given direciton.
+/// to use `move.obstructed_distance` to find the maximum distance for a given
+/// direction that one can go in an actual game (inclusive of captures)
 pub fn from_offset(
   pos: Position,
   distance: Int,
@@ -93,26 +94,4 @@ pub fn to_algebraic(pos: Position) -> String {
   let rank = pos.rank |> rank.to_string
 
   file <> rank
-}
-
-/// Return the distance to the edge of the board when moving in a given
-/// direction.
-pub fn distance_to_edge(pos: Position, dir: Direction) {
-  let down_dist = pos.rank |> rank.to_index
-  let up_dist = num_rows - 1 - down_dist
-
-  let left_dist = pos.file |> file.to_index
-  let right_dist = num_cols - 1 - left_dist
-
-  case dir {
-    Up -> up_dist
-    Down -> down_dist
-    Left -> left_dist
-    Right -> right_dist
-
-    UpLeft -> int.min(up_dist, left_dist)
-    UpRight -> int.min(up_dist, right_dist)
-    DownLeft -> int.min(down_dist, left_dist)
-    DownRight -> int.min(down_dist, right_dist)
-  }
 }
