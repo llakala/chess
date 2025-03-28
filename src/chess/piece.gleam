@@ -1,5 +1,4 @@
 import chess/color.{type Color, Black, White}
-import gleam/int
 
 pub type Piece {
   None
