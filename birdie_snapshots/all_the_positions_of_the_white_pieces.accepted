@@ -1,7 +1,0 @@
----
-version: 1.2.6
-title: All the positions of the white pieces!
-file: ./test/board/matching_color.gleam
-test_name: get_pieces_test
----
-["a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"]
