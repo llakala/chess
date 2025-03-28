@@ -1,8 +1,14 @@
 import chess/board.{type Board}
-import chess/piece.{None}
+import chess/color.{Black, White}
+import chess/piece.{type Piece, Knight, None, Pawn}
 import chess/position.{type Position}
+import chess/sliding
+
 import gleam/bool
+import gleam/int
 import gleam/result
+
+import iv.{type Array}
 
 pub opaque type Move {
   Move(current: Position, new: Position)
@@ -25,7 +31,6 @@ pub fn new(
   to: Position,
 ) -> Result(Move, String) {
   use piece <- result.try(board.get_pos(board, from))
-
   use <- bool.guard(
     piece == None,
     Error(
