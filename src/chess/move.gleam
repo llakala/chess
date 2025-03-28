@@ -1,7 +1,6 @@
 import chess/board.{type Board}
-import chess/piece.{None}
 import chess/position.{type Position}
-import gleam/bool
+import chess/square
 import gleam/result
 
 pub opaque type Move {
@@ -24,11 +23,13 @@ pub fn new(
   from: Position,
   to: Position,
 ) -> Result(Move, String) {
-  use piece <- result.try(board.get_pos(board, from))
+  use square <- result.try(board.get_pos(board, from))
 
-  use <- bool.guard(
-    piece == None,
-    Error(
+  // TODO: actually take the piece outputted and pipe it into functions
+  use _ <- result.try(
+    square
+    |> square.to_piece
+    |> result.replace_error(
       "Tried to move piece at position "
       <> from |> position.to_algebraic
       <> ", but there was no piece there!",
@@ -51,7 +52,7 @@ pub fn move(board: Board, move: Move) -> Result(Board, String) {
   use piece <- result.try(board.get_pos(board, from))
 
   // Delete the piece from its current position
-  use board <- result.try(board.set_pos(board, from, None))
+  use board <- result.try(board.set_pos(board, from, square.None))
 
   // And move it to its new position
   use board <- result.try(board.set_pos(board, to, piece))

@@ -1,7 +1,6 @@
 import chess/color.{type Color, Black, White}
 
 pub type Piece {
-  None
   Pawn(color: Color)
   Rook(color: Color)
   Bishop(color: Color)
@@ -35,22 +34,8 @@ pub fn from_fen(char: String) {
   }
 }
 
-pub fn to_color(piece: Piece) -> Result(Color, String) {
-  case piece {
-    None -> Error("Piece is None, can't be given a color!")
-    Pawn(color)
-    | Rook(color)
-    | Bishop(color)
-    | Knight(color)
-    | Queen(color)
-    | King(color) -> Ok(color)
-  }
-}
-
 pub fn to_string(piece: Piece) -> String {
   case piece {
-    None -> "0"
-
     Pawn(White) -> "♙"
     Pawn(Black) -> "♟"
 

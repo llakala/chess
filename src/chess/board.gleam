@@ -7,19 +7,19 @@ import gleam/string
 import chess/array
 import chess/choose
 import chess/constants.{col_len, num_cols, num_rows, row_len}
-import chess/piece.{type Piece}
+import chess/piece
 import chess/position.{type Position}
+import chess/square.{type Square}
 
 import iv.{type Array}
 
-// TODO: consider making opaque and using a get_data function
 pub opaque type Board {
-  Board(data: Array(Piece))
+  Board(data: Array(Square))
 }
 
 /// Create empty board
 pub fn empty() -> Board {
-  let none = piece.None
+  let none = square.None
   let data = iv.initialise(num_rows * num_cols, fn(_) { none })
 
   Board(data)
@@ -39,7 +39,7 @@ pub fn initial() -> Board {
 
 /// Create a board with some initial data
 /// Returns an error if the data was of an invalid length
-pub fn create(data: Array(Piece)) -> Result(Board, String) {
+pub fn create(data: Array(Square)) -> Result(Board, String) {
   let size = row_len * col_len
   let length = data |> iv.length
 
@@ -59,13 +59,13 @@ pub fn create(data: Array(Piece)) -> Result(Board, String) {
 
 /// Getter function to access the board's data, since boards are
 /// opaque
-pub fn get_data(board: Board) -> Array(Piece) {
+pub fn get_data(board: Board) -> Array(Square) {
   board.data
 }
 
 /// Returns the piece at the given coordinate
 /// Will return an error if the position is invalid
-pub fn get_pos(board: Board, pos: Position) -> Result(Piece, String) {
+pub fn get_pos(board: Board, pos: Position) -> Result(Square, String) {
   // We don't have to validate that the position is valid, since pos
   // is an opaque type and checked on creation
 
@@ -85,11 +85,11 @@ pub fn get_pos(board: Board, pos: Position) -> Result(Piece, String) {
     ),
   )
 
-  use piece: Piece <- result.try(
+  use square <- result.try(
     board.data |> iv.get(index) |> result.replace_error("Index invalid!"),
   )
 
-  Ok(piece)
+  Ok(square)
 }
 
 /// Set the board's position at the given coordinate
@@ -97,7 +97,7 @@ pub fn get_pos(board: Board, pos: Position) -> Result(Piece, String) {
 pub fn set_pos(
   board: Board,
   pos: Position,
-  piece: Piece,
+  square: Square,
 ) -> Result(Board, String) {
   // We don't have to validate that the position is valid, since pos
   // is an opaque type and checked on creation
@@ -120,7 +120,7 @@ pub fn set_pos(
 
   use data <- result.try(
     board.data
-    |> iv.set(index, piece)
+    |> iv.set(index, square)
     |> result.replace_error(
       "Failed to set value at index `" <> index |> int.to_string <> "`!",
     ),
@@ -132,7 +132,7 @@ pub fn set_pos(
 pub fn to_string(board: Board) -> Result(String, String) {
   // data represented as a list of rows, each of which is a list of single characters
   use data_rows: Array(Array(String)) <- result.try(array.sized_chunk(
-    board.data |> iv.map(piece.to_string),
+    board.data |> iv.map(square.to_string),
     num_rows,
   ))
 
@@ -196,9 +196,10 @@ fn from_fen_loop(fen: String, board: Board, col: Int, row: Int) {
     // We can keep going in our current row
     False, False -> {
       use piece <- result.try(piece.from_fen(cur))
+      let square = square.Some(piece)
 
       use pos <- result.try(position.from_index(col, row))
-      use new_board <- result.try(set_pos(board, pos, piece))
+      use new_board <- result.try(set_pos(board, pos, square))
 
       from_fen_loop(rest, new_board, col + 1, row)
     }
