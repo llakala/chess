@@ -1,9 +1,10 @@
 import chess/constants.{col_len, num_cols, num_rows, row_len}
-import chess/direction.{
-  type Direction, Down, DownLeft, DownRight, Left, Right, Up, UpLeft, UpRight,
-}
 import chess/file.{type File}
 import chess/rank.{type Rank}
+import chess/sliding.{
+  type SlidingDirection, Down, DownLeft, DownRight, Left, Right, Up, UpLeft,
+  UpRight,
+}
 import gleam/int
 
 import gleam/bool
@@ -51,7 +52,7 @@ pub fn from_index(col col: Int, row row: Int) -> Result(Position, String) {
 pub fn from_offset(
   pos: Position,
   distance: Int,
-  direction: Direction,
+  direction: SlidingDirection,
 ) -> Result(Position, String) {
   let row = pos.rank |> rank.to_index
   let col = pos.file |> file.to_index
@@ -97,7 +98,7 @@ pub fn to_algebraic(pos: Position) -> String {
 
 /// Return the distance to the edge of the board when moving in a given
 /// direction.
-pub fn distance_to_edge(pos: Position, dir: Direction) {
+pub fn distance_to_edge(pos: Position, dir: SlidingDirection) {
   let down_dist = pos.rank |> rank.to_index
   let up_dist = num_rows - 1 - down_dist
 
