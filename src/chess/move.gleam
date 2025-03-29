@@ -8,12 +8,12 @@ pub opaque type Move {
 }
 
 /// Getter for accessing the position to be moved from
-pub fn from(move: Move) {
+pub fn from(move: Move) -> Position {
   move.current
 }
 
 /// Getter for accessing the position to be moved to
-pub fn to(move: Move) {
+pub fn to(move: Move) -> Position {
   move.new
 }
 

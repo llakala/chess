@@ -10,7 +10,7 @@ pub type Piece {
 }
 
 /// Doesn't take the *entire* fen string: just the first part encoding the board
-pub fn from_fen(char: String) {
+pub fn from_fen(char: String) -> Result(Piece, String) {
   case char {
     "p" -> Pawn(Black) |> Ok
     "P" -> Pawn(White) |> Ok

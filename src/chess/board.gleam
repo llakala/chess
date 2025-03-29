@@ -153,7 +153,12 @@ pub fn from_fen(fen: String) -> Result(Board, String) {
   from_fen_loop(fen, initial, 0, 0)
 }
 
-fn from_fen_loop(fen: String, board: Board, col: Int, row: Int) {
+fn from_fen_loop(
+  fen: String,
+  board: Board,
+  col: Int,
+  row: Int,
+) -> Result(Board, String) {
   let res = string.pop_grapheme(fen)
 
   // If we pop the grapheme and get an error, the fen string is over
