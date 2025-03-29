@@ -45,7 +45,7 @@ pub fn new(
 /// anywhere with this as it stands.
 /// I would put this in the `board` class, but then I get circular
 /// dependency issues.
-pub fn move(board: Board, move: Move) -> Result(Board, String) {
+pub fn apply(board: Board, move: Move) -> Result(Board, String) {
   let from = move |> from()
   let to = move |> to()
 

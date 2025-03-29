@@ -10,7 +10,7 @@ pub fn move_forward_test() {
   let assert Ok(to) = position.new("e4")
   let assert Ok(move) = move.new(board, from, to)
 
-  let assert Ok(board) = board |> move.move(move)
+  let assert Ok(board) = board |> move.apply(move)
 
   let assert Ok(str) =
     board
@@ -26,7 +26,7 @@ pub fn move_capture_test() {
   let assert Ok(to) = position.new("e7")
   let assert Ok(move) = move.new(board, from, to)
 
-  let assert Ok(board) = board |> move.move(move)
+  let assert Ok(board) = board |> move.apply(move)
 
   let assert Ok(str) =
     board
