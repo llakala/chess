@@ -2,7 +2,7 @@ import chess/constants
 import chess/piece.{type Piece, Bishop, King, Knight, Pawn, Queen, Rook}
 import gleam/int
 
-pub type SlidingDirection {
+pub type Direction {
   Up
   Down
   Left
@@ -14,10 +14,7 @@ pub type SlidingDirection {
 }
 
 /// Return the maximum distance that a given piece can go
-pub fn piece_distance(
-  piece: Piece,
-  dir: SlidingDirection,
-) -> Result(Int, String) {
+pub fn piece_distance(piece: Piece, dir: Direction) -> Result(Int, String) {
   case piece {
     // TODO: return an error here
     Knight(_) ->
@@ -38,7 +35,7 @@ pub fn piece_distance(
   }
 }
 
-fn rook_distance(dir: SlidingDirection) -> Int {
+fn rook_distance(dir: Direction) -> Int {
   // Subtract 1 since we're currently on a piece
   let horizontal_distance = constants.row_len - 1
   let vertical_distance = constants.col_len - 1
@@ -51,7 +48,7 @@ fn rook_distance(dir: SlidingDirection) -> Int {
   }
 }
 
-fn bishop_distance(dir: SlidingDirection) {
+fn bishop_distance(dir: Direction) {
   // Subtract 1 since we're currently on a piece
   let horizontal_distance = constants.row_len - 1
   let vertical_distance = constants.col_len - 1
@@ -64,7 +61,7 @@ fn bishop_distance(dir: SlidingDirection) {
   }
 }
 
-fn queen_distance(dir: SlidingDirection) -> Int {
+fn queen_distance(dir: Direction) -> Int {
   case dir {
     Up | Down | Left | Right -> rook_distance(dir)
     _ -> bishop_distance(dir)
