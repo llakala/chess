@@ -17,6 +17,13 @@ pub fn to(move: Move) -> Position {
   move.new
 }
 
+pub fn to_string(move: Move) -> String {
+  let from_str = move.current |> position.to_algebraic
+  let to_str = move.new |> position.to_algebraic
+
+  from_str <> " -> " <> to_str
+}
+
 /// Constructor for the Move type. The board is only passed in to validate that a move is actually valid for that board
 pub fn new(
   board: board.Board,
