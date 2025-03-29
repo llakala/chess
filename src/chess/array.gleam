@@ -1,4 +1,5 @@
 import gleam/bool
+import gleam/function
 import gleam/result
 import gleam/string
 import iv.{type Array}
@@ -6,6 +7,12 @@ import iv.{type Array}
 /// QOL debug function, to turn the Array into a list, print it to stderr, and return it unchanged
 pub fn debug(arr: Array(a)) {
   arr |> iv.to_list |> echo |> iv.from_list
+}
+
+/// Equivalent of `result.all`, but for iv, so you don't have to cast in and out
+/// to a list
+pub fn all_ok(results: Array(Result(a, e))) -> Result(Array(a), e) {
+  iv.try_map(results, function.identity)
 }
 
 /// Split an iv array into `n` evenly-sized chunks.
