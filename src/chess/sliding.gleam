@@ -1,5 +1,6 @@
+import chess/color.{type Color}
 import chess/constants
-import chess/piece.{type Piece, Bishop, King, Knight, Pawn, Queen, Rook}
+import chess/piece
 import gleam/int
 
 pub type Direction {
@@ -13,25 +14,54 @@ pub type Direction {
   DownRight
 }
 
-/// Return the maximum distance that a given piece can go
-pub fn piece_distance(piece: Piece, dir: Direction) -> Result(Int, String) {
+/// For when you want a function to only take sliding pieces
+pub type SlidingPiece {
+  Rook(color: Color)
+  Bishop(color: Color)
+  Queen(color: Color)
+  King(color: Color)
+}
+
+/// Take a generic piece and turn it into a Sliding piece. Return an error if
+/// the piece wasn't a sliding piece.
+pub fn from_piece(piece: piece.Piece) -> Result(SlidingPiece, String) {
+  let color = piece.color
   case piece {
-    // TODO: return an error here
-    Knight(_) ->
-      Error(
-        "A knight doesn't slide! Use another function (currently unimplemented) to generate knight moves.",
-      )
-    Pawn(_) ->
-      Error(
-        "A pawn doesn't slide! Use another function (currently unimplemented) to generate pawn moves.",
-      )
+    piece.Knight(_) -> Error("Knights aren't sliding pieces!")
+    piece.Pawn(_) -> Error("Pawns aren't sliding pieces!")
 
+    piece.Bishop(_) -> Bishop(color) |> Ok
+    piece.King(_) -> King(color) |> Ok
+    piece.Queen(_) -> Queen(color) |> Ok
+    piece.Rook(_) -> Rook(color) |> Ok
+  }
+}
+
+pub fn to_piece(sliding_piece: SlidingPiece) -> piece.Piece {
+  let color = sliding_piece.color
+  case sliding_piece {
+    Rook(_) -> piece.Rook(color)
+    Bishop(_) -> piece.Bishop(color)
+    Queen(_) -> piece.Queen(color)
+    King(_) -> piece.King(color)
+  }
+}
+
+/// QOL function that calls the `piece.to_string` so you don't have to manually
+/// cast.
+pub fn to_string(piece: SlidingPiece) -> String {
+  piece |> to_piece |> piece.to_string
+}
+
+/// Return the maximum distance that a given piece can go
+pub fn piece_distance(piece: SlidingPiece, dir: Direction) -> Int {
+  case piece {
     // That was easy!
-    King(_) -> 1 |> Ok
+    King(_) -> 1
 
-    Rook(_) -> rook_distance(dir) |> Ok
-    Bishop(_) -> bishop_distance(dir) |> Ok
-    Queen(_) -> queen_distance(dir) |> Ok
+    Rook(_) -> rook_distance(dir)
+    Bishop(_) -> bishop_distance(dir)
+    Queen(_) -> queen_distance(dir)
   }
 }
 
