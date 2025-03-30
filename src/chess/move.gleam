@@ -1,7 +1,13 @@
 import chess/board.{type Board}
 import chess/position.{type Position}
+import chess/sliding
 import chess/square
+import gleam/bool
+
+import gleam/int
 import gleam/result
+
+import iv.{type Array}
 
 pub opaque type Move {
   Move(current: Position, new: Position)
@@ -65,4 +71,54 @@ pub fn apply(board: Board, move: Move) -> Result(Board, String) {
   use board <- result.try(board.set_pos(board, to, piece))
 
   Ok(board)
+}
+
+// TODO: make private, and have a public `legal_moves` function that calls this
+// with sliding pieces.
+
+/// Given a board and a position, get all the legal moves that a sliding piece can
+/// make from that position. Returns an error if the position contained None, or a
+/// non-sliding piece
+pub fn legal_sliding_moves(
+  board: Board,
+  current_pos: Position,
+) -> Result(Array(Move), String) {
+  // Get the square stored at the position, then the sliding piece at the square.
+  // Returns an error if the position contained None or a non-sliding piece.
+  use square <- result.try(board |> board.get_pos(current_pos))
+  use piece <- result.try(square |> sliding.from_square)
+
+  sliding.piece_directions(piece)
+  // For each legal direction cthat our piece can go
+  |> iv.map(fn(dir) {
+    // Distance until another piece is found, or we hit a wall. Will be inclusive
+    // if the other piece is an enemy, so we have the chance to capture it.
+    let obstructed_distance =
+      board.obstructed_distance(board, current_pos, dir, piece.color)
+
+    let piece_distance = sliding.piece_distance(piece, dir)
+
+    // Max distance that our piece can go without obstructions
+    let max_distance = int.min(piece_distance, obstructed_distance)
+
+    // iv.range isn't very safe - given the input `(1,0)`, it doesn't give an error.
+    // We have to guard against the case that there are no moves from our current
+    // position.
+    use <- bool.guard(max_distance == 0, iv.new())
+    let distances = iv.range(1, max_distance)
+
+    // For each legal distance in the current direction
+    iv.map(distances, fn(dist) {
+      // map the direction and the distance to a new position. returns a result, but
+      // if it ever fails, we must've somehow had invalid logic. Insta-fail!
+      let assert Ok(new_pos) = position.from_offset(current_pos, dist, dir)
+
+      // We don't use the constructor, since all it currently does is check that
+      // current_pos isn't None, and we've already checked that.
+      Move(current_pos, new_pos)
+    })
+  })
+  // Need to flatten because we have multiple arrays for each direction internally
+  |> iv.flatten
+  |> Ok
 }
