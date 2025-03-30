@@ -1,10 +1,9 @@
-import chess/constants.{col_len, num_cols, num_rows, row_len}
+import chess/constants.{col_len, row_len}
 import chess/file.{type File}
 import chess/rank.{type Rank}
 import chess/sliding.{
   type Direction, Down, DownLeft, DownRight, Left, Right, Up, UpLeft, UpRight,
 }
-import gleam/int
 
 import gleam/bool
 import gleam/result
