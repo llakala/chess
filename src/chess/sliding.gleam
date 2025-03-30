@@ -1,7 +1,9 @@
 import chess/color.{type Color}
 import chess/constants
 import chess/piece
+import chess/square.{type Square}
 import gleam/int
+import gleam/result
 
 pub type Direction {
   Up
@@ -20,6 +22,12 @@ pub type SlidingPiece {
   Bishop(color: Color)
   Queen(color: Color)
   King(color: Color)
+}
+
+/// QOL function that chains a `Square -> Piece -> Sliding Piece` conversion
+pub fn from_square(square: Square) -> Result(SlidingPiece, String) {
+  use piece <- result.try(square |> square.to_piece)
+  piece |> from_piece
 }
 
 /// Take a generic piece and turn it into a Sliding piece. Return an error if
