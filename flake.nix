@@ -35,18 +35,23 @@
         inherit pkgs;
         directory = ./nixPackages;
 
-        # Lets the packages rely on llakaLib functions
-        extras = { inherit llakaLib; };
+        # Lets the packages rely on custom functions and packages
+        extras =
+        {
+          inherit llakaLib;
+          llakaPackages = inputs.llakaLib.packages.${pkgs.system};
+        };
       }
     );
 
     devShells = forAllSystems
     (
-      pkgs:
+      pkgs: let llakaPackages = inputs.llakaLib.packages.${pkgs.system}; in
       {
         default = import ./shell.nix
         {
-          inherit pkgs;
+          # Rely on packages from nixpkgs and my custom ones
+          inherit pkgs llakaPackages;
 
           # attrValues turns a list into an attrset
           extraPackages = builtins.attrValues self.legacyPackages.${pkgs.system};
