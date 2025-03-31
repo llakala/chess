@@ -18,6 +18,10 @@ pub fn to_piece(square: Square) -> Result(Piece, String) {
   }
 }
 
+pub fn from_piece(piece: Piece) -> Square {
+  Some(piece)
+}
+
 pub fn to_string(square: Square) -> String {
   case square {
     None -> "0"
