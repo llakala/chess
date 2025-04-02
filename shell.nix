@@ -1,11 +1,6 @@
-{ pkgs, llakaPackages ? {}, extraPackages ? [] }:
+{ gleam, pkgs, localPackages ? [] }:
 
 let
-  myPackages = with llakaPackages;
-  [
-    gleam
-  ];
-
   # From nixpkgs
   upstreamPackages = with pkgs;
   [
@@ -15,5 +10,6 @@ let
 
 in pkgs.mkShellNoCC
 {
-  packages = myPackages ++ extraPackages ++ upstreamPackages;
+  # Use the passed version of Gleam: since I build it from unstable
+  packages = [ gleam ] ++ localPackages ++ upstreamPackages;
 }

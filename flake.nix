@@ -1,6 +1,17 @@
 {
   description = "My Gleam development setup for the chess competition";
 
+  nixConfig =
+  {
+    # I don't like it either - but gleam-nix requires it.
+    allow-import-from-derivation = true;
+
+    extra-trusted-public-keys = [
+      "gleam-nix.cachix.org-1:JFm9l4KxdKyBNjQFxo/SF5SVjBTGvib/D877Zwf8C0s="
+    ];
+    extra-substituters = [ "https://gleam-nix.cachix.org" ];
+  };
+
   inputs =
   {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -9,6 +20,13 @@
     {
       url = "github:llakala/llakaLib";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # There may be some flake.lock duplication from duplicate versions of nixpkgs -
+    # but this has a cachix, so its inputs need to be the same.
+    gleam-nix =
+    {
+      url = "github:vic/gleam-nix";
     };
   };
 
@@ -35,26 +53,28 @@
         inherit pkgs;
         directory = ./nixPackages;
 
-        # Lets the packages rely on custom functions and packages
+        # Lets the packages rely on custom functions and newest gleam version
         extras =
         {
           inherit llakaLib;
-          llakaPackages = inputs.llakaLib.packages.${pkgs.system};
+          gleamPackages = inputs.gleam-nix.packages.${pkgs.system};
         };
       }
     );
 
     devShells = forAllSystems
     (
-      pkgs: let llakaPackages = inputs.llakaLib.packages.${pkgs.system}; in
+      pkgs:
       {
         default = import ./shell.nix
         {
-          # Rely on packages from nixpkgs and my custom ones
-          inherit pkgs llakaPackages;
+          inherit pkgs;
+
+          # Gleam version built from source - but not actually, thanks to Cachix
+          gleam = inputs.gleam-nix.packages.${pkgs.system}.gleam;
 
           # attrValues turns a list into an attrset
-          extraPackages = builtins.attrValues self.legacyPackages.${pkgs.system};
+          localPackages = builtins.attrValues self.legacyPackages.${pkgs.system};
         };
       }
     );
