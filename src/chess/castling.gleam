@@ -1,4 +1,5 @@
 import chess/choose
+import gleam/bool
 import gleam/list
 import gleam/result
 import gleam/string
@@ -58,10 +59,12 @@ pub fn to_string(castling: Castling) {
 pub fn from_fen(fen: String) -> Result(Castling, String) {
   let empty_castling = Castling(False, False, False, False)
 
-  // If the string is empty, we can't castle at all!
-  use #(current, rest) <- choose.cases(
-    string.pop_grapheme(fen),
-    on_error: fn(_) { empty_castling |> Ok },
+  // Denotes nothing being able to castle
+  use <- bool.guard(fen == "-", empty_castling |> Ok)
+
+  use #(current, rest) <- result.try(
+    string.pop_grapheme(fen)
+    |> result.replace_error("Fen for castling was empty!"),
   )
 
   // Start the loop without anything able to castle - we enable them as we go!

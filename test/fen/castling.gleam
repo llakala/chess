@@ -10,7 +10,7 @@ pub fn all_castle_test() {
 }
 
 pub fn no_castle_test() {
-  let str = ""
+  let str = "-"
   let assert Ok(castling_status) = str |> castling.from_fen
   castling_status
   |> castling.to_string
