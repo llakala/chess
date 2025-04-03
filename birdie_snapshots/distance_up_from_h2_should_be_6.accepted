@@ -1,7 +1,0 @@
----
-version: 1.2.6
-title: Distance up from h2 should be 6!
-file: ./test/position/distance.gleam
-test_name: up_test
----
-6

@@ -1,7 +1,0 @@
----
-version: 1.2.6
-title: Couldn't set the piece due to invalid position!
-file: ./test/board/set_pos.gleam
-test_name: set_pos_failing_test
----
-Error("Tried to access column #9, but the board only had `8` columns!")

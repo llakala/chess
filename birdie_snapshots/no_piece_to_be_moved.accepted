@@ -1,7 +1,7 @@
 ---
 version: 1.2.6
 title: No piece to be moved!
-file: ./test/board/move.gleam
-test_name: move_failing_test
+file: ./test/move/new.gleam
+test_name: new_failing_test
 ---
 Error("Tried to move piece at position e3, but there was no piece there!")
