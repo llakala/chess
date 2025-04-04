@@ -4,6 +4,5 @@ title: Only black pieces can castle!
 file: ./test/fen/castling.gleam
 test_name: black_castle_test
 ---
-Directions able to castle:
 White:
 Black: King and Queen
