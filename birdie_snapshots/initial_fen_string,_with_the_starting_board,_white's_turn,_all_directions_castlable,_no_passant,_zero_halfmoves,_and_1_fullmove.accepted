@@ -1,0 +1,27 @@
+---
+version: 1.2.6
+title: Initial fen string, with the starting board, White's turn, all directions castlable, no passant, zero halfmoves, and 1 fullmove
+file: ./test/fen/fen.gleam
+test_name: starting_fen_test
+---
+Board:
+♜, ♞, ♝, ♚, ♛, ♝, ♞, ♜
+♟, ♟, ♟, ♟, ♟, ♟, ♟, ♟
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+♙, ♙, ♙, ♙, ♙, ♙, ♙, ♙
+♖, ♘, ♗, ♔, ♕, ♗, ♘, ♖
+
+Color: White
+
+Castling:
+White: King and Queen
+Black: King and Queen
+
+Passant: None
+
+Half moves: 0
+
+Full moves: 1
