@@ -52,7 +52,6 @@ pub fn to_string(castling: Castling) {
 
   [white_status, black_status]
   |> string.join("\n")
-  |> string.append("Directions able to castle:\n", _)
 }
 
 pub fn from_fen(fen: String) -> Result(Castling, String) {
