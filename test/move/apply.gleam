@@ -12,11 +12,7 @@ pub fn move_forward_test() {
 
   let assert Ok(board) = board |> move.apply(move)
 
-  let assert Ok(str) =
-    board
-    |> board.to_string
-
-  str |> birdie.snap(title: "Pawn from e2 to e4!")
+  board |> board.to_string |> birdie.snap(title: "Pawn from e2 to e4!")
 }
 
 pub fn move_capture_test() {
@@ -28,9 +24,7 @@ pub fn move_capture_test() {
 
   let assert Ok(board) = board |> move.apply(move)
 
-  let assert Ok(str) =
-    board
-    |> board.to_string
-
-  str |> birdie.snap(title: "Pawn from e2 to e7!")
+  board
+  |> board.to_string
+  |> birdie.snap(title: "Pawn from e2 to e7!")
 }
