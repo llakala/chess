@@ -4,6 +4,5 @@ title: Able to castle on every side!
 file: ./test/fen/castling.gleam
 test_name: all_castle_test
 ---
-Directions able to castle:
 White: King and Queen
 Black: King and Queen

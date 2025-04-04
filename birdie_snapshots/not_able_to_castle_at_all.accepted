@@ -4,6 +4,5 @@ title: Not able to castle at all!
 file: ./test/fen/castling.gleam
 test_name: no_castle_test
 ---
-Directions able to castle:
 White:
 Black:
