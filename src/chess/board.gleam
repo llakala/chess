@@ -116,19 +116,18 @@ pub fn set_pos(
   Board(data) |> Ok
 }
 
-pub fn to_string(board: Board) -> Result(String, String) {
+pub fn to_string(board: Board) -> String {
   // data represented as a list of rows, each of which is a list of single characters
-  use data_rows: Array(Array(String)) <- result.try(array.sized_chunk(
-    board.data |> iv.map(square.to_string),
-    num_rows,
-  ))
+  // We use `let assert` since board is opaque, so the data should always be of
+  // length 64
+  let assert Ok(data_rows) =
+    array.sized_chunk(board.data |> iv.map(square.to_string), num_rows)
 
   data_rows
   // Join each element in a row together with comma separators
   |> iv.map(array.join(_, ", "))
   // Join each row together with newlines
   |> array.join("\n")
-  |> Ok
 }
 
 /// Return the number of squares in a direction until you either bump into a wall
