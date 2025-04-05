@@ -25,8 +25,8 @@ pub fn to(move: Move) -> Position {
 }
 
 pub fn to_string(move: Move) -> String {
-  let from_str = move.current |> position.to_algebraic
-  let to_str = move.new |> position.to_algebraic
+  let from_str = move.current |> position.to_string
+  let to_str = move.new |> position.to_string
 
   from_str <> " -> " <> to_str
 }
@@ -45,7 +45,7 @@ pub fn new(
     |> square.to_piece
     |> result.replace_error(
       "Tried to move piece at position "
-      <> from |> position.to_algebraic
+      <> from |> position.to_string
       <> ", but there was no piece there!",
     ),
   )

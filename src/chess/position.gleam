@@ -88,7 +88,7 @@ pub fn to_index(pos: Position) {
   bottom_left - { row * row_len } + col
 }
 
-pub fn to_algebraic(pos: Position) -> String {
+pub fn to_string(pos: Position) -> String {
   let file = pos.file |> file.to_string
   let rank = pos.rank |> rank.to_string
 
