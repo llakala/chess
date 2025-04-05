@@ -4,4 +4,4 @@ title: Found a pawn!
 file: ./test/board/set_pos.gleam
 test_name: set_pos_passing_test
 ---
-Ok(Some(Pawn(White)))
+Some(Pawn(White))

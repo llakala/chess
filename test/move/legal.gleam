@@ -16,7 +16,7 @@ pub fn queen_goes_up_test() {
 
   // To make sure that the above logic worked, we check that there's no longer a
   // pawn at e2
-  let assert Ok(square) = board.get_pos(board, pawn_pos)
+  let square = board.get_pos(board, pawn_pos)
   square |> should.equal(square.None)
 
   let assert Ok(queen_pos) = position.new("e1")
@@ -39,7 +39,7 @@ pub fn bishop_test() {
 
   // To make sure that the above logic worked, we check that there's no longer a
   // pawn at e2
-  let assert Ok(square) = board.get_pos(board, pawn_pos)
+  let square = board.get_pos(board, pawn_pos)
   square |> should.equal(square.None)
 
   let assert Ok(bishop_pos) = position.new("f1")

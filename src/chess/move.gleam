@@ -36,7 +36,7 @@ pub fn new(
   from: Position,
   to: Position,
 ) -> Result(Move, String) {
-  use square <- result.try(board.get_pos(board, from))
+  let square = board.get_pos(board, from)
 
   // TODO: actually take the piece outputted and pipe it into functions
   use _ <- result.try(
@@ -62,7 +62,7 @@ pub fn apply(board: Board, move: Move) -> Result(Board, String) {
   let from = move |> from()
   let to = move |> to()
 
-  use piece <- result.try(board.get_pos(board, from))
+  let piece = board.get_pos(board, from)
 
   // Delete the piece from its current position
   use board <- result.try(board.set_pos(board, from, square.None))
@@ -85,7 +85,7 @@ pub fn legal_sliding_moves(
 ) -> Result(Array(Move), String) {
   // Get the square stored at the position, then the sliding piece at the square.
   // Returns an error if the position contained None or a non-sliding piece.
-  use square <- result.try(board |> board.get_pos(current_pos))
+  let square = board |> board.get_pos(current_pos)
   use piece <- result.try(square |> sliding.from_square)
 
   sliding.piece_directions(piece)

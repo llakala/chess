@@ -66,32 +66,16 @@ pub fn get_data(board: Board) -> Array(Square) {
 }
 
 /// Returns the piece at the given coordinate
-/// Will return an error if the position is invalid
-pub fn get_pos(board: Board, pos: Position) -> Result(Square, String) {
-  // We don't have to validate that the position is valid, since pos
-  // is an opaque type and checked on creation
-
+/// We don't have to validate that the position is valid, since pos
+/// is an opaque type and checked on creation
+pub fn get_pos(board: Board, pos: Position) -> Square {
   // 0 corresponds to bottom left of board, in relation to the player
   let index: Int = position.to_index(pos)
 
-  let length = board.data |> iv.length
+  // If this ever fails, it's a logic error, not a user issue
+  let assert Ok(square) = board.data |> iv.get(index)
 
-  use <- bool.guard(
-    index >= length,
-    Error(
-      "Attempted to set a value of the board at index `"
-      <> index |> int.to_string
-      <> "`, but the board is only of length `"
-      <> length |> int.to_string
-      <> "` !",
-    ),
-  )
-
-  use square <- result.try(
-    board.data |> iv.get(index) |> result.replace_error("Index invalid!"),
-  )
-
-  Ok(square)
+  square
 }
 
 /// Set the board's position at the given coordinate
@@ -174,7 +158,7 @@ fn obstructed_distance_loop(
   )
 
   // The error should've already been checked above.
-  let assert Ok(square) = get_pos(board, new_pos)
+  let square = get_pos(board, new_pos)
 
   // Convert the square into a piece. If `to_piece` returns an error, the square
   // must've been empty. In that case, simply keep the loop going, adding 1 to the
