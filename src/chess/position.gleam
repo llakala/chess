@@ -9,7 +9,7 @@ import gleam/bool
 import gleam/result
 import gleam/string
 
-pub type Position {
+pub opaque type Position {
   Position(file: File, rank: Rank)
 }
 
