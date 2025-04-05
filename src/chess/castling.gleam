@@ -1,4 +1,3 @@
-import chess/choose
 import gleam/bool
 import gleam/list
 import gleam/result
