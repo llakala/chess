@@ -1,4 +1,5 @@
 import chess/board.{type Board}
+import chess/piece.{Knight, Pawn}
 import chess/position.{type Position}
 import chess/sliding
 import chess/square
@@ -73,30 +74,53 @@ pub fn apply(board: Board, move: Move) -> Result(Board, String) {
   Ok(board)
 }
 
-// TODO: make private, and have a public `legal_moves` function that calls this
-// with sliding pieces.
+/// Given a board and a position, get all the legal moves that the piece at that
+/// position can make. Returns an error if the position contained None.
+pub fn legal_moves(board: Board, pos: Position) -> Result(Array(Move), String) {
+  let square = board.get_pos(board, pos)
+  // Returns an error if the position is empty
+  use piece <- result.try(square |> square.to_piece)
+  case piece {
+    Pawn(_) -> legal_pawn_moves(board, pos)
+    Knight(_) -> legal_knight_moves(board, pos)
+    _ -> legal_sliding_moves(board, pos)
+  }
+}
 
-/// Given a board and a position, get all the legal moves that a sliding piece can
-/// make from that position. Returns an error if the position contained None, or a
-/// non-sliding piece
-pub fn legal_sliding_moves(
+// TODO
+fn legal_pawn_moves(
+  board: Board,
+  current_pos: Position,
+) -> Result(Array(Move), String) {
+  Error("Unimplemented!")
+}
+
+// TODO
+fn legal_knight_moves(
+  board: Board,
+  current_pos: Position,
+) -> Result(Array(Move), String) {
+  Error("Unimplemented!")
+}
+
+fn legal_sliding_moves(
   board: Board,
   current_pos: Position,
 ) -> Result(Array(Move), String) {
   // Get the square stored at the position, then the sliding piece at the square.
   // Returns an error if the position contained None or a non-sliding piece.
   let square = board |> board.get_pos(current_pos)
-  use piece <- result.try(square |> sliding.from_square)
+  use sliding_piece <- result.try(square |> sliding.from_square)
 
-  sliding.piece_directions(piece)
+  sliding.piece_directions(sliding_piece)
   // For each legal direction cthat our piece can go
   |> iv.map(fn(dir) {
     // Distance until another piece is found, or we hit a wall. Will be inclusive
     // if the other piece is an enemy, so we have the chance to capture it.
     let obstructed_distance =
-      board.obstructed_distance(board, current_pos, dir, piece.color)
+      board.obstructed_distance(board, current_pos, dir, sliding_piece.color)
 
-    let piece_distance = sliding.piece_distance(piece, dir)
+    let piece_distance = sliding.piece_distance(sliding_piece, dir)
 
     // Max distance that our piece can go without obstructions
     let max_distance = int.min(piece_distance, obstructed_distance)
