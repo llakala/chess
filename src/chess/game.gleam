@@ -9,8 +9,8 @@ import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/string
 
-pub type Fen {
-  Fen(
+pub type Game {
+  Game(
     data: board.Board,
     color: color.Color,
     castling: Castling,
@@ -20,7 +20,7 @@ pub type Fen {
   )
 }
 
-pub fn initial() -> Fen {
+pub fn initial() -> Game {
   // Okay with an assertion here, since if this went wrong, the logic failed.
   let assert Ok(output) =
     new("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
@@ -28,7 +28,7 @@ pub fn initial() -> Fen {
   output
 }
 
-pub fn new(fen: String) -> Result(Fen, String) {
+pub fn new(fen: String) -> Result(Game, String) {
   let split_fen = fen |> string.split(" ")
 
   use <- bool.guard(
@@ -53,11 +53,11 @@ pub fn new(fen: String) -> Result(Fen, String) {
   use halfmoves <- result.try(halfmoves_fen |> parse_halfmoves)
   use fullmoves <- result.try(fullmoves_fen |> parse_fullmoves)
 
-  Fen(board, color, castling, passant, halfmoves, fullmoves) |> Ok
+  Game(board, color, castling, passant, halfmoves, fullmoves) |> Ok
 }
 
 /// Does NOT turn it back into a fen string - simply displays for debugging
-pub fn to_string(fen: Fen) {
+pub fn to_string(fen: Game) {
   let board_str = fen.data |> board.to_string
   let color_str = fen.color |> string.inspect
   let castling_str = fen.castling |> castling.to_string
