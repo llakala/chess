@@ -1,7 +1,7 @@
 import chess/board.{type Board}
-import chess/piece.{Knight, Pawn}
+import chess/piece.{type Piece, Knight, Pawn}
 import chess/position.{type Position}
-import chess/sliding
+import chess/sliding.{type SlidingPiece}
 import chess/square
 import gleam/bool
 
@@ -81,9 +81,14 @@ pub fn legal_moves(board: Board, pos: Position) -> Result(Array(Move), String) {
   // Returns an error if the position is empty
   use piece <- result.try(square |> square.to_piece)
   case piece {
-    Pawn(_) -> legal_pawn_moves(board, pos)
-    Knight(_) -> legal_knight_moves(board, pos)
-    _ -> legal_sliding_moves(board, pos)
+    Pawn(_) -> legal_pawn_moves(board, pos, piece)
+    Knight(_) -> legal_knight_moves(board, pos, piece)
+    _ -> {
+      // If this gets an error, there's a logic failure!
+      let assert Ok(sliding_piece) = piece |> sliding.from_piece
+
+      legal_sliding_moves(board, pos, sliding_piece)
+    }
   }
 }
 
@@ -91,6 +96,7 @@ pub fn legal_moves(board: Board, pos: Position) -> Result(Array(Move), String) {
 fn legal_pawn_moves(
   board: Board,
   current_pos: Position,
+  piece: Piece,
 ) -> Result(Array(Move), String) {
   Error("Unimplemented!")
 }
@@ -99,6 +105,7 @@ fn legal_pawn_moves(
 fn legal_knight_moves(
   board: Board,
   current_pos: Position,
+  piece: Piece,
 ) -> Result(Array(Move), String) {
   Error("Unimplemented!")
 }
@@ -106,12 +113,8 @@ fn legal_knight_moves(
 fn legal_sliding_moves(
   board: Board,
   current_pos: Position,
+  sliding_piece: SlidingPiece,
 ) -> Result(Array(Move), String) {
-  // Get the square stored at the position, then the sliding piece at the square.
-  // Returns an error if the position contained None or a non-sliding piece.
-  let square = board |> board.get_pos(current_pos)
-  use sliding_piece <- result.try(square |> sliding.from_square)
-
   sliding.piece_directions(sliding_piece)
   // For each legal direction cthat our piece can go
   |> iv.map(fn(dir) {
