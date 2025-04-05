@@ -4,14 +4,15 @@ import gleam/int
 import gleam/result
 import gleam/string
 
-import chess/array
-import chess/choose
 import chess/color.{type Color}
 import chess/constants.{col_len, num_cols, num_rows, row_len}
 import chess/piece
 import chess/position.{type Position}
 import chess/sliding.{type Direction}
 import chess/square.{type Square}
+
+import utils/array
+import utils/choose
 
 import iv.{type Array}
 
