@@ -14,11 +14,11 @@ pub opaque type Position {
 }
 
 /// Get a position from algebraic notation. Returns an error if the algebraic notation was invalid
-pub fn new(str: String) -> Result(Position, String) {
-  use <- bool.guard(string.length(str) != 2, Error("Invalid string!"))
+pub fn new(fen fen: String) -> Result(Position, String) {
+  use <- bool.guard(string.length(fen) != 2, Error("Invalid string!"))
 
   use #(file_str, rank_str) <- result.try(
-    str
+    fen
     |> string.pop_grapheme
     |> result.replace_error(
       "Somehow, the popped grapheme wasn't of length 2, even though I already checked for that!",
@@ -49,27 +49,27 @@ pub fn from_index(col col: Int, row row: Int) -> Result(Position, String) {
 /// to use `move.obstructed_distance` to find the maximum distance for a given
 /// direction that one can go in an actual game (inclusive of captures)
 pub fn from_offset(
-  pos: Position,
-  distance: Int,
-  direction: Direction,
+  pos pos: Position,
+  distance dist: Int,
+  direction dir: Direction,
 ) -> Result(Position, String) {
   let row = pos.rank |> rank.to_index
   let col = pos.file |> file.to_index
-  case direction {
-    Up -> from_index(row: row + distance, col: col)
-    Down -> from_index(row: row - distance, col: col)
-    Right -> from_index(row:, col: col + distance)
-    Left -> from_index(row:, col: col - distance)
-    UpRight -> from_index(row: row + distance, col: col + distance)
-    UpLeft -> from_index(row: row + distance, col: col - distance)
-    DownRight -> from_index(row: row - distance, col: col + distance)
-    DownLeft -> from_index(row: row - distance, col: col - distance)
+  case dir {
+    Up -> from_index(row: row + dist, col: col)
+    Down -> from_index(row: row - dist, col: col)
+    Right -> from_index(row:, col: col + dist)
+    Left -> from_index(row:, col: col - dist)
+    UpRight -> from_index(row: row + dist, col: col + dist)
+    UpLeft -> from_index(row: row + dist, col: col - dist)
+    DownRight -> from_index(row: row - dist, col: col + dist)
+    DownLeft -> from_index(row: row - dist, col: col - dist)
   }
 }
 
 /// Takes a classical index (0 being the top left) and turn it into a
 /// Position.
-pub fn from_data_index(index: Int) -> Result(Position, String) {
+pub fn from_data_index(index index: Int) -> Result(Position, String) {
   let row = index / row_len
   let col = index % row_len
 
@@ -79,7 +79,7 @@ pub fn from_data_index(index: Int) -> Result(Position, String) {
 /// Get the index of a position, oriented so it's intuitive as white.
 /// This does NOT give you the index of a position in the data. instead, (0, 0) corresponds to the bottom left of the data here. This is for easy
 /// conversions between Position and index
-pub fn to_index(pos: Position) {
+pub fn to_index(position pos: Position) {
   let row = pos.rank |> rank.to_index
   let col = pos.file |> file.to_index
 
@@ -88,9 +88,19 @@ pub fn to_index(pos: Position) {
   bottom_left - { row * row_len } + col
 }
 
-pub fn to_string(pos: Position) -> String {
+pub fn to_string(position pos: Position) -> String {
   let file = pos.file |> file.to_string
   let rank = pos.rank |> rank.to_string
 
   file <> rank
+}
+
+/// Get the rank of the position, typically thought of as the row
+pub fn get_rank(position pos: Position) -> Rank {
+  pos.rank
+}
+
+/// Get the file of the position, typically thought of as the column
+pub fn get_file(position pos: Position) -> File {
+  pos.file
 }
