@@ -1,7 +1,7 @@
 import birdie
 import chess/board
-import chess/move
 import chess/position
+import legal/move
 
 pub fn move_forward_test() {
   let board = board.initial()

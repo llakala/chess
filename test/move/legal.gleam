@@ -1,11 +1,16 @@
 import birdie
+
 import chess/board
-import chess/move
 import chess/position
 import chess/square
+
 import gleam/list
 import gleam/string
+
 import gleeunit/should
+
+import legal/generate
+import legal/move
 
 pub fn queen_goes_up_test() {
   let board = board.initial()
@@ -20,7 +25,7 @@ pub fn queen_goes_up_test() {
   square |> should.equal(square.None)
 
   let assert Ok(queen_pos) = position.new("e1")
-  let assert Ok(legal_moves) = move.legal_moves(board, queen_pos)
+  let assert Ok(legal_moves) = generate.legal_moves(board, queen_pos)
 
   legal_moves
   |> list.map(fn(move) { move |> move.to_string })
@@ -42,7 +47,7 @@ pub fn bishop_test() {
   square |> should.equal(square.None)
 
   let assert Ok(bishop_pos) = position.new("f1")
-  let assert Ok(legal_moves) = move.legal_moves(board, bishop_pos)
+  let assert Ok(legal_moves) = generate.legal_moves(board, bishop_pos)
 
   legal_moves
   |> list.map(fn(move) { move |> move.to_string })
@@ -61,7 +66,7 @@ pub fn rook_test() {
   let assert Ok(h1_rook_to_d4) = move.new(board, old_pos, new_pos)
   let assert Ok(board) = move.apply(board, h1_rook_to_d4)
 
-  let assert Ok(legal_moves) = move.legal_moves(board, new_pos)
+  let assert Ok(legal_moves) = generate.legal_moves(board, new_pos)
 
   legal_moves
   |> list.map(fn(move) { move |> move.to_string })
@@ -74,7 +79,7 @@ pub fn non_sliding_piece_test() {
 
   let assert Ok(pawn_pos) = position.new("a2")
 
-  let legal_moves_result = move.legal_moves(board, pawn_pos)
+  let legal_moves_result = generate.legal_moves(board, pawn_pos)
 
   legal_moves_result
   |> should.be_error
