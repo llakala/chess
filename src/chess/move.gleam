@@ -84,7 +84,7 @@ pub fn legal_moves(board: Board, pos: Position) -> Result(List(Move), String) {
     Knight(_) -> legal_knight_moves(board, pos, piece)
     _ -> {
       // If this gets an error, there's a logic failure!
-      let assert Ok(sliding_piece) = piece |> sliding.from_piece
+      let assert Ok(sliding_piece) = piece |> sliding.new
 
       legal_sliding_moves(board, pos, sliding_piece)
     }
