@@ -11,15 +11,15 @@ pub type Square {
   None
 }
 
+pub fn new(piece: Piece) -> Square {
+  Some(piece)
+}
+
 pub fn to_piece(square: Square) -> Result(Piece, String) {
   case square {
     Some(piece) -> Ok(piece)
     None -> Error("Can't represent None as a piece!")
   }
-}
-
-pub fn from_piece(piece: Piece) -> Square {
-  Some(piece)
 }
 
 pub fn to_string(square: Square) -> String {

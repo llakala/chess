@@ -28,12 +28,12 @@ pub type SlidingPiece {
 /// QOL function that chains a `Square -> Piece -> Sliding Piece` conversion
 pub fn from_square(square: Square) -> Result(SlidingPiece, String) {
   use piece <- result.try(square |> square.to_piece)
-  piece |> from_piece
+  piece |> new
 }
 
 /// Take a generic piece and turn it into a Sliding piece. Return an error if
 /// the piece wasn't a sliding piece.
-pub fn from_piece(piece: piece.Piece) -> Result(SlidingPiece, String) {
+pub fn new(piece: piece.Piece) -> Result(SlidingPiece, String) {
   let color = piece.color
   case piece {
     piece.Knight(_) -> Error("Knights aren't sliding pieces!")
