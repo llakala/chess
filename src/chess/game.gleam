@@ -1,4 +1,4 @@
-import chess/board
+import chess/board.{type Board}
 import chess/castling.{type Castling}
 import chess/color
 import chess/position.{type Position}
@@ -77,6 +77,14 @@ pub fn to_string(fen: Game) {
   <> halfmoves_str
   <> "\n\nFull moves: "
   <> fullmoves_str
+}
+
+/// Perform some modifications on the game's board and return the new game.
+/// Great for tests, where you typically need the board in a specific state,
+/// but don't want to bother with this boilerplate every time
+pub fn setup_board(game: Game, func: fn(Board) -> Board) -> Game {
+  let board = func(game.board)
+  Game(..game, board:)
 }
 
 /// We represent passant as an optional position, since sometimes a pawn hasn't
