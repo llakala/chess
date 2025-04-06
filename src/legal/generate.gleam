@@ -1,4 +1,5 @@
 import chess/board.{type Board}
+import chess/game.{type Game}
 import chess/piece.{type Piece, Knight, Pawn}
 import chess/position.{type Position}
 import chess/sliding.{type SlidingPiece}
@@ -12,45 +13,42 @@ import legal/move.{type Move}
 
 /// Given a board and a position, get all the legal moves that the piece at that
 /// position can make. Returns an error if the position contained None.
-pub fn legal_moves(board: Board, pos: Position) -> Result(List(Move), String) {
+pub fn legal_moves(game: Game, pos: Position) -> Result(List(Move), String) {
+  let board = game.board
   let square = board.get_pos(board, pos)
+
   // Returns an error if the position is empty
   use piece <- result.try(square |> square.to_piece)
+
   case piece {
-    Pawn(_) -> legal_pawn_moves(board, pos, piece)
-    Knight(_) -> legal_knight_moves(board, pos, piece)
+    Pawn(_) -> legal_pawn_moves(game, pos, piece) |> Ok
+    Knight(_) -> legal_knight_moves(game, pos, piece) |> Ok
     _ -> {
       // If this gets an error, there's a logic failure!
       let assert Ok(sliding_piece) = piece |> sliding.new
 
-      legal_sliding_moves(board, pos, sliding_piece)
+      legal_sliding_moves(game, pos, sliding_piece)
+      |> Ok
     }
   }
 }
 
-// TODO: implement en passent and support for double moves
-fn legal_pawn_moves(
-  _board: Board,
-  _pos: Position,
-  _piece: Piece,
-) -> Result(List(Move), String) {
-  Error("Unimplemented!")
+fn legal_pawn_moves(_game: Game, _pos: Position, _piece: Piece) -> List(Move) {
+  []
 }
 
 // TODO
-fn legal_knight_moves(
-  _board: Board,
-  _current_pos: Position,
-  _piece: Piece,
-) -> Result(List(Move), String) {
-  Error("Unimplemented!")
+fn legal_knight_moves(_game: Game, _pos: Position, _piece: Piece) -> List(Move) {
+  []
 }
 
 fn legal_sliding_moves(
-  board: Board,
+  game: Game,
   current_pos: Position,
   sliding_piece: SlidingPiece,
-) -> Result(List(Move), String) {
+) -> List(Move) {
+  let board = game.board
+
   sliding.piece_directions(sliding_piece)
   // For each legal direction cthat our piece can go
   |> list.map(fn(dir) {
@@ -84,5 +82,4 @@ fn legal_sliding_moves(
   })
   // Need to flatten because we have multiple lists for each direction internally
   |> list.flatten
-  |> Ok
 }
