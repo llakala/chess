@@ -49,7 +49,7 @@ pub fn from_index(col col: Int, row row: Int) -> Result(Position, String) {
 /// to use `move.obstructed_distance` to find the maximum distance for a given
 /// direction that one can go in an actual game (inclusive of captures)
 pub fn from_offset(
-  pos pos: Position,
+  position pos: Position,
   distance dist: Int,
   direction dir: Direction,
 ) -> Result(Position, String) {
