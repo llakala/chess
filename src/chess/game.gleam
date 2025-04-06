@@ -11,7 +11,7 @@ import gleam/string
 
 pub type Game {
   Game(
-    data: board.Board,
+    board: board.Board,
     color: color.Color,
     castling: Castling,
     passant: Option(Position),
@@ -58,7 +58,7 @@ pub fn new(fen: String) -> Result(Game, String) {
 
 /// Does NOT turn it back into a fen string - simply displays for debugging
 pub fn to_string(fen: Game) {
-  let board_str = fen.data |> board.to_string
+  let board_str = fen.board |> board.to_string
   let color_str = fen.color |> string.inspect
   let castling_str = fen.castling |> castling.to_string
   let passant_str = fen.passant |> string.inspect
