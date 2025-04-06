@@ -3,9 +3,9 @@ import chess/board
 import chess/move
 import chess/position
 import chess/square
+import gleam/list
 import gleam/string
 import gleeunit/should
-import iv
 
 pub fn queen_goes_up_test() {
   let board = board.initial()
@@ -23,8 +23,7 @@ pub fn queen_goes_up_test() {
   let assert Ok(legal_moves) = move.legal_moves(board, queen_pos)
 
   legal_moves
-  |> iv.map(fn(move) { move |> move.to_string })
-  |> iv.to_list
+  |> list.map(fn(move) { move |> move.to_string })
   |> string.inspect
   |> birdie.snap("Queen on e1 with no pawn in front of it can go to e{2-7}!")
 }
@@ -46,8 +45,7 @@ pub fn bishop_test() {
   let assert Ok(legal_moves) = move.legal_moves(board, bishop_pos)
 
   legal_moves
-  |> iv.map(fn(move) { move |> move.to_string })
-  |> iv.to_list
+  |> list.map(fn(move) { move |> move.to_string })
   |> string.inspect
   |> birdie.snap(
     "Bishop on f1 with no pawn on e2 can go to e2, d3, c4, b5, and a7!",
@@ -66,8 +64,7 @@ pub fn rook_test() {
   let assert Ok(legal_moves) = move.legal_moves(board, new_pos)
 
   legal_moves
-  |> iv.map(fn(move) { move |> move.to_string })
-  |> iv.to_list
+  |> list.map(fn(move) { move |> move.to_string })
   |> string.inspect
   |> birdie.snap("Rook on d4 can see all of rank 4, and d{3, 7}!")
 }

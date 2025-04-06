@@ -3,9 +3,8 @@ import chess/constants
 import chess/piece
 import chess/square.{type Square}
 import gleam/int
+import gleam/list
 import gleam/result
-
-import iv.{type Array}
 
 pub type Direction {
   Up
@@ -63,16 +62,16 @@ pub fn to_string(piece: SlidingPiece) -> String {
   piece |> to_piece |> piece.to_string
 }
 
-/// Get an array of all the directions a piece is able to go.
-pub fn piece_directions(piece: SlidingPiece) -> Array(Direction) {
-  let straights = [Up, Down, Left, Right] |> iv.from_list
-  let diagonals = [UpLeft, UpRight, DownLeft, DownRight] |> iv.from_list
+/// Get a list of all the directions a piece is able to go.
+pub fn piece_directions(piece: SlidingPiece) -> List(Direction) {
+  let straights = [Up, Down, Left, Right]
+  let diagonals = [UpLeft, UpRight, DownLeft, DownRight]
 
   case piece {
     Rook(_) -> straights
     Bishop(_) -> diagonals
-    Queen(_) -> iv.concat(straights, diagonals)
-    King(_) -> iv.concat(straights, diagonals)
+    Queen(_) -> list.append(straights, diagonals)
+    King(_) -> list.append(straights, diagonals)
   }
 }
 
