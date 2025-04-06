@@ -1,9 +1,9 @@
 import birdie
 import chess/board
-import chess/move
 import chess/position
 import gleam/string
 import gleeunit/should
+import legal/move
 
 pub fn new_passing_test() {
   let board: board.Board = board.initial()
