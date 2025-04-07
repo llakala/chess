@@ -1,4 +1,4 @@
-import chess/board.{type Board}
+import chess/board
 import chess/game.{type Game}
 import chess/piece.{type Piece, Knight, Pawn}
 import chess/position.{type Position}
@@ -9,7 +9,7 @@ import gleam/bool
 import gleam/int
 import gleam/list
 import gleam/result
-import legal/move.{type Move}
+import legal/move.{type Move, Move}
 
 /// Given a board and a position, get all the legal moves that the piece at that
 /// position can make. Returns an error if the position contained None.
@@ -74,10 +74,7 @@ fn legal_sliding_moves(
       // if it ever fails, we must've somehow had invalid logic. Insta-fail!
       let assert Ok(new_pos) = position.from_offset(current_pos, dist, dir)
 
-      // `move.new` does some basic checking that the move is valid. If it found
-      // a move illegal, we fucked up!
-      let assert Ok(move) = board |> move.new(current_pos, new_pos)
-      move
+      Move(current_pos, new_pos)
     })
   })
   // Need to flatten because we have multiple lists for each direction internally
