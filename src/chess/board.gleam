@@ -76,7 +76,7 @@ pub fn get_data(board: Board) -> Array(Square) {
 /// is an opaque type and checked on creation
 pub fn get_pos(board: Board, pos: Position) -> Square {
   // 0 corresponds to bottom left of board, in relation to the player
-  let index: Int = position.to_index(pos)
+  let index: Int = position.to_player_index(pos)
 
   // If this ever fails, it's a logic error, not a user issue
   let assert Ok(square) = board.data |> iv.get(index)
@@ -89,7 +89,7 @@ pub fn get_pos(board: Board, pos: Position) -> Square {
 /// opaque types that must be valid to be created
 pub fn set_pos(board: Board, pos: Position, square: Square) -> Board {
   // 0 corresponds to bottom left of the board, in relation to the player
-  let index: Int = position.to_index(pos)
+  let index: Int = position.to_player_index(pos)
 
   let assert Ok(new_data) =
     board.data
@@ -223,7 +223,7 @@ fn from_fen_loop(
       use piece <- result.try(piece.from_fen(cur))
       let square = square.Some(piece)
 
-      use pos <- result.try(position.from_index(col, row))
+      use pos <- result.try(position.from_indices(col, row))
       let new_board = set_pos(board, pos, square)
 
       from_fen_loop(rest, new_board, col + 1, row)
