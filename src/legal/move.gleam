@@ -15,8 +15,15 @@ pub type Move {
 pub fn to_string(move: Move) -> String {
   let from_str = move.from |> position.to_string
   let to_str = move.to |> position.to_string
+  let move_type = case move {
+    Move(_, _) -> ""
+    Capture(_, _) -> "Capture "
+    PassantMove(_, _) -> "En Passant "
+    QueenCastle(_, _) -> "Castle Queenside "
+    KingCastle(_, _) -> "Castle Kingside "
+  }
 
-  from_str <> " -> " <> to_str
+  move_type <> from_str <> " -> " <> to_str
 }
 
 /// Simple move function that moves a piece to another place on the board,

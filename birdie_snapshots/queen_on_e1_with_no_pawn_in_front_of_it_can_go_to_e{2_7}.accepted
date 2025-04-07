@@ -4,4 +4,4 @@ title: Queen on e1 with no pawn in front of it can go to e{2-7}!
 file: ./test/legal/sliding.gleam
 test_name: queen_goes_up_test
 ---
-["e1 -> e7", "e1 -> e2", "e1 -> e3", "e1 -> e4", "e1 -> e5", "e1 -> e6"]
+["Capture e1 -> e7", "e1 -> e2", "e1 -> e3", "e1 -> e4", "e1 -> e5", "e1 -> e6"]
