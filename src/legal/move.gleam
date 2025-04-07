@@ -59,11 +59,10 @@ pub fn apply(board: Board, move: Move) -> Result(Board, String) {
 
   let piece = board.get_pos(board, from)
 
+  board
   // Delete the piece from its current position
-  use board <- result.try(board.set_pos(board, from, None))
-
+  |> board.set_pos(from, None)
   // And move it to its new position
-  use board <- result.try(board.set_pos(board, to, piece))
-
-  Ok(board)
+  |> board.set_pos(to, piece)
+  |> Ok
 }

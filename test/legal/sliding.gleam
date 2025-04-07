@@ -18,8 +18,7 @@ pub fn queen_goes_up_test() {
   let assert Ok(pawn_pos) = position.new("e2")
   let game =
     game.setup_board(game, fn(board) {
-      let assert Ok(board) = board |> board.set_pos(pawn_pos, square.None)
-      board
+      board |> board.set_pos(pawn_pos, square.None)
     })
 
   let assert Ok(queen_pos) = position.new("e1")
@@ -39,8 +38,7 @@ pub fn bishop_test() {
   let assert Ok(pawn_pos) = position.new("e2")
   let game =
     game.setup_board(game, fn(board) {
-      let assert Ok(board) = board |> board.set_pos(pawn_pos, square.None)
-      board
+      board |> board.set_pos(pawn_pos, square.None)
     })
 
   let assert Ok(bishop_pos) = position.new("f1")
