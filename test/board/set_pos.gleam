@@ -8,7 +8,7 @@ import gleam/string
 
 pub fn set_pos_passing_test() {
   let board = board.empty()
-  let assert Ok(pos) = position.from_index(col: 7, row: 1)
+  let assert Ok(pos) = position.from_indices(col: 7, row: 1)
 
   let square = Pawn(White) |> Some
 

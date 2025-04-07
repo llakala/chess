@@ -37,7 +37,7 @@ pub fn new(fen fen: String) -> Result(Position, String) {
 
 /// Generate a new position based on a 0-based column and row index.
 /// Errors if it receives value outside of the row/col length
-pub fn from_index(col col: Int, row row: Int) -> Result(Position, String) {
+pub fn from_indices(col col: Int, row row: Int) -> Result(Position, String) {
   use rank <- result.try(row |> rank.from_index)
   use file <- result.try(col |> file.from_index)
 
@@ -56,14 +56,14 @@ pub fn from_offset(
   let row = pos.rank |> rank.to_index
   let col = pos.file |> file.to_index
   case dir {
-    Up -> from_index(row: row + dist, col: col)
-    Down -> from_index(row: row - dist, col: col)
-    Right -> from_index(row:, col: col + dist)
-    Left -> from_index(row:, col: col - dist)
-    UpRight -> from_index(row: row + dist, col: col + dist)
-    UpLeft -> from_index(row: row + dist, col: col - dist)
-    DownRight -> from_index(row: row - dist, col: col + dist)
-    DownLeft -> from_index(row: row - dist, col: col - dist)
+    Up -> from_indices(row: row + dist, col: col)
+    Down -> from_indices(row: row - dist, col: col)
+    Right -> from_indices(row:, col: col + dist)
+    Left -> from_indices(row:, col: col - dist)
+    UpRight -> from_indices(row: row + dist, col: col + dist)
+    UpLeft -> from_indices(row: row + dist, col: col - dist)
+    DownRight -> from_indices(row: row - dist, col: col + dist)
+    DownLeft -> from_indices(row: row - dist, col: col - dist)
   }
 }
 
@@ -73,13 +73,13 @@ pub fn from_data_index(index index: Int) -> Result(Position, String) {
   let row = index / row_len
   let col = index % row_len
 
-  from_index(row:, col:)
+  from_indices(row:, col:)
 }
 
 /// Get the index of a position, oriented so it's intuitive as white.
 /// This does NOT give you the index of a position in the data. instead, (0, 0) corresponds to the bottom left of the data here. This is for easy
 /// conversions between Position and index
-pub fn to_index(position pos: Position) {
+pub fn to_player_index(position pos: Position) {
   let row = pos.rank |> rank.to_index
   let col = pos.file |> file.to_index
 
