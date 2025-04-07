@@ -20,6 +20,11 @@ pub opaque type Board {
   Board(data: Array(Square))
 }
 
+pub type Distance {
+  NonCapture(distance: Int)
+  Capture(distance: Int)
+}
+
 /// Create empty board
 pub fn empty() -> Board {
   let none = square.None
@@ -109,13 +114,14 @@ pub fn to_string(board: Board) -> String {
 
 /// Return the number of squares in a direction until you either bump into a wall
 /// or hit another piece. Useful for determining the number of valid moves for
-/// a piece in a direction.
+/// a piece in a direction. Returns a custom type Distance, so you can tell if there
+/// was a capture in that direction
 pub fn obstructed_distance(
   board board: Board,
   position position: Position,
   direction direction: Direction,
   color color: Color,
-) -> Int {
+) -> Distance {
   obstructed_distance_loop(board, position, direction, color, 0)
 }
 
@@ -124,41 +130,37 @@ fn obstructed_distance_loop(
   pos: Position,
   dir: Direction,
   color: Color,
-  accumulated_distance: Int,
-) -> Int {
-  // Get the next posiiton in the direction. If from_offset returns an error, we've
+  distance: Int,
+) -> Distance {
+  // Distance next position in the direction. If from_offset returns an error, we've
   // gone too far and gone off the board edge -- return the accumulated distance
-  // immediately
+  // immediately, without a capture since we never hit one
   use new_pos <- choose.cases(
     position.from_offset(pos, 1, dir),
-    on_error: fn(_) { accumulated_distance },
+    on_error: fn(_) { NonCapture(distance) },
   )
 
-  // The error should've already been checked above.
   let square = get_pos(board, new_pos)
 
   // Convert the square into a piece. If `to_piece` returns an error, the square
   // must've been empty. In that case, simply keep the loop going, adding 1 to the
   // accumulated distance
   use piece <- choose.cases(square |> square.to_piece, on_error: fn(_) {
-    obstructed_distance_loop(
-      board,
-      new_pos,
-      dir,
-      color,
-      accumulated_distance + 1,
-    )
+    obstructed_distance_loop(board, new_pos, dir, color, distance + 1)
   })
 
-  // Whether the color of the piece we started at equals the color of the
-  // current piece we found when traveling that direction
+  // Whether the color of the piece we started at equals the color of the current
+  // piece we found when traveling that direction
   case color == piece.color {
-    // Other piece is an enemy and can be captured - so it's the max distance
-    // we can go in that direction.
-    False -> accumulated_distance + 1
+    // Other piece is an enemy and can be captured - return a Capture, which
+    // indicates that this is the distance to a capture, and you can subtract
+    // one to get the distance to a non-capture.
+    False -> Capture(distance + 1)
 
-    // Other piece is a friend - can't capture it. Stop at our current distance.
-    True -> accumulated_distance
+    // Other piece is a friend - can't capture it. Note that `distance` never gets
+    // modified, so this will be the distance to the current square, not the new
+    // square.
+    True -> NonCapture(distance)
   }
 }
 
