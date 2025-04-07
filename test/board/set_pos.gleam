@@ -11,9 +11,9 @@ pub fn set_pos_passing_test() {
   let assert Ok(pos) = position.from_index(col: 7, row: 1)
 
   let square = Pawn(White) |> Some
-  let assert Ok(board) = board.set_pos(board, pos, square)
 
   board
+  |> board.set_pos(pos, square)
   |> board.get_pos(pos)
   |> string.inspect
   |> birdie.snap(title: "Found a pawn!")

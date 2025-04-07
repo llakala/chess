@@ -80,40 +80,17 @@ pub fn get_pos(board: Board, pos: Position) -> Square {
 }
 
 /// Set the board's position at the given coordinate
-/// Return the new board or an error
-pub fn set_pos(
-  board: Board,
-  pos: Position,
-  square: Square,
-) -> Result(Board, String) {
-  // We don't have to validate that the position is valid, since pos
-  // is an opaque type and checked on creation
-
+/// Doesn't need to return an error - all of these are
+/// opaque types that must be valid to be created
+pub fn set_pos(board: Board, pos: Position, square: Square) -> Board {
   // 0 corresponds to bottom left of the board, in relation to the player
   let index: Int = position.to_index(pos)
 
-  let length = board.data |> iv.length
-
-  use <- bool.guard(
-    index >= length,
-    Error(
-      "Attempted to set a value of the board at index `"
-      <> index |> int.to_string
-      <> "`, but the board is only of length `"
-      <> length |> int.to_string
-      <> "` !",
-    ),
-  )
-
-  use data <- result.try(
+  let assert Ok(new_data) =
     board.data
     |> iv.set(index, square)
-    |> result.replace_error(
-      "Failed to set value at index `" <> index |> int.to_string <> "`!",
-    ),
-  )
 
-  Board(data) |> Ok
+  Board(new_data)
 }
 
 pub fn to_string(board: Board) -> String {
@@ -245,7 +222,7 @@ fn from_fen_loop(
       let square = square.Some(piece)
 
       use pos <- result.try(position.from_index(col, row))
-      use new_board <- result.try(set_pos(board, pos, square))
+      let new_board = set_pos(board, pos, square)
 
       from_fen_loop(rest, new_board, col + 1, row)
     }
