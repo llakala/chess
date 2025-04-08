@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: White pawn on e4 can only go to e5!
+file: ./test/legal/pawn.gleam
+test_name: white_pawn_test
+---
+["e4 -> e5"]
