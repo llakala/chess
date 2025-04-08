@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Expected Lt when comparing a8 and b1, since we prioritize rank!
+file: ./test/position/compare.gleam
+test_name: rank_before_file_test
+---
+Lt

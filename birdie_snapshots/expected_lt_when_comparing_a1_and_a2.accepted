@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Expected Lt when comparing a1 and a2!
+file: ./test/position/compare.gleam
+test_name: different_file_test
+---
+Lt

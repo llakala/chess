@@ -4,6 +4,7 @@ import chess/rank.{type Rank}
 import chess/sliding.{
   type Direction, Down, DownLeft, DownRight, Left, Right, Up, UpLeft, UpRight,
 }
+import gleam/order.{type Order}
 
 import gleam/bool
 import gleam/result
@@ -103,4 +104,18 @@ pub fn get_rank(position pos: Position) -> Rank {
 /// Get the file of the position, typically thought of as the column
 pub fn get_file(position pos: Position) -> File {
   pos.file
+}
+
+/// Sorts two positions first based on the ranks, then falling back to the file.
+///
+/// (a1, b1) -> Lt
+/// (a1, a2) -> Lt
+/// (a8, b1) -> Lt
+pub fn compare(pos1 pos1: Position, pos2 pos2: Position) -> Order {
+  let assert [rank1, file1] = pos1 |> to_string |> string.split("")
+  let assert [rank2, file2] = pos2 |> to_string |> string.split("")
+
+  // Only keep going if rank1 and rank2 are the same.
+  use <- order.lazy_break_tie(string.compare(rank1, rank2))
+  string.compare(file1, file2)
 }
