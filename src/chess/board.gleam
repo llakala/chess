@@ -168,28 +168,24 @@ fn obstructed_distance_loop(
 pub fn from_fen(fen: String) -> Result(Board, String) {
   // Important to start with an empty board, so if we skip some indices,
   // they'll just be filed with null
-  let initial = empty().data |> Board
+  let initial = empty().data
 
   from_fen_loop(fen, initial, 0, 0)
 }
 
 fn from_fen_loop(
   fen: String,
-  board: Board,
+  data: Array(Square),
   col: Int,
   row: Int,
 ) -> Result(Board, String) {
   let res = string.pop_grapheme(fen)
 
   // If we pop the grapheme and get an error, the fen string is over
-  // Reverse the array, since popping the grapheme puts things in the
-  // reverse order
-  use <- bool.guard(
-    res |> result.is_error,
-    board.data |> iv.reverse |> Board |> Ok,
-  )
+  use <- bool.guard(res |> result.is_error, data |> Board |> Ok)
 
-  // Don't know of a better way to do this. We've already mapped the error away, so now what?
+  // Yeah yeah, I know `bool.guard` followed by an assertion means you should be
+  // using `case`, but let me have my antipatterns, okay?
   let assert Ok(#(cur, rest)) = res
 
   // If we parse num and get Ok, it means we have to skip some of the rest
@@ -203,7 +199,7 @@ fn from_fen_loop(
 
     // It's fine to just skip the empty spaces, since we initialize the
     // list to be full of None
-    from_fen_loop(rest, board, col + skippable, row)
+    from_fen_loop(rest, data, col + skippable, row)
   })
 
   let is_slash = cur == "/"
@@ -216,17 +212,18 @@ fn from_fen_loop(
 
     // We reached the row separator - move onto the next
     // row, just without the `/`
-    True, True -> from_fen_loop(rest, board, 0, row + 1)
+    True, True -> from_fen_loop(rest, data, 0, row + 1)
 
     // We can keep going in our current row
     False, False -> {
       use piece <- result.try(piece.from_fen(cur))
       let square = square.Some(piece)
 
-      use pos <- result.try(position.from_indices(col, row))
-      let new_board = set_pos(board, pos, square)
+      let index = row * constants.row_len + col
 
-      from_fen_loop(rest, new_board, col + 1, row)
+      let assert Ok(data) = data |> iv.set(index, square)
+
+      from_fen_loop(rest, data, col + 1, row)
     }
   }
 }
