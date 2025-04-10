@@ -17,10 +17,10 @@ import gleam/int
 import gleam/list
 import gleam/result
 import legal/action.{type Action, Passant}
-import legal/move.{Move}
+import legal/change.{Change}
 
 /// Given a board and a position, get all the legal actions that the piece at that
-/// position can make. An Action wraps a Move, so we can differentiate things like
+/// position can make. An Action wraps a Change, so we can differentiate things like
 /// en passant.Returns an error if the position contained None.
 pub fn legal_actions(game: Game, pos: Position) -> Result(List(Action), String) {
   let board = game.board
@@ -48,7 +48,7 @@ fn legal_pawn_actions(game: Game, pos: Position, piece: Piece) -> List(Action) {
   let en_passant = en_passant_actions(game, pos, piece)
 
   let en_passant_actions = case en_passant {
-    option.Some(move) -> move |> list.wrap
+    option.Some(action) -> action |> list.wrap
     option.None -> []
   }
 
@@ -90,7 +90,7 @@ fn pawn_vertical_actions(
   let #(actions, was_legal) = case square {
     square.Some(_) -> #([], False)
     square.None -> {
-      let action = Move(pos, new_pos) |> action.Basic
+      let action = Change(pos, new_pos) |> action.Basic
       #(action |> list.wrap, True)
     }
   }
@@ -109,7 +109,7 @@ fn pawn_vertical_actions(
   case square {
     square.Some(_) -> actions
     square.None -> {
-      let double = Move(pos, new_pos) |> action.Basic
+      let double = Change(pos, new_pos) |> action.Basic
       [double, ..actions]
     }
   }
@@ -156,7 +156,7 @@ fn pawn_diagonal_actions(
 
     // There's a piece in that direction, and it's an enemy. Legal! Use the Capture
     // constructor, so we can give this action higher priority in evaluation
-    square.Some(_), True -> Move(pos, pos_in_dir) |> action.Capture |> Ok
+    square.Some(_), True -> Change(pos, pos_in_dir) |> action.Capture |> Ok
   }
 }
 
@@ -186,7 +186,7 @@ fn en_passant_actions(game: Game, pos: Position, piece: Piece) -> Option(Action)
       // The cool thing about the fen representation of passant is that it stores
       // the position that the passant piece skipped over - meaning we can just move
       // there.
-      let passant = Move(pos, passant_pos) |> Passant
+      let passant = Change(pos, passant_pos) |> Passant
       passant |> option.Some
     }
 
@@ -233,7 +233,7 @@ fn legal_sliding_actions(
         // exist)
         let assert Ok(capture_pos) =
           position.from_offset(current_pos, max_distance, dir)
-        let capture = Move(current_pos, capture_pos) |> action.Capture
+        let capture = Change(current_pos, capture_pos) |> action.Capture
 
         let non_captures =
           sliding_actions_for_dir(current_pos, max_distance - 1, dir)
@@ -271,6 +271,6 @@ fn sliding_actions_for_dir(
     // if it ever fails, we must've somehow had invalid logic. Insta-fail!
     let assert Ok(new_pos) = position.from_offset(current_pos, dist, dir)
 
-    Move(current_pos, new_pos) |> action.Basic
+    Change(current_pos, new_pos) |> action.Basic
   })
 }

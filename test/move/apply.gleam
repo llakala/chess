@@ -3,14 +3,14 @@ import chess/board
 import chess/game
 import chess/position
 import legal/action
-import legal/move.{Move}
+import legal/change.{Change}
 
 pub fn move_forward_test() {
   let game = game.initial()
 
   let assert Ok(from) = position.new("e2")
   let assert Ok(to) = position.new("e4")
-  let action = Move(from, to) |> action.Basic
+  let action = Change(from, to) |> action.Basic
 
   let game = action.apply(game, action)
 
@@ -22,7 +22,7 @@ pub fn move_capture_test() {
 
   let assert Ok(from) = position.new("e2")
   let assert Ok(to) = position.new("e7")
-  let action = Move(from, to) |> action.Capture
+  let action = Change(from, to) |> action.Capture
 
   let game = action.apply(game, action)
 
