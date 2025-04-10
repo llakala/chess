@@ -4,7 +4,7 @@ import chess/game.{type Game, Game}
 import gleam/order.{type Order, Gt, Lt}
 import legal/change.{type Change}
 
-pub type Action {
+pub type Move {
   Basic(change: Change)
   Capture(change: Change)
   Passant(change: Change)
@@ -12,7 +12,7 @@ pub type Action {
   KingCastle(change: Change)
 }
 
-pub fn compare(first: Action, second: Action) -> Order {
+pub fn compare(first: Move, second: Move) -> Order {
   case first, second {
     Basic(_), Basic(_) -> change.compare(first.change, second.change)
     Basic(_), _ -> Lt
@@ -21,9 +21,9 @@ pub fn compare(first: Action, second: Action) -> Order {
   }
 }
 
-pub fn to_string(action: Action) -> String {
-  let change_str = action.change |> change.to_string
-  let action_str = case action {
+pub fn to_string(move: Move) -> String {
+  let change_str = move.change |> change.to_string
+  let move_str = case move {
     Basic(_) -> ""
     Capture(_) -> "Capture "
     Passant(_) -> "En Passant "
@@ -31,38 +31,38 @@ pub fn to_string(action: Action) -> String {
     KingCastle(_) -> "Castle Kingside "
   }
 
-  action_str <> change_str
+  move_str <> change_str
 }
 
 /// Simple function that calls the correct `apply` function for the given
-/// action. This lets en passant, queen castle, etc, be executed differently
+/// move. This lets en passant, queen castle, etc, be executed differently
 /// when we're actually applying moves.
-pub fn apply(game: Game, action: Action) -> Game {
+pub fn apply(game: Game, move: Move) -> Game {
   let board = game.board
-  let change = action.change
-  let new_board = case action {
+  let change = move.change
+  let new_board = case move {
     Basic(_) -> change.apply(board, change)
 
     // We currently handle captures the same - but having them as Capture means
     // we can filter for them in a list of moves
     Capture(_) -> change.apply(board, change)
 
-    QueenCastle(_) -> apply_queen_castle(board, action, game.color)
-    KingCastle(_) -> apply_king_castle(board, action, game.color)
+    QueenCastle(_) -> apply_queen_castle(board, move, game.color)
+    KingCastle(_) -> apply_king_castle(board, move, game.color)
 
-    Passant(_) -> apply_passant(board, action)
+    Passant(_) -> apply_passant(board, move)
   }
   Game(..game, board: new_board)
 }
 
-fn apply_king_castle(_board: Board, _action: Action, _color: Color) -> Board {
+fn apply_king_castle(_board: Board, _move: Move, _color: Color) -> Board {
   panic as "Unimplemented!"
 }
 
-fn apply_queen_castle(_board: Board, _action: Action, _color: Color) -> Board {
+fn apply_queen_castle(_board: Board, _move: Move, _color: Color) -> Board {
   panic as "Unimplemented!"
 }
 
-fn apply_passant(_board: Board, _action: Action) -> Board {
+fn apply_passant(_board: Board, _move: Move) -> Board {
   panic as "Unimplemented!"
 }

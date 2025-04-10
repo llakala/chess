@@ -16,13 +16,13 @@ import gleam/bool
 import gleam/int
 import gleam/list
 import gleam/result
-import legal/action.{type Action, Passant}
+import legal/move.{type Move, Passant}
 import legal/change.{Change}
 
-/// Given a board and a position, get all the legal actions that the piece at that
-/// position can make. An Action wraps a Change, so we can differentiate things like
+/// Given a board and a position, get all the legal moves that the piece at that
+/// position can make. An move wraps a Change, so we can differentiate things like
 /// en passant.Returns an error if the position contained None.
-pub fn legal_actions(game: Game, pos: Position) -> Result(List(Action), String) {
+pub fn legal_moves(game: Game, pos: Position) -> Result(List(Move), String) {
   let board = game.board
   let square = board.get_pos(board, pos)
 
@@ -30,37 +30,37 @@ pub fn legal_actions(game: Game, pos: Position) -> Result(List(Action), String) 
   use piece <- result.try(square |> square.to_piece)
 
   case piece {
-    Pawn(_) -> legal_pawn_actions(game, pos, piece) |> Ok
-    Knight(_) -> legal_knight_actions(game, pos, piece) |> Ok
+    Pawn(_) -> legal_pawn_moves(game, pos, piece) |> Ok
+    Knight(_) -> legal_knight_moves(game, pos, piece) |> Ok
     _ -> {
       // If this gets an error, there's a logic failure!
       let assert Ok(sliding_piece) = piece |> sliding.new
 
-      legal_sliding_actions(game, pos, sliding_piece)
+      legal_sliding_moves(game, pos, sliding_piece)
       |> Ok
     }
   }
 }
 
-fn legal_pawn_actions(game: Game, pos: Position, piece: Piece) -> List(Action) {
-  let vertical_actions = pawn_vertical_actions(game, pos, piece)
-  let diagonal_actions = pawn_diagonal_actions(game, pos, piece)
-  let en_passant = en_passant_actions(game, pos, piece)
+fn legal_pawn_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
+  let vertical_moves = pawn_vertical_moves(game, pos, piece)
+  let diagonal_moves = pawn_diagonal_moves(game, pos, piece)
+  let en_passant = en_passant_moves(game, pos, piece)
 
-  let en_passant_actions = case en_passant {
-    option.Some(action) -> action |> list.wrap
+  let en_passant_moves = case en_passant {
+    option.Some(move) -> move |> list.wrap
     option.None -> []
   }
 
-  list.append(vertical_actions, diagonal_actions)
-  |> list.append(en_passant_actions)
+  list.append(vertical_moves, diagonal_moves)
+  |> list.append(en_passant_moves)
 }
 
-fn pawn_vertical_actions(
+fn pawn_vertical_moves(
   game: Game,
   pos: Position,
   piece: Piece,
-) -> List(Action) {
+) -> List(Move) {
   let board = game.board
 
   // A 1-based index, with 0 representing the bottom row
@@ -84,20 +84,20 @@ fn pawn_vertical_actions(
 
   let square = board.get_pos(board, new_pos)
 
-  // Only write the actions to the legal actions list if the space in front of us is
+  // Only write the moves to the legal moves list if the space in front of us is
   // empty. We store `was_legal` so we can tell if it's possible to move two away as
   // well
-  let #(actions, was_legal) = case square {
+  let #(moves, was_legal) = case square {
     square.Some(_) -> #([], False)
     square.None -> {
-      let action = Change(pos, new_pos) |> action.Basic
-      #(action |> list.wrap, True)
+      let move = Change(pos, new_pos) |> move.Basic
+      #(move |> list.wrap, True)
     }
   }
 
   // We can only double move if we're on the right rank, and moving one was legal.
   // If not, exit early.
-  use <- bool.guard(can_double_move == False || was_legal == False, actions)
+  use <- bool.guard(can_double_move == False || was_legal == False, moves)
 
   // The `can_double_move` check means we're in no danger of hitting the edge
   // of the board
@@ -107,19 +107,19 @@ fn pawn_vertical_actions(
   let square = board.get_pos(board, new_pos)
 
   case square {
-    square.Some(_) -> actions
+    square.Some(_) -> moves
     square.None -> {
-      let double = Change(pos, new_pos) |> action.Basic
-      [double, ..actions]
+      let double = Change(pos, new_pos) |> move.Basic
+      [double, ..moves]
     }
   }
 }
 
-fn pawn_diagonal_actions(
+fn pawn_diagonal_moves(
   game: Game,
   pos: Position,
   piece: Piece,
-) -> List(Action) {
+) -> List(Move) {
   let board = game.board
 
   let dirs = case piece.color {
@@ -146,7 +146,7 @@ fn pawn_diagonal_actions(
   }
 
   // Based on the piece found in the direction, and whether that piece is an enemy,
-  // decide whether the action is legal. Error means illegal.
+  // decide whether the move is legal. Error means illegal.
   case square, is_enemy {
     // No piece to capture.
     square.None, _ -> Error("")
@@ -155,12 +155,12 @@ fn pawn_diagonal_actions(
     square.Some(_), False -> Error("")
 
     // There's a piece in that direction, and it's an enemy. Legal! Use the Capture
-    // constructor, so we can give this action higher priority in evaluation
-    square.Some(_), True -> Change(pos, pos_in_dir) |> action.Capture |> Ok
+    // constructor, so we can give this move higher priority in evaluation
+    square.Some(_), True -> Change(pos, pos_in_dir) |> move.Capture |> Ok
   }
 }
 
-fn en_passant_actions(game: Game, pos: Position, piece: Piece) -> Option(Action) {
+fn en_passant_moves(game: Game, pos: Position, piece: Piece) -> Option(Move) {
   // 0-based indices
   let rank = pos |> position.get_rank |> rank.to_index
   let file = pos |> position.get_file |> file.to_index
@@ -195,19 +195,19 @@ fn en_passant_actions(game: Game, pos: Position, piece: Piece) -> Option(Action)
 }
 
 /// TODO
-fn legal_knight_actions(
+fn legal_knight_moves(
   _game: Game,
   _position: Position,
   _piece: Piece,
-) -> List(Action) {
+) -> List(Move) {
   []
 }
 
-fn legal_sliding_actions(
+fn legal_sliding_moves(
   game: Game,
   current_pos: Position,
   sliding_piece: SlidingPiece,
-) -> List(Action) {
+) -> List(Move) {
   let board = game.board
 
   sliding.piece_directions(sliding_piece)
@@ -218,7 +218,7 @@ fn legal_sliding_actions(
     let piece_distance = sliding.piece_distance(sliding_piece, dir)
 
     // Store the distance until another piece is found, or we hit a wall. Custom type
-    // that can either be a Capture or a NonCapture, so we can mark the action as
+    // that can either be a Capture or a NonCapture, so we can mark the move as
     // a capture if needed.
     let obstructed =
       board.obstructed_distance(board, current_pos, dir, sliding_piece.color)
@@ -228,20 +228,20 @@ fn legal_sliding_actions(
 
     case obstructed {
       board.Capture(_) -> {
-        // Create the capture action first - then call the function to generate the
-        // non-captures for all the actions that were of a smaller distance (if they
+        // Create the capture move first - then call the function to generate the
+        // non-captures for all the moves that were of a smaller distance (if they
         // exist)
         let assert Ok(capture_pos) =
           position.from_offset(current_pos, max_distance, dir)
-        let capture = Change(current_pos, capture_pos) |> action.Capture
+        let capture = Change(current_pos, capture_pos) |> move.Capture
 
         let non_captures =
-          sliding_actions_for_dir(current_pos, max_distance - 1, dir)
+          sliding_moves_for_dir(current_pos, max_distance - 1, dir)
 
         list.prepend(non_captures, capture)
       }
       board.NonCapture(_) -> {
-        sliding_actions_for_dir(current_pos, max_distance, dir)
+        sliding_moves_for_dir(current_pos, max_distance, dir)
       }
     }
   })
@@ -249,18 +249,18 @@ fn legal_sliding_actions(
   |> list.flatten
 }
 
-/// Generates a list of actions from a position and in a direction, up to some
-/// maximum distance. This does *not* generate actions with the Capture() record -
+/// Generates a list of moves from a position and in a direction, up to some
+/// maximum distance. This does *not* generate moves with the Capture() record -
 /// you're expected to use this to generate your non-captures, and handle captures on
 /// your own. This also doesn't care about your piece type - so make sure
 /// `max_distance` takes Kings into account, since they can only move by one square!
-fn sliding_actions_for_dir(
+fn sliding_moves_for_dir(
   current_pos: Position,
   max_distance: Int,
   dir: Direction,
-) -> List(Action) {
+) -> List(Move) {
   // iv.range isn't very safe - given the input `(1,0)`, it doesn't give an error.
-  // We have to guard against the case that there are no actions from our current
+  // We have to guard against the case that there are no moves from our current
   // position.
   use <- bool.guard(max_distance == 0, list.new())
   let distances = list.range(1, max_distance)
@@ -271,6 +271,6 @@ fn sliding_actions_for_dir(
     // if it ever fails, we must've somehow had invalid logic. Insta-fail!
     let assert Ok(new_pos) = position.from_offset(current_pos, dist, dir)
 
-    Change(current_pos, new_pos) |> action.Basic
+    Change(current_pos, new_pos) |> move.Basic
   })
 }

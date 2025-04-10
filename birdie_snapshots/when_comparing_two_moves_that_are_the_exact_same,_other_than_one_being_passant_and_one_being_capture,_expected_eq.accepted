@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: When comparing two moves that are the exact same, other than one being Passant and one being Capture, expected Eq!
+file: ./test/move/compare_move.gleam
+test_name: neither_basic_test
+---
+Eq

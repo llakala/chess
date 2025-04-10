@@ -3,7 +3,7 @@ import chess/color
 import chess/game
 import chess/piece
 import gleam/io
-import legal/action
+import legal/move
 
 import chess/board
 import chess/position
@@ -24,10 +24,10 @@ pub fn white_pawn_test() {
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
 
-  let assert Ok(legal_actions) = generate.legal_actions(game, pos)
+  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
-  legal_actions
-  |> list.map(fn(action) { action |> action.to_string })
+  legal_moves
+  |> list.map(fn(move) { move |> move.to_string })
   |> string.inspect
   |> birdie.snap("White pawn on e4 can only go to e5!")
 }
@@ -42,10 +42,10 @@ pub fn black_pawn_test() {
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
 
-  let assert Ok(legal_actions) = generate.legal_actions(game, pos)
+  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
-  legal_actions
-  |> list.map(fn(action) { action |> action.to_string })
+  legal_moves
+  |> list.map(fn(move) { move |> move.to_string })
   |> string.inspect
   |> birdie.snap("Black pawn on e4 can only go to e3!")
 }
@@ -60,10 +60,10 @@ pub fn white_pawn_double_move_test() {
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
 
-  let assert Ok(legal_actions) = generate.legal_actions(game, pos)
+  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
-  legal_actions
-  |> list.map(fn(action) { action |> action.to_string })
+  legal_moves
+  |> list.map(fn(move) { move |> move.to_string })
   |> string.inspect
   |> birdie.snap("White pawn on e2 can go to e3 and e4!")
 }
@@ -78,10 +78,10 @@ pub fn black_pawn_double_move_test() {
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
 
-  let assert Ok(legal_actions) = generate.legal_actions(game, pos)
+  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
-  legal_actions
-  |> list.map(fn(action) { action |> action.to_string })
+  legal_moves
+  |> list.map(fn(move) { move |> move.to_string })
   |> string.inspect
   |> birdie.snap("Black pawn on a7 can go to a6 and a5!")
 }
@@ -97,10 +97,10 @@ pub fn passant_test() {
   // The position of the white pawn that can now perform en passant
   let assert Ok(pawn_pos) = position.new("e5")
 
-  let assert Ok(legal_actions) = generate.legal_actions(game, pawn_pos)
+  let assert Ok(legal_moves) = generate.legal_moves(game, pawn_pos)
 
-  legal_actions
-  |> list.map(fn(action) { action |> action.to_string })
+  legal_moves
+  |> list.map(fn(move) { move |> move.to_string })
   |> string.inspect
   |> birdie.snap("White pawn can go forward to e6, or en passant to d6!")
 }
@@ -111,13 +111,13 @@ pub fn capture_test() {
   let assert Ok(game) =
     game.new("rnbqkbnr/pppppppp/4P3/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1")
 
-  // The position of the white pawn that has two capture actions
+  // The position of the white pawn that has two capture moves
   let assert Ok(pawn_pos) = position.new("e6")
 
-  let assert Ok(legal_actions) = generate.legal_actions(game, pawn_pos)
+  let assert Ok(legal_moves) = generate.legal_moves(game, pawn_pos)
 
-  legal_actions
-  |> list.map(fn(action) { action |> action.to_string })
+  legal_moves
+  |> list.map(fn(move) { move |> move.to_string })
   |> string.inspect
   |> birdie.snap("White pawn on e6 can capture on d7 or f7!")
 }
