@@ -1,7 +1,7 @@
 ---
 version: 1.2.6
 title: White pawn can go forward to e6, or en passant to d6!
-file: ./test/legal/pawn.gleam
+file: ./test/generate/pawn.gleam
 test_name: passant_test
 ---
 ["e5 -> e6", "En Passant e5 -> d6"]

@@ -1,7 +1,7 @@
 ---
 version: 1.2.6
 title: Able to castle on every side!
-file: ./test/fen/castling.gleam
+file: ./test/game/castling.gleam
 test_name: all_castle_test
 ---
 White: King and Queen

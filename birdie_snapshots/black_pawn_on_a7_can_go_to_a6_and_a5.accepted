@@ -1,7 +1,7 @@
 ---
 version: 1.2.6
 title: Black pawn on a7 can go to a6 and a5!
-file: ./test/legal/pawn.gleam
+file: ./test/generate/pawn.gleam
 test_name: black_pawn_double_move_test
 ---
 ["a7 -> a5", "a7 -> a6"]

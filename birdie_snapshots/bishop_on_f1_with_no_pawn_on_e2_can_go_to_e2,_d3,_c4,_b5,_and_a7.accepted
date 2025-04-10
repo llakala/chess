@@ -1,7 +1,7 @@
 ---
 version: 1.2.6
 title: Bishop on f1 with no pawn on e2 can go to e2, d3, c4, b5, and a7!
-file: ./test/move/legal.gleam
+file: ./test/generate/sliding.gleam
 test_name: bishop_test
 ---
 ["f1 -> e2", "f1 -> d3", "f1 -> c4", "f1 -> b5", "f1 -> a6"]
