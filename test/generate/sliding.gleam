@@ -10,7 +10,7 @@ import gleam/list
 import gleam/string
 
 import legal/generate
-import legal/move.{Move}
+import legal/change.{Change}
 
 pub fn queen_goes_up_test() {
   let game = game.initial()
@@ -62,7 +62,7 @@ pub fn rook_test() {
   let assert Ok(old_pos) = position.new("h1")
   let assert Ok(new_pos) = position.new("d4")
 
-  let h1_rook_to_d4 = Move(old_pos, new_pos) |> action.Basic
+  let h1_rook_to_d4 = Change(old_pos, new_pos) |> action.Basic
   let game = action.apply(game, h1_rook_to_d4)
 
   let assert Ok(legal_actions) = generate.legal_actions(game, new_pos)

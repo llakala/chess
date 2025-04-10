@@ -2,27 +2,27 @@ import chess/board.{type Board}
 import chess/color.{type Color}
 import chess/game.{type Game, Game}
 import gleam/order.{type Order, Gt, Lt}
-import legal/move.{type Move}
+import legal/change.{type Change}
 
 pub type Action {
-  Basic(move: Move)
-  Capture(move: Move)
-  Passant(move: Move)
-  QueenCastle(move: Move)
-  KingCastle(move: Move)
+  Basic(change: Change)
+  Capture(change: Change)
+  Passant(change: Change)
+  QueenCastle(change: Change)
+  KingCastle(change: Change)
 }
 
 pub fn compare(first: Action, second: Action) -> Order {
   case first, second {
-    Basic(_), Basic(_) -> move.compare(first.move, second.move)
+    Basic(_), Basic(_) -> change.compare(first.change, second.change)
     Basic(_), _ -> Lt
     _, Basic(_) -> Gt
-    _, _ -> move.compare(first.move, second.move)
+    _, _ -> change.compare(first.change, second.change)
   }
 }
 
 pub fn to_string(action: Action) -> String {
-  let move_str = action.move |> move.to_string
+  let change_str = action.change |> change.to_string
   let action_str = case action {
     Basic(_) -> ""
     Capture(_) -> "Capture "
@@ -31,7 +31,7 @@ pub fn to_string(action: Action) -> String {
     KingCastle(_) -> "Castle Kingside "
   }
 
-  action_str <> move_str
+  action_str <> change_str
 }
 
 /// Simple function that calls the correct `apply` function for the given
@@ -39,13 +39,13 @@ pub fn to_string(action: Action) -> String {
 /// when we're actually applying moves.
 pub fn apply(game: Game, action: Action) -> Game {
   let board = game.board
-  let move = action.move
+  let change = action.change
   let new_board = case action {
-    Basic(_) -> move.apply(board, move)
+    Basic(_) -> change.apply(board, change)
 
     // We currently handle captures the same - but having them as Capture means
     // we can filter for them in a list of moves
-    Capture(_) -> move.apply(board, move)
+    Capture(_) -> change.apply(board, change)
 
     QueenCastle(_) -> apply_queen_castle(board, action, game.color)
     KingCastle(_) -> apply_king_castle(board, action, game.color)
