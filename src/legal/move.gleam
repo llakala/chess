@@ -7,6 +7,13 @@ pub type Move {
   Move(from: Position, to: Position)
 }
 
+pub fn compare(first: Move, second: Move) -> Order {
+  // First try to sort on `from` - if you get `Eq`, then sort on `to`. Only if that
+  // ALSO returns Eq do we return Eq.
+  use <- order.lazy_break_tie(position.compare(first.from, second.from))
+  position.compare(first.to, second.to)
+}
+
 pub fn apply(board: Board, move: Move) -> Board {
   let square = board.get_pos(board, move.from)
   board

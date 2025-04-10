@@ -1,6 +1,7 @@
 import chess/board.{type Board}
 import chess/color.{type Color}
 import chess/game.{type Game, Game}
+import gleam/order.{type Order, Gt, Lt}
 import legal/move.{type Move}
 
 pub type Action {
@@ -9,6 +10,15 @@ pub type Action {
   Passant(move: Move)
   QueenCastle(move: Move)
   KingCastle(move: Move)
+}
+
+pub fn compare(first: Action, second: Action) -> Order {
+  case first, second {
+    Basic(_), Basic(_) -> move.compare(first.move, second.move)
+    Basic(_), _ -> Lt
+    _, Basic(_) -> Gt
+    _, _ -> move.compare(first.move, second.move)
+  }
 }
 
 pub fn to_string(action: Action) -> String {
