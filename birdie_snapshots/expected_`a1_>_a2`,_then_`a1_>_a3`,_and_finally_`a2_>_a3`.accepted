@@ -1,7 +1,7 @@
 ---
 version: 1.2.6
 title: Expected `a1 -> a2`, then `a1 -> a3`, and finally `a2 -> a3`.
-file: ./test/move/compare_move.gleam
-test_name: lots_of_moves_test
+file: ./test/move/compare_change.gleam
+test_name: lots_of_changes_test
 ---
 ["a1 -> a2", "a1 -> a3", "a2 -> a3"]
