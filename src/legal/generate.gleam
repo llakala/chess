@@ -16,8 +16,8 @@ import gleam/bool
 import gleam/int
 import gleam/list
 import gleam/result
-import legal/move.{type Move, Passant}
 import legal/change.{Change}
+import legal/move.{type Move, Passant}
 
 /// Given a board and a position, get all the legal moves that the piece at that
 /// position can make. An move wraps a Change, so we can differentiate things like
@@ -56,11 +56,7 @@ fn legal_pawn_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   |> list.append(en_passant_moves)
 }
 
-fn pawn_vertical_moves(
-  game: Game,
-  pos: Position,
-  piece: Piece,
-) -> List(Move) {
+fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   let board = game.board
 
   // A 1-based index, with 0 representing the bottom row
@@ -80,7 +76,7 @@ fn pawn_vertical_moves(
   // If this failed, we're at the edge and didn't promote into a queen! Means there
   // was bad logic when it came to promotion.
   let assert Ok(new_pos) =
-    position.from_offset(distance: 1, position: pos, direction: dir)
+    position.in_direction(distance: 1, position: pos, direction: dir)
 
   let square = board.get_pos(board, new_pos)
 
@@ -102,7 +98,7 @@ fn pawn_vertical_moves(
   // The `can_double_move` check means we're in no danger of hitting the edge
   // of the board
   let assert Ok(new_pos) =
-    position.from_offset(distance: 2, position: pos, direction: dir)
+    position.in_direction(distance: 2, position: pos, direction: dir)
 
   let square = board.get_pos(board, new_pos)
 
@@ -115,11 +111,7 @@ fn pawn_vertical_moves(
   }
 }
 
-fn pawn_diagonal_moves(
-  game: Game,
-  pos: Position,
-  piece: Piece,
-) -> List(Move) {
+fn pawn_diagonal_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   let board = game.board
 
   let dirs = case piece.color {
@@ -132,7 +124,7 @@ fn pawn_diagonal_moves(
 
   // If this errors out since we're by an edge, simply don't add it to the list,
   // thanks to `filter_map`
-  use pos_in_dir <- result.try(position.from_offset(
+  use pos_in_dir <- result.try(position.in_direction(
     distance: 1,
     position: pos,
     direction: dir,
@@ -232,7 +224,7 @@ fn legal_sliding_moves(
         // non-captures for all the moves that were of a smaller distance (if they
         // exist)
         let assert Ok(capture_pos) =
-          position.from_offset(current_pos, max_distance, dir)
+          position.in_direction(current_pos, max_distance, dir)
         let capture = Change(current_pos, capture_pos) |> move.Capture
 
         let non_captures =
@@ -269,7 +261,7 @@ fn sliding_moves_for_dir(
   list.map(distances, fn(dist) {
     // map the direction and the distance to a new position. Returns a result, but
     // if it ever fails, we must've somehow had invalid logic. Insta-fail!
-    let assert Ok(new_pos) = position.from_offset(current_pos, dist, dir)
+    let assert Ok(new_pos) = position.in_direction(current_pos, dist, dir)
 
     Change(current_pos, new_pos) |> move.Basic
   })
