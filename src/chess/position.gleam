@@ -2,9 +2,7 @@ import chess/constants.{col_len, row_len}
 import chess/file.{type File}
 import chess/offset.{type Offset}
 import chess/rank.{type Rank}
-import chess/sliding.{
-  type Direction, Down, DownLeft, DownRight, Left, Right, Up, UpLeft, UpRight,
-}
+import chess/sliding.{type Direction}
 import gleam/order.{type Order}
 
 import gleam/bool
@@ -67,18 +65,8 @@ pub fn in_direction(
   distance dist: Int,
   direction dir: Direction,
 ) -> Result(Position, String) {
-  let row = pos.rank |> rank.to_index
-  let col = pos.file |> file.to_index
-  case dir {
-    Up -> from_indices(row: row + dist, col: col)
-    Down -> from_indices(row: row - dist, col: col)
-    Right -> from_indices(row:, col: col + dist)
-    Left -> from_indices(row:, col: col - dist)
-    UpRight -> from_indices(row: row + dist, col: col + dist)
-    UpLeft -> from_indices(row: row + dist, col: col - dist)
-    DownRight -> from_indices(row: row - dist, col: col + dist)
-    DownLeft -> from_indices(row: row - dist, col: col - dist)
-  }
+  let offset = offset.in_direction(dir, dist)
+  apply_offset(pos, offset)
 }
 
 /// Takes a classical index (0 being the top left) and turn it into a
