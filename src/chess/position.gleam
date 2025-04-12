@@ -49,7 +49,7 @@ pub fn from_indices(col col: Int, row row: Int) -> Result(Position, String) {
 /// position. This will fail if the direction went off the board - it's recommended
 /// to use `move.obstructed_distance` to find the maximum distance for a given
 /// direction that one can go in an actual game (inclusive of captures)
-pub fn from_offset(
+pub fn in_direction(
   position pos: Position,
   distance dist: Int,
   direction dir: Direction,

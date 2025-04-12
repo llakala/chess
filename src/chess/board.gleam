@@ -136,7 +136,7 @@ fn obstructed_distance_loop(
   // gone too far and gone off the board edge -- return the accumulated distance
   // immediately, without a capture since we never hit one
   use new_pos <- choose.cases(
-    position.from_offset(pos, 1, dir),
+    position.in_direction(pos, 1, dir),
     on_error: fn(_) { NonCapture(distance) },
   )
 
