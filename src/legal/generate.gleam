@@ -2,6 +2,7 @@ import chess/board
 import chess/color.{Black, White}
 import chess/file
 import chess/game.{type Game}
+import chess/offset
 import chess/piece.{type Piece, Knight, Pawn}
 import chess/position.{type Position}
 import chess/rank
@@ -188,11 +189,34 @@ fn en_passant_moves(game: Game, pos: Position, piece: Piece) -> Option(Move) {
 
 /// TODO
 fn legal_knight_moves(
-  _game: Game,
-  _position: Position,
-  _piece: Piece,
+  game: Game,
+  current_pos: Position,
+  piece: Piece,
 ) -> List(Move) {
-  []
+  let board = game.board
+  let my_color = piece.color
+  // We get all the valid offsets, and apply them - if we get an error, that offset
+  // went off the board.
+  let potential_positions =
+    offset.knight_offsets()
+    |> list.filter_map(position.apply_offset(current_pos, _))
+
+  // Filter out the invalid positions, and turn the valid positions into Moves
+  list.filter_map(potential_positions, fn(new_pos) {
+    let new_square = board.get_pos(board, new_pos)
+
+    case new_square {
+      // If the square we want to move to is empty, it's a basic move! Exit early.
+      square.None -> change.Change(current_pos, new_pos) |> move.Basic |> Ok
+
+      // It's an enemy that we can capture!
+      square.Some(other_piece) if other_piece.color != my_color ->
+        change.Change(current_pos, new_pos) |> move.Capture |> Ok
+
+      // It's a friend - can't go there.
+      _ -> Error(Nil)
+    }
+  })
 }
 
 fn legal_sliding_moves(
