@@ -4,4 +4,4 @@ title: Rook on d4 can see all of rank 4, and d{3, 7}!
 file: ./test/generate/sliding.gleam
 test_name: rook_test
 ---
-["Capture d4 -> d7", "d4 -> d5", "d4 -> d6", "d4 -> d3", "d4 -> c4", "d4 -> b4", "d4 -> a4", "d4 -> e4", "d4 -> f4", "d4 -> g4", "d4 -> h4"]
+["d4 -> a4", "d4 -> b4", "d4 -> c4", "d4 -> d3", "d4 -> d5", "d4 -> d6", "Capture d4 -> d7", "d4 -> e4", "d4 -> f4", "d4 -> g4", "d4 -> h4"]

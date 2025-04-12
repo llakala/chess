@@ -3,14 +3,10 @@ import chess/color
 import chess/game
 import chess/piece
 import gleam/io
-import legal/move
 
 import chess/board
 import chess/position
 import chess/square
-
-import gleam/list
-import gleam/string
 
 import legal/generate
 
@@ -27,8 +23,7 @@ pub fn white_pawn_test() {
   let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
   legal_moves
-  |> list.map(fn(move) { move |> move.to_string })
-  |> string.inspect
+  |> generate.display
   |> birdie.snap("White pawn on e4 can only go to e5!")
 }
 
@@ -45,8 +40,7 @@ pub fn black_pawn_test() {
   let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
   legal_moves
-  |> list.map(fn(move) { move |> move.to_string })
-  |> string.inspect
+  |> generate.display
   |> birdie.snap("Black pawn on e4 can only go to e3!")
 }
 
@@ -63,8 +57,7 @@ pub fn white_pawn_double_move_test() {
   let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
   legal_moves
-  |> list.map(fn(move) { move |> move.to_string })
-  |> string.inspect
+  |> generate.display
   |> birdie.snap("White pawn on e2 can go to e3 and e4!")
 }
 
@@ -81,8 +74,7 @@ pub fn black_pawn_double_move_test() {
   let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
   legal_moves
-  |> list.map(fn(move) { move |> move.to_string })
-  |> string.inspect
+  |> generate.display
   |> birdie.snap("Black pawn on a7 can go to a6 and a5!")
 }
 
@@ -100,9 +92,8 @@ pub fn passant_test() {
   let assert Ok(legal_moves) = generate.legal_moves(game, pawn_pos)
 
   legal_moves
-  |> list.map(fn(move) { move |> move.to_string })
-  |> string.inspect
-  |> birdie.snap("White pawn can go forward to e6, or en passant to d6!")
+  |> generate.display
+  |> birdie.snap("White pawn can en passant to d6, or go forward to e6!")
 }
 
 pub fn capture_test() {
@@ -117,7 +108,6 @@ pub fn capture_test() {
   let assert Ok(legal_moves) = generate.legal_moves(game, pawn_pos)
 
   legal_moves
-  |> list.map(fn(move) { move |> move.to_string })
-  |> string.inspect
+  |> generate.display
   |> birdie.snap("White pawn on e6 can capture on d7 or f7!")
 }

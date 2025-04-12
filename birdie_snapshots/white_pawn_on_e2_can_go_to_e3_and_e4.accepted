@@ -4,4 +4,4 @@ title: White pawn on e2 can go to e3 and e4!
 file: ./test/generate/pawn.gleam
 test_name: white_pawn_double_move_test
 ---
-["e2 -> e4", "e2 -> e3"]
+["e2 -> e3", "e2 -> e4"]

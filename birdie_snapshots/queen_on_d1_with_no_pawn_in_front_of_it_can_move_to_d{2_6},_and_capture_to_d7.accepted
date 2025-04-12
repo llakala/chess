@@ -4,4 +4,4 @@ title: Queen on d1 with no pawn in front of it can move to d{2-6}, and capture t
 file: ./test/generate/sliding.gleam
 test_name: queen_goes_up_test
 ---
-["Capture d1 -> d7", "d1 -> d2", "d1 -> d3", "d1 -> d4", "d1 -> d5", "d1 -> d6"]
+["d1 -> d2", "d1 -> d3", "d1 -> d4", "d1 -> d5", "d1 -> d6", "Capture d1 -> d7"]
