@@ -12,6 +12,7 @@ import chess/sliding.{
 }
 import chess/square
 import gleam/option.{type Option}
+import gleam/string
 
 import gleam/bool
 import gleam/int
@@ -41,6 +42,15 @@ pub fn legal_moves(game: Game, pos: Position) -> Result(List(Move), String) {
       |> Ok
     }
   }
+}
+
+// Given a list of generated moves, display them for testing - first sorted, then
+// as their string representations.
+pub fn display(moves: List(Move)) -> String {
+  moves
+  |> list.sort(move.compare)
+  |> list.map(fn(move) { move |> move.to_string })
+  |> string.inspect
 }
 
 fn legal_pawn_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
