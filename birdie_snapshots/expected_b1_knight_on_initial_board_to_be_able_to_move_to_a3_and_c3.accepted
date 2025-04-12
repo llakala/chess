@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Expected b1 knight on initial board to be able to move to a3 and c3!
+file: ./test/generate/knight.gleam
+test_name: initial_test
+---
+["b1 -> a3", "b1 -> c3"]
