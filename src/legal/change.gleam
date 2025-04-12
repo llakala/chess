@@ -1,4 +1,5 @@
 import chess/board.{type Board}
+import chess/offset.{type Offset}
 import chess/position.{type Position}
 import chess/square
 import gleam/order.{type Order}
@@ -21,7 +22,18 @@ pub fn apply(board: Board, change: Change) -> Board {
   |> board.set_pos(change.to, square)
 }
 
-pub fn to_string(change: Change) {
+/// Get the offset of the change - aka the distance the change takes it horizontally
+/// and vertically.
+pub fn to_offset(change: Change) -> Offset {
+  let #(old_rank, old_file) = change.from |> position.to_indices
+  let #(new_rank, new_file) = change.to |> position.to_indices
+
+  let vertical_change = new_rank - old_rank
+  let horizontal_change = new_file - old_file
+  offset.Offset(vertical_change, horizontal_change)
+}
+
+pub fn to_string(change: Change) -> String {
   let from_str = change.from |> position.to_string
   let to_str = change.to |> position.to_string
 
