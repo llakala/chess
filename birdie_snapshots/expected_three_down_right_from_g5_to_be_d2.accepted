@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Expected three down right from g5 to be d2!
+file: ./test/position/apply_offset.gleam
+test_name: down_left_test
+---
+d2
