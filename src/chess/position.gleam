@@ -1,5 +1,6 @@
 import chess/constants.{col_len, row_len}
 import chess/file.{type File}
+import chess/offset.{type Offset}
 import chess/rank.{type Rank}
 import chess/sliding.{
   type Direction, Down, DownLeft, DownRight, Left, Right, Up, UpLeft, UpRight,
@@ -43,6 +44,18 @@ pub fn from_indices(col col: Int, row row: Int) -> Result(Position, String) {
   use file <- result.try(col |> file.from_index)
 
   Position(rank:, file:) |> Ok
+}
+
+pub fn apply_offset(pos: Position, offset: Offset) -> Result(Position, String) {
+  let file = pos.file |> file.to_index
+  // Changing the file moves you horizontally
+  let file_change = offset.horizontal
+
+  let rank = pos.rank |> rank.to_index
+  // Changing the rank moves you vertically
+  let rank_change = offset.vertical
+
+  from_indices(file + file_change, rank + rank_change)
 }
 
 /// Take an existing position, a distance, and a direction, and return a new
