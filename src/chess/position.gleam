@@ -96,6 +96,14 @@ pub fn to_string(position pos: Position) -> String {
   file <> rank
 }
 
+// Returns a pair that looks like #(rank, file). 0-based indexing.
+pub fn to_indices(position pos: Position) -> #(Int, Int) {
+  let rank_index = pos.rank |> rank.to_index
+  let file_index = pos.file |> file.to_index
+
+  #(rank_index, file_index)
+}
+
 /// Get the rank of the position, typically thought of as the row
 pub fn get_rank(position pos: Position) -> Rank {
   pos.rank
