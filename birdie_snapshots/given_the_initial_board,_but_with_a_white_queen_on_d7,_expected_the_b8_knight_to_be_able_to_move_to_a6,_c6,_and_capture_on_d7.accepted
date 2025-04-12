@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Given the initial board, but with a white queen on d7, expected the b8 knight to be able to move to a6, c6, and capture on d7!
+file: ./test/generate/knight.gleam
+test_name: capturing_test
+---
+["b8 -> a6", "b8 -> c6", "Capture b8 -> d7"]
