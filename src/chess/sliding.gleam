@@ -59,7 +59,7 @@ pub fn to_piece(sliding_piece: SlidingPiece) -> piece.Piece {
 /// QOL function that calls the `piece.to_string` so you don't have to manually
 /// cast.
 pub fn to_string(piece: SlidingPiece) -> String {
-  piece |> to_piece |> piece.to_string
+  piece |> to_piece |> piece.to_icon
 }
 
 /// Get a list of all the directions a piece is able to go.
