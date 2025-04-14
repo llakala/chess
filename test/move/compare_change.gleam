@@ -1,15 +1,11 @@
 import birdie
-import chess/position
 import gleam/list
 import gleam/string
 import legal/change
 
 pub fn different_to_test() {
-  let assert Ok(a1) = position.new("a1")
-  let assert Ok(a2) = position.new("a2")
-  let assert Ok(a3) = position.new("a3")
-  let change1 = change.Change(a1, a2)
-  let change2 = change.Change(a1, a3)
+  let assert Ok(change1) = change.new("a1", "a2")
+  let assert Ok(change2) = change.new("a1", "a3")
   change.compare(change1, change2)
   |> string.inspect
   |> birdie.snap(
@@ -18,11 +14,8 @@ pub fn different_to_test() {
 }
 
 pub fn different_from_test() {
-  let assert Ok(a1) = position.new("a1")
-  let assert Ok(a2) = position.new("a2")
-  let assert Ok(a3) = position.new("a3")
-  let change1 = change.Change(a2, a1)
-  let change2 = change.Change(a3, a1)
+  let assert Ok(change1) = change.new("a2", "a1")
+  let assert Ok(change2) = change.new("a3", "a1")
   change.compare(change1, change2)
   |> string.inspect
   |> birdie.snap(
@@ -31,12 +24,9 @@ pub fn different_from_test() {
 }
 
 pub fn lots_of_changes_test() {
-  let assert Ok(a1) = position.new("a1")
-  let assert Ok(a2) = position.new("a2")
-  let assert Ok(a3) = position.new("a3")
-  let change1 = change.Change(a1, a2)
-  let change2 = change.Change(a1, a3)
-  let change3 = change.Change(a2, a3)
+  let assert Ok(change1) = change.new("a1", "a2")
+  let assert Ok(change2) = change.new("a1", "a3")
+  let assert Ok(change3) = change.new("a2", "a3")
 
   [change1, change2, change3]
   |> list.sort(change.compare)
