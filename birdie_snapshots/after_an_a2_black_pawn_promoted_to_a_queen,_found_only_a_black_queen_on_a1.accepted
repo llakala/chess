@@ -1,0 +1,14 @@
+---
+version: 1.2.6
+title: After an a2 black pawn promoted to a queen, found only a black queen on a1!
+file: ./test/move/apply.gleam
+test_name: promotion_test
+---
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+♛, 0, 0, 0, 0, 0, 0, 0

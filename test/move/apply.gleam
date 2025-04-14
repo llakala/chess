@@ -1,6 +1,8 @@
 import birdie
 import chess/board
+import chess/color
 import chess/game
+import chess/piece
 import chess/position
 import legal/change.{Change}
 import legal/move
@@ -47,5 +49,21 @@ pub fn en_passant_test() {
   |> board.to_string
   |> birdie.snap(
     "After performing an en passant, white pawn is on d6, after capturing the d5 pawn!",
+  )
+}
+
+pub fn promotion_test() {
+  // Empty board other than a pawn on a2, about to promote.
+  let assert Ok(game) = game.new("8/8/8/8/8/8/p7/8 w KQkq - 0 1")
+  let assert Ok(from) = position.new("a2")
+  let assert Ok(to) = position.new("a1")
+  let move = Change(from, to) |> move.Promotion(piece.Queen(color.Black))
+
+  let game = move.apply(game, move)
+
+  game.board
+  |> board.to_string
+  |> birdie.snap(
+    "After an a2 black pawn promoted to a queen, found only a black queen on a1!",
   )
 }
