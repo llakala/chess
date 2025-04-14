@@ -5,13 +5,14 @@ import legal/move
 
 pub fn basic_then_capture_test() {
   let assert Ok(a1_to_a2) = change.new("a1", "a2")
-  let assert Ok(a2_to_a1) = change.new("a2", "a1")
   let basic_move = a1_to_a2 |> move.Basic
-  let capture_move = a2_to_a1 |> move.Capture
+  let capture_move = a1_to_a2 |> move.Capture
 
   move.compare(basic_move, capture_move)
   |> string.inspect
-  |> birdie.snap("When comparing a Basic move and a Capture move, expected Lt!")
+  |> birdie.snap(
+    "When comparing a Basic move and a Capture move with the same internal move, expected Eq!",
+  )
 }
 
 pub fn neither_basic_test() {
