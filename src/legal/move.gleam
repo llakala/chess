@@ -1,6 +1,7 @@
 import chess/board
 import chess/game.{type Game, Game}
 import chess/offset.{Offset}
+import chess/piece.{type Piece}
 import chess/position
 import chess/square
 import gleam/order.{type Order}
@@ -9,6 +10,8 @@ import legal/change.{type Change}
 pub type Move {
   Basic(change: Change)
   Capture(change: Change)
+  Promotion(change: Change, new: piece.Piece)
+  PromotionCapture(change: Change, new: piece.Piece)
   Passant(change: Change)
   QueenCastle(change: Change)
   KingCastle(change: Change)
@@ -26,6 +29,14 @@ pub fn to_string(move: Move) -> String {
     Passant(_) -> "En Passant "
     QueenCastle(_) -> "Castle Queenside "
     KingCastle(_) -> "Castle Kingside "
+    Promotion(_, piece) -> {
+      let piece_name = piece |> piece.to_name
+      piece_name <> " Promotion "
+    }
+    PromotionCapture(_, piece) -> {
+      let piece_name = piece |> piece.to_name
+      piece_name <> " Promotion & Capture "
+    }
   }
 
   move_str <> change_str
@@ -41,13 +52,15 @@ pub fn apply(game: Game, move: Move) -> Game {
     Basic(_) -> change.apply(game, change)
 
     // We currently handle captures the same - but having them as Capture means
-    // we can filter for them in a list of moves
+    // we can have special logic for them in other cases
     Capture(_) -> change.apply(game, change)
 
     QueenCastle(_) -> apply_queen_castle(game, change)
     KingCastle(_) -> apply_king_castle(game, change)
 
     Passant(_) -> apply_passant(game, change)
+    Promotion(_, piece) | PromotionCapture(_, piece) ->
+      apply_promotion(game, change, piece)
   }
 }
 
@@ -73,4 +86,16 @@ fn apply_passant(game: Game, change: Change) -> Game {
 
   // Remove the enemy, thereby capturing it.
   Game(..game, board: board.set_pos(game.board, enemy_pos, square.None))
+}
+
+fn apply_promotion(game: Game, change: Change, piece: Piece) -> Game {
+  // Move the original piece to the new position
+  let game = change.apply(game, change)
+
+  // Replace the moved piece with the piece it's promoting into
+  let square = piece |> square.Some
+  let board = game.board |> board.set_pos(change.to, square)
+
+  // Replace the existing board with our new board
+  Game(..game, board:)
 }
