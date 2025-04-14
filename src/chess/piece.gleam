@@ -56,3 +56,15 @@ pub fn to_icon(piece: Piece) -> String {
     King(Black) -> "♚"
   }
 }
+
+/// Get the piece's name (i.e. "Queen"), for use in debugging in tests.
+pub fn to_name(piece: Piece) {
+  case piece {
+    Bishop(_) -> "Bishop"
+    King(_) -> "King"
+    Knight(_) -> "Knight"
+    Pawn(_) -> "Pawn"
+    Queen(_) -> "Queen"
+    Rook(_) -> "Rook"
+  }
+}
