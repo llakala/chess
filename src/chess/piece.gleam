@@ -34,7 +34,8 @@ pub fn from_fen(char: String) -> Result(Piece, String) {
   }
 }
 
-pub fn to_string(piece: Piece) -> String {
+/// Gives a unicode representation of the piece, for displaying in tests.
+pub fn to_icon(piece: Piece) -> String {
   case piece {
     Pawn(White) -> "♙"
     Pawn(Black) -> "♟"

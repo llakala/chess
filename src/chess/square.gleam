@@ -30,7 +30,7 @@ pub fn to_string(square: Square) -> String {
       // We've already handled None!
       let assert Ok(piece) = to_piece(square)
 
-      piece.to_string(piece)
+      piece.to_icon(piece)
     }
   }
 }
