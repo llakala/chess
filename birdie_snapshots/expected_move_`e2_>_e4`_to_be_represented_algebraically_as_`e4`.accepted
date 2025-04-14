@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Expected move `e2 -> e4` to be represented algebraically as `e4`
+file: ./test/change/algebraic.gleam
+test_name: pawn_forward_test
+---
+e4
