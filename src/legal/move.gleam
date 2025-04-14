@@ -1,5 +1,4 @@
-import chess/board.{type Board}
-import chess/color.{type Color}
+import chess/board
 import chess/game.{type Game, Game}
 import chess/offset.{Offset}
 import chess/position
@@ -36,34 +35,31 @@ pub fn to_string(move: Move) -> String {
 /// move. This lets en passant, queen castle, etc, be executed differently
 /// when we're actually applying moves.
 pub fn apply(game: Game, move: Move) -> Game {
-  let board = game.board
   let change = move.change
-  let color = game.color
 
-  let new_board = case move {
-    Basic(_) -> change.apply(board, change)
+  case move {
+    Basic(_) -> change.apply(game, change)
 
     // We currently handle captures the same - but having them as Capture means
     // we can filter for them in a list of moves
-    Capture(_) -> change.apply(board, change)
+    Capture(_) -> change.apply(game, change)
 
-    QueenCastle(_) -> apply_queen_castle(board, change, color)
-    KingCastle(_) -> apply_king_castle(board, change, color)
+    QueenCastle(_) -> apply_queen_castle(game, change)
+    KingCastle(_) -> apply_king_castle(game, change)
 
-    Passant(_) -> apply_passant(board, change)
+    Passant(_) -> apply_passant(game, change)
   }
-  Game(..game, board: new_board)
 }
 
-fn apply_king_castle(_board: Board, _change: Change, _color: Color) -> Board {
+fn apply_king_castle(_game: Game, _change: Change) -> Game {
   panic as "Unimplemented!"
 }
 
-fn apply_queen_castle(_board: Board, _change: Change, _color: Color) -> Board {
+fn apply_queen_castle(_game: Game, _change: Change) -> Game {
   panic as "Unimplemented!"
 }
 
-fn apply_passant(board: Board, change: Change) -> Board {
+fn apply_passant(game: Game, change: Change) -> Game {
   // The change between the two positions
   let offset = change |> change.to_offset
   // Get the horizontal piece of the offsets - en passant moves you horizontally
@@ -73,7 +69,8 @@ fn apply_passant(board: Board, change: Change) -> Board {
     Offset(0, offset.horizontal) |> position.apply_offset(change.from, _)
 
   // Move our piece diagonally to the new position
-  change.apply(board, change)
+  let game = change.apply(game, change)
+
   // Remove the enemy, thereby capturing it.
-  |> board.set_pos(enemy_pos, square.None)
+  Game(..game, board: board.set_pos(game.board, enemy_pos, square.None))
 }
