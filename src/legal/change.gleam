@@ -3,9 +3,19 @@ import chess/offset.{type Offset}
 import chess/position.{type Position}
 import chess/square
 import gleam/order.{type Order}
+import gleam/result
 
 pub type Change {
   Change(from: Position, to: Position)
+}
+
+/// Simple constructor that takes strings and passes them to the position
+/// constructor, so you don't have to manually create positions every single time.
+pub fn new(from from_str: String, to to_str: String) -> Result(Change, String) {
+  use from <- result.try(from_str |> position.new)
+  use to <- result.try(to_str |> position.new)
+
+  Change(from, to) |> Ok
 }
 
 pub fn compare(first: Change, second: Change) -> Order {
