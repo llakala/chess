@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Expected queen from a8 -> f3 to be represented as `Qa8f3`!
+file: ./test/change/algebraic.gleam
+test_name: normal_piece_test
+---
+Qa8f3
