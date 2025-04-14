@@ -57,6 +57,20 @@ pub fn to_icon(piece: Piece) -> String {
   }
 }
 
+/// Get the algebraic notation for a piece (a knight would get `N`, for example).
+/// Returns an error if it recieves a pawn, since pawns need their own logic for
+/// algebraic notation generation.
+pub fn to_algebraic(piece: Piece) -> Result(String, String) {
+  case piece {
+    Knight(_) -> "N" |> Ok
+    Bishop(_) -> "B" |> Ok
+    King(_) -> "K" |> Ok
+    Pawn(_) -> Error("Pawn algebraic notation can't be generated through this!")
+    Queen(_) -> "Q" |> Ok
+    Rook(_) -> "R" |> Ok
+  }
+}
+
 /// Get the piece's name (i.e. "Queen"), for use in debugging in tests.
 pub fn to_name(piece: Piece) {
   case piece {
