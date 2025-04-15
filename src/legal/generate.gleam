@@ -76,6 +76,7 @@ fn promotable_pieces(color: Color) {
   [Queen(color), Rook(color), Bishop(color), Knight(color)]
 }
 
+/// Generates BasicMoves and Promotions.
 fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   let board = game.board
   let my_color = piece.color
@@ -155,6 +156,7 @@ fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   }
 }
 
+/// Generates Captures and PromotionCaptures
 fn pawn_diagonal_moves(
   game: Game,
   old_pos: Position,
@@ -222,6 +224,8 @@ fn pawn_diagonal_moves(
   }
 }
 
+/// Returns an Option, since there's only one possible en passant move at any given
+/// time.
 fn en_passant_move(game: Game, pos: Position, piece: Piece) -> Option(Move) {
   // 0-based indices
   let rank = pos |> position.get_rank |> rank.to_index
@@ -288,6 +292,7 @@ fn legal_knight_moves(
   })
 }
 
+/// Returns BasicMoves and Captures
 fn legal_sliding_moves(
   game: Game,
   current_pos: Position,
