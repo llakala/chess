@@ -111,3 +111,32 @@ pub fn capture_test() {
   |> generate.display
   |> birdie.snap("White pawn on e6 can capture on d7 or f7!")
 }
+
+pub fn promotion_test() {
+  // Empty board, other than a white pawn on c7
+  let assert Ok(game) = game.new("8/2P5/8/8/8/8/8/8 w KQkq - 0 1")
+
+  let assert Ok(pos) = position.new("c7")
+
+  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
+
+  legal_moves
+  |> generate.display
+  |> birdie.snap(
+    "White pawn on c7 can promote into a rook, bishop, knight, or queen!",
+  )
+}
+
+pub fn promotion_capture_test() {
+  // White pawn on c7, with a white rook on c8, and a black queen on d8
+  let assert Ok(game) = game.new("2Rq4/2P5/8/8/8/8/8/8 w KQkq - 0 1")
+  let assert Ok(pos) = position.new("c7")
+
+  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
+
+  legal_moves
+  |> generate.display
+  |> birdie.snap(
+    "White pawn on c7 can capture on d8, promoting into a rook, bishop, knight, or queen!",
+  )
+}

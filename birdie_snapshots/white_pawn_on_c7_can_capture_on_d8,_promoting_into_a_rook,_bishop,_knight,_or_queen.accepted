@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: White pawn on c7 can capture on d8, promoting into a rook, bishop, knight, or queen!
+file: ./test/generate/pawn.gleam
+test_name: promotion_capture_test
+---
+["Queen Promotion & Capture c7 -> d8", "Rook Promotion & Capture c7 -> d8", "Bishop Promotion & Capture c7 -> d8", "Knight Promotion & Capture c7 -> d8"]
