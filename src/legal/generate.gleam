@@ -13,6 +13,7 @@ import chess/sliding.{
 import chess/square
 import gleam/option.{type Option}
 import gleam/string
+import utils/choose
 
 import gleam/bool
 import gleam/int
@@ -154,7 +155,11 @@ fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   }
 }
 
-fn pawn_diagonal_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
+fn pawn_diagonal_moves(
+  game: Game,
+  old_pos: Position,
+  piece: Piece,
+) -> List(Move) {
   let board = game.board
 
   let dirs = case piece.color {
@@ -162,18 +167,27 @@ fn pawn_diagonal_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
     White -> [UpLeft, UpRight]
   }
 
-  // Rest of the function runs on each direction in the directions
-  use dir <- list.filter_map(dirs)
+  // A 1-based index, with 0 representing the bottom row
+  let rank_index = old_pos |> position.get_rank |> rank.to_index
 
-  // If this errors out since we're by an edge, simply don't add it to the list,
-  // thanks to `filter_map`
-  use pos_in_dir <- result.try(position.in_direction(
-    distance: 1,
-    position: pos,
-    direction: dir,
-  ))
+  let can_promote = case piece.color, rank_index {
+    Black, rank -> rank - 1 == 0
+    White, rank -> rank + 1 == 7
+  }
 
-  let square = board.get_pos(board, pos_in_dir)
+  // The rest of this function runs for each direction in the directions. The
+  // directions each return a list, since captures create multiple possible moves in
+  // a direction (for each piece to be promoted into)
+  use dir <- list.flat_map(dirs)
+
+  // If this errors out since we're by an edge, return an empty list representing
+  // no legal movesi n this direction
+  use new_pos <- choose.cases(
+    position.in_direction(distance: 1, position: old_pos, direction: dir),
+    on_error: fn(_) { [] },
+  )
+
+  let square = board.get_pos(board, new_pos)
 
   let is_enemy = case square {
     square.None -> False
@@ -181,17 +195,30 @@ fn pawn_diagonal_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   }
 
   // Based on the piece found in the direction, and whether that piece is an enemy,
-  // decide whether the move is legal. Error means illegal.
-  case square, is_enemy {
-    // No piece to capture.
-    square.None, _ -> Error("")
+  // decide whether the move is legal. `can_promote` dictates the type of move(s) to
+  // be returned.
+  case square, is_enemy, can_promote {
+    // No piece to capture - move into the next direction
+    square.None, _, _ -> []
 
-    // Piece found is of same color, so can't capture.
-    square.Some(_), False -> Error("")
+    // Piece found is of same color, so can't capture. Move on.
+    square.Some(_), False, _ -> []
 
-    // There's a piece in that direction, and it's an enemy. Legal! Use the Capture
-    // constructor, so we can give this move higher priority in evaluation
-    square.Some(_), True -> Change(pos, pos_in_dir) |> move.Capture |> Ok
+    // There's a piece in that direction, and it's an enemy (but we can't promote).
+    // Use the Capture constructor, so we can give this move higher priority in evaluation
+    square.Some(_), True, False ->
+      Change(old_pos, new_pos) |> move.Capture |> list.wrap
+
+    // Promotion!
+    square.Some(_), True, True -> {
+      let my_color = piece.color
+      // Create a move for each piece we could promote into (bishop, rook, queen, or
+      // Knight). This is why we use `flat_map` for each direction - some directions
+      // will generate multiple moves!
+      list.map(promotable_pieces(my_color), fn(new_piece) {
+        Change(old_pos, new_pos) |> move.PromotionCapture(new_piece)
+      })
+    }
   }
 }
 
