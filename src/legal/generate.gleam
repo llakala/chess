@@ -1,9 +1,9 @@
 import chess/board
-import chess/color.{Black, White}
+import chess/color.{type Color, Black, White}
 import chess/file
 import chess/game.{type Game}
 import chess/offset
-import chess/piece.{type Piece, Knight, Pawn}
+import chess/piece.{type Piece, Bishop, Knight, Pawn, Queen, Rook}
 import chess/position.{type Position}
 import chess/rank
 import chess/sliding.{
@@ -56,19 +56,28 @@ pub fn display(moves: List(Move)) -> String {
 fn legal_pawn_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   let vertical_moves = pawn_vertical_moves(game, pos, piece)
   let diagonal_moves = pawn_diagonal_moves(game, pos, piece)
-  let en_passant = en_passant_moves(game, pos, piece)
 
-  let en_passant_moves = case en_passant {
-    option.Some(move) -> move |> list.wrap
-    option.None -> []
+  let moves = list.append(vertical_moves, diagonal_moves)
+
+  // Unlike the others, there'll only be one en passant move at a time, so it returns
+  // an Option. If its return value is non-empty, add it!
+  case en_passant_move(game, pos, piece) {
+    option.None -> moves
+    option.Some(move) -> [move, ..moves]
   }
+}
 
-  list.append(vertical_moves, diagonal_moves)
-  |> list.append(en_passant_moves)
+/// Get the pieces that a pawn can promote into. Takes a Color, so the pieces are of
+/// the same color as the to-be-promoted pawn. Hopefully I'll eventually refactor the
+/// Piece type to contain a PieceType and a Color, so this kind of thing isn't always
+/// necessary.
+fn promotable_pieces(color: Color) {
+  [Queen(color), Rook(color), Bishop(color), Knight(color)]
 }
 
 fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   let board = game.board
+  let my_color = piece.color
 
   // A 1-based index, with 0 representing the bottom row
   let rank_index = pos |> position.get_rank |> rank.to_index
@@ -77,6 +86,11 @@ fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
     Black, 6 -> True
     White, 1 -> True
     _, _ -> False
+  }
+
+  let can_promote = case piece.color, rank_index {
+    Black, rank -> rank - 1 == 0
+    White, rank -> rank + 1 == 7
   }
 
   let dir = case piece.color {
@@ -94,17 +108,35 @@ fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   // Only write the moves to the legal moves list if the space in front of us is
   // empty. We store `was_legal` so we can tell if it's possible to move two away as
   // well
-  let #(moves, was_legal) = case square {
-    square.Some(_) -> #([], False)
-    square.None -> {
+  let #(moves, successfully_single_moved) = case square, can_promote {
+    square.Some(_), _ -> #([], False)
+
+    // We can move, but we couldn't promote
+    square.None, False -> {
       let move = Change(pos, new_pos) |> move.Basic
       #(move |> list.wrap, True)
+    }
+
+    // We can move, and can promote!
+    square.None, True -> {
+      // Create a move for each potential piece we could promote into
+      let moves =
+        list.map(promotable_pieces(my_color), fn(piece) {
+          Change(pos, new_pos) |> move.Promotion(piece)
+        })
+
+      // Even though we technically did single-move successfully, promoting means
+      // there's no way we could double-move, so set it to false
+      #(moves, False)
     }
   }
 
   // We can only double move if we're on the right rank, and moving one was legal.
   // If not, exit early.
-  use <- bool.guard(can_double_move == False || was_legal == False, moves)
+  use <- bool.guard(
+    can_double_move == False || successfully_single_moved == False,
+    moves,
+  )
 
   // The `can_double_move` check means we're in no danger of hitting the edge
   // of the board
@@ -163,7 +195,7 @@ fn pawn_diagonal_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   }
 }
 
-fn en_passant_moves(game: Game, pos: Position, piece: Piece) -> Option(Move) {
+fn en_passant_move(game: Game, pos: Position, piece: Piece) -> Option(Move) {
   // 0-based indices
   let rank = pos |> position.get_rank |> rank.to_index
   let file = pos |> position.get_file |> file.to_index
