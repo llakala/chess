@@ -295,43 +295,39 @@ fn legal_sliding_moves(
 ) -> List(Move) {
   let board = game.board
 
-  sliding.piece_directions(sliding_piece)
-  // For each legal direction cthat our piece can go
-  |> list.map(fn(dir) {
-    // Distance that our specific kind of piece can go. Built for Knights, who can
-    // only go distance 1.
-    let piece_distance = sliding.piece_distance(sliding_piece, dir)
+  // For each legal direction that our piece can go. Use `flat_map` so a direction
+  // can return multiple different legal moves in that direction
+  use dir <- list.flat_map(sliding.piece_directions(sliding_piece))
 
-    // Store the distance until another piece is found, or we hit a wall. Custom type
-    // that can either be a Capture or a NonCapture, so we can mark the move as
-    // a capture if needed.
-    let obstructed =
-      board.obstructed_distance(board, current_pos, dir, sliding_piece.color)
+  let piece_distance = sliding.piece_distance(sliding_piece, dir)
 
-    // Max distance that our piece can go without obstructions
-    let max_distance = int.min(piece_distance, obstructed.distance)
+  // Store the distance until another piece is found, or we hit a wall. Custom type
+  // that can either be a Capture or a NonCapture, so we can mark the move as
+  // a capture if needed.
+  let obstructed =
+    board.obstructed_distance(board, current_pos, dir, sliding_piece.color)
 
-    case obstructed {
-      board.Capture(_) -> {
-        // Create the capture move first - then call the function to generate the
-        // non-captures for all the moves that were of a smaller distance (if they
-        // exist)
-        let assert Ok(capture_pos) =
-          position.in_direction(current_pos, max_distance, dir)
-        let capture = Change(current_pos, capture_pos) |> move.Capture
+  // Max distance that our piece can go without obstructions
+  let max_distance = int.min(piece_distance, obstructed.distance)
 
-        let non_captures =
-          sliding_moves_for_dir(current_pos, max_distance - 1, dir)
+  case obstructed {
+    board.Capture(_) -> {
+      // Create the capture move first - then call the function to generate the
+      // non-captures for all the moves that were of a smaller distance (if they
+      // exist)
+      let assert Ok(capture_pos) =
+        position.in_direction(current_pos, max_distance, dir)
+      let capture = Change(current_pos, capture_pos) |> move.Capture
 
-        list.prepend(non_captures, capture)
-      }
-      board.NonCapture(_) -> {
-        sliding_moves_for_dir(current_pos, max_distance, dir)
-      }
+      let non_captures =
+        sliding_moves_for_dir(current_pos, max_distance - 1, dir)
+
+      list.prepend(non_captures, capture)
     }
-  })
-  // Need to flatten because we have multiple lists for each direction internally
-  |> list.flatten
+    board.NonCapture(_) -> {
+      sliding_moves_for_dir(current_pos, max_distance, dir)
+    }
+  }
 }
 
 /// Generates a list of moves from a position and in a direction, up to some
