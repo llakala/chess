@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Black pawn on g2 capturing to h1 and promoting to a bishop is represented algebraically as `gxh1=B`!
+file: ./test/move/algebraic.gleam
+test_name: promotion_capture_test
+---
+gxh1=B
