@@ -40,14 +40,23 @@ pub fn initial() -> Board {
   // If it fails, from_fen should have failed too
   // Maybe I should be handling the error better, but truthfully
   // I just want a full board
-  let assert Ok(board) = from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+  let assert Ok(board) = new("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
 
   board
 }
 
+/// Doesn't take the *entire* fen string: just the first part encoding the board
+pub fn new(fen: String) -> Result(Board, String) {
+  // Important to start with an empty board, so if we skip some indices,
+  // they'll just be filed with null
+  let initial = empty().data
+
+  from_fen_loop(fen, initial, 0, 0)
+}
+
 /// Create a board with some initial data
 /// Returns an error if the data was of an invalid length
-pub fn create(data: Array(Square)) -> Result(Board, String) {
+pub fn from_data(data: Array(Square)) -> Result(Board, String) {
   let size = row_len * col_len
   let length = data |> iv.length
 
@@ -162,15 +171,6 @@ fn obstructed_distance_loop(
     // square.
     True -> NonCapture(distance)
   }
-}
-
-/// Doesn't take the *entire* fen string: just the first part encoding the board
-pub fn from_fen(fen: String) -> Result(Board, String) {
-  // Important to start with an empty board, so if we skip some indices,
-  // they'll just be filed with null
-  let initial = empty().data
-
-  from_fen_loop(fen, initial, 0, 0)
 }
 
 fn from_fen_loop(

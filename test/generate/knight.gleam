@@ -9,7 +9,7 @@ import legal/generate
 
 pub fn all_options_test() {
   // Empty board, other than a knight on d4
-  let assert Ok(my_board) = board.from_fen("8/8/8/8/3N4/8/8/8")
+  let assert Ok(my_board) = board.new("8/8/8/8/3N4/8/8/8")
   let assert Ok(pos) = position.new("d4")
 
   // Create a Game instance using my custom board

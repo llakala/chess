@@ -46,7 +46,7 @@ pub fn new(fen: String) -> Result(Game, String) {
     fullmoves_fen,
   ] = split_fen
 
-  use board <- result.try(board_str |> board.from_fen)
+  use board <- result.try(board_str |> board.new)
   use color <- result.try(color_fen |> color.from_fen)
   use castling <- result.try(castling_fen |> castling.from_fen)
   use passant <- result.try(passant_fen |> parse_passant)

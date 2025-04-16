@@ -13,7 +13,7 @@ pub fn from_fen_test() {
 
 pub fn not_inverted_test() {
   // Empty board, other than a pawn on e5
-  let assert Ok(board) = board.from_fen("8/8/8/4P3/8/8/8/8")
+  let assert Ok(board) = board.new("8/8/8/4P3/8/8/8/8")
   let assert Ok(pos) = position.new("e5")
 
   let square = board |> board.get_pos(pos)

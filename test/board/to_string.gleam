@@ -12,7 +12,7 @@ pub fn to_string_empty_test() {
 pub fn to_string_full_board_test() {
   let square = Pawn(White) |> Some
 
-  let assert Ok(board) = iv.initialise(64, fn(_) { square }) |> board.create
+  let assert Ok(board) = iv.initialise(64, fn(_) { square }) |> board.from_data
 
   board
   |> board.to_string
