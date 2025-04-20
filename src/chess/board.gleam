@@ -61,6 +61,12 @@ pub fn get_pos(board: Board, pos: Position) -> Square {
   square
 }
 
+/// Getter function to access the board's data, since boards are
+/// opaque
+pub fn get_data(board: Board) -> Array(Square) {
+  board.data
+}
+
 /// Set the board's position at the given coordinate
 /// Doesn't need to return an error - all of these are
 /// opaque types that must be valid to be created
