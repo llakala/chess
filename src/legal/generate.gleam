@@ -299,8 +299,6 @@ fn legal_sliding_moves(
   current_pos: Position,
   sliding_piece: SlidingPiece,
 ) -> List(Move) {
-  let board = game.board
-
   // For each legal direction that our piece can go. Use `flat_map` so a direction
   // can return multiple different legal moves in that direction
   use dir <- list.flat_map(sliding.piece_directions(sliding_piece))
@@ -310,14 +308,13 @@ fn legal_sliding_moves(
   // Store the distance until another piece is found, or we hit a wall. Custom type
   // that can either be a Capture or a NonCapture, so we can mark the move as
   // a capture if needed.
-  let obstructed =
-    board.obstructed_distance(board, current_pos, dir, sliding_piece.color)
+  let obstructed = game.obstructed_distance(game, current_pos, dir)
 
   // Max distance that our piece can go without obstructions
   let max_distance = int.min(piece_distance, obstructed.distance)
 
   case obstructed {
-    board.Capture(_) -> {
+    game.Capture(_) -> {
       // Create the capture move first - then call the function to generate the
       // non-captures for all the moves that were of a smaller distance (if they
       // exist)
@@ -330,7 +327,7 @@ fn legal_sliding_moves(
 
       list.prepend(non_captures, capture)
     }
-    board.NonCapture(_) -> {
+    game.NonCapture(_) -> {
       sliding_moves_for_dir(current_pos, max_distance, dir)
     }
   }

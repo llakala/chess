@@ -4,11 +4,9 @@ import gleam/int
 import gleam/result
 import gleam/string
 
-import chess/color.{type Color}
 import chess/constants.{num_cols, num_rows}
 import chess/piece
 import chess/position.{type Position}
-import chess/sliding.{type Direction}
 import chess/square.{type Square}
 
 import utils/array
@@ -18,11 +16,6 @@ import iv.{type Array}
 
 pub opaque type Board {
   Board(data: Array(Square))
-}
-
-pub type Distance {
-  NonCapture(distance: Int)
-  Capture(distance: Int)
 }
 
 /// Create empty board
@@ -93,58 +86,6 @@ pub fn to_string(board: Board) -> String {
   |> iv.map(array.join(_, ", "))
   // Join each row together with newlines
   |> array.join("\n")
-}
-
-/// Return the number of squares in a direction until you either bump into a wall
-/// or hit another piece. Useful for determining the number of valid moves for
-/// a piece in a direction. Returns a custom type Distance, so you can tell if there
-/// was a capture in that direction
-pub fn obstructed_distance(
-  board board: Board,
-  position position: Position,
-  direction direction: Direction,
-  color color: Color,
-) -> Distance {
-  obstructed_distance_loop(board, position, direction, color, 0)
-}
-
-fn obstructed_distance_loop(
-  board: Board,
-  pos: Position,
-  dir: Direction,
-  color: Color,
-  distance: Int,
-) -> Distance {
-  // Distance next position in the direction. If from_offset returns an error, we've
-  // gone too far and gone off the board edge -- return the accumulated distance
-  // immediately, without a capture since we never hit one
-  use new_pos <- choose.cases(
-    position.in_direction(pos, 1, dir),
-    on_error: fn(_) { NonCapture(distance) },
-  )
-
-  let square = get_pos(board, new_pos)
-
-  // Convert the square into a piece. If `to_piece` returns an error, the square
-  // must've been empty. In that case, simply keep the loop going, adding 1 to the
-  // accumulated distance
-  use piece <- choose.cases(square |> square.to_piece, on_error: fn(_) {
-    obstructed_distance_loop(board, new_pos, dir, color, distance + 1)
-  })
-
-  // Whether the color of the piece we started at equals the color of the current
-  // piece we found when traveling that direction
-  case color == piece.color {
-    // Other piece is an enemy and can be captured - return a Capture, which
-    // indicates that this is the distance to a capture, and you can subtract
-    // one to get the distance to a non-capture.
-    False -> Capture(distance + 1)
-
-    // Other piece is a friend - can't capture it. Note that `distance` never gets
-    // modified, so this will be the distance to the current square, not the new
-    // square.
-    True -> NonCapture(distance)
-  }
 }
 
 fn from_fen_loop(
