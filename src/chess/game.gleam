@@ -10,6 +10,7 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/string
+import iv
 import utils/choose
 
 pub type Distance {
@@ -93,6 +94,37 @@ pub fn to_string(fen: Game) {
 pub fn setup_board(game: Game, func: fn(Board) -> Board) -> Game {
   let board = func(game.board)
   Game(..game, board:)
+}
+
+/// Get all the positions that store a piece of the current player's color. A
+/// game has a color as one of its values, since it's representative of whose
+/// turn it is, so we use that to choose which color's pieces get returned.
+pub fn player_positions(game: Game) -> List(Position) {
+  // An array of squares.
+  let data = game.board |> board.get_data
+
+  let my_color = game.color
+
+  // For each square on the board, choose whether to add its position to the
+  // list of friendly positions.
+  iv.index_fold(data, [], fn(positions, square, index) {
+    case square {
+      // Empty square - skip and keep iterating
+      square.None -> positions
+
+      // Square holds an enemy piece - skip
+      square.Some(piece) if piece.color != my_color -> positions
+
+      // Squares that hold a friendly piece :3
+      square.Some(_) -> {
+        // This only fails if the index is out of bounds, which it should never
+        // be with a board unless I have a logic error.
+        let assert Ok(pos) = position.from_data_index(index)
+
+        [pos, ..positions]
+      }
+    }
+  })
 }
 
 /// Return the number of squares in a direction until you either bump into a wall
