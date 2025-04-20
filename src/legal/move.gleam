@@ -6,6 +6,7 @@ import chess/position
 import chess/square
 import gleam/order.{type Order}
 import gleam/result
+import gleam/string
 import legal/change.{type Change}
 
 pub type Move {
@@ -31,11 +32,11 @@ pub fn to_string(move: Move) -> String {
     QueenCastle(_) -> "Castle Queenside "
     KingCastle(_) -> "Castle Kingside "
     Promotion(_, piece) -> {
-      let piece_name = piece |> piece.to_name
+      let piece_name = piece.kind |> string.inspect
       piece_name <> " Promotion "
     }
     PromotionCapture(_, piece) -> {
-      let piece_name = piece |> piece.to_name
+      let piece_name = piece.kind |> string.inspect
       piece_name <> " Promotion & Capture "
     }
   }

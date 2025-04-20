@@ -80,15 +80,3 @@ pub fn to_algebraic(piece: Piece) -> Result(String, String) {
     Rook -> "R" |> Ok
   }
 }
-
-/// Get the piece's name (i.e. "Queen"), for use in debugging in tests.
-pub fn to_name(piece: Piece) {
-  case piece.kind {
-    Bishop -> "Bishop"
-    King -> "King"
-    Knight -> "Knight"
-    Pawn -> "Pawn"
-    Queen -> "Queen"
-    Rook -> "Rook"
-  }
-}
