@@ -5,7 +5,7 @@ import gleam/result
 import gleam/string
 
 import chess/color.{type Color}
-import chess/constants.{col_len, num_cols, num_rows, row_len}
+import chess/constants.{num_cols, num_rows}
 import chess/piece
 import chess/position.{type Position}
 import chess/sliding.{type Direction}
@@ -52,32 +52,6 @@ pub fn new(fen: String) -> Result(Board, String) {
   let initial = empty().data
 
   from_fen_loop(fen, initial, 0, 0)
-}
-
-/// Create a board with some initial data
-/// Returns an error if the data was of an invalid length
-pub fn from_data(data: Array(Square)) -> Result(Board, String) {
-  let size = row_len * col_len
-  let length = data |> iv.length
-
-  use <- bool.guard(
-    length != size,
-    Error(
-      "Boards can only be created with data of length `"
-      <> size |> int.to_string
-      <> "`, but data was of length `"
-      <> length |> int.to_string
-      <> "`!",
-    ),
-  )
-
-  Board(data) |> Ok
-}
-
-/// Getter function to access the board's data, since boards are
-/// opaque
-pub fn get_data(board: Board) -> Array(Square) {
-  board.data
 }
 
 /// Returns the piece at the given coordinate
