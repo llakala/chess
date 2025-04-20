@@ -2,7 +2,7 @@ import birdie
 import chess/board
 import chess/color.{White}
 import chess/game
-import chess/piece
+import chess/piece.{Piece, Queen}
 import chess/position
 import chess/square
 import legal/generate
@@ -45,7 +45,7 @@ pub fn capturing_test() {
   let game =
     game.initial()
     |> game.setup_board(fn(board) {
-      let white_queen_square = piece.Queen(White) |> square.Some
+      let white_queen_square = Piece(Queen, White) |> square.Some
       let assert Ok(pos) = position.new("d7")
       board |> board.set_pos(pos, white_queen_square)
     })

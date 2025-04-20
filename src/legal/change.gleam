@@ -74,8 +74,8 @@ pub fn to_algebraic(change: Change, game: Game) -> Result(String, String) {
     ),
   )
 
-  case piece {
-    piece.Pawn(_) -> pawn_to_algebraic(game, change, piece)
+  case piece.kind {
+    piece.Pawn -> pawn_to_algebraic(game, change, piece)
     _ -> {
       // We've already handled this, and I'm okay with assertions when the only error
       // would come from invalid logic

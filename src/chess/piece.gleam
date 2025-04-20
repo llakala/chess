@@ -1,34 +1,44 @@
 import chess/color.{type Color, Black, White}
 
+/// A Piece stores what kind of piece it is, and the color of the piece.
+/// Notably, a Piece cannot be None - if you want that, you should use the
+/// Square type, which is essentially an optional piece.
 pub type Piece {
-  Pawn(color: Color)
-  Rook(color: Color)
-  Bishop(color: Color)
-  Knight(color: Color)
-  Queen(color: Color)
-  King(color: Color)
+  Piece(kind: PieceKind, color: Color)
+}
+
+/// This simply represents a specific type of piece (Pawn, Bishop, etc).. We
+/// can't call it `PieceType`, because the word `type` is reserved, so
+/// `piece.type` isn't allowed.
+pub type PieceKind {
+  Pawn
+  Rook
+  Bishop
+  Knight
+  Queen
+  King
 }
 
 /// Doesn't take the *entire* fen string: just the first part encoding the board
 pub fn from_fen(char: String) -> Result(Piece, String) {
   case char {
-    "p" -> Pawn(Black) |> Ok
-    "P" -> Pawn(White) |> Ok
+    "p" -> Piece(Pawn, Black) |> Ok
+    "P" -> Piece(Pawn, White) |> Ok
 
-    "n" -> Knight(Black) |> Ok
-    "N" -> Knight(White) |> Ok
+    "n" -> Piece(Knight, Black) |> Ok
+    "N" -> Piece(Knight, White) |> Ok
 
-    "b" -> Bishop(Black) |> Ok
-    "B" -> Bishop(White) |> Ok
+    "b" -> Piece(Bishop, Black) |> Ok
+    "B" -> Piece(Bishop, White) |> Ok
 
-    "r" -> Rook(Black) |> Ok
-    "R" -> Rook(White) |> Ok
+    "r" -> Piece(Rook, Black) |> Ok
+    "R" -> Piece(Rook, White) |> Ok
 
-    "q" -> Queen(Black) |> Ok
-    "Q" -> Queen(White) |> Ok
+    "q" -> Piece(Queen, Black) |> Ok
+    "Q" -> Piece(Queen, White) |> Ok
 
-    "k" -> King(Black) |> Ok
-    "K" -> King(White) |> Ok
+    "k" -> Piece(King, Black) |> Ok
+    "K" -> Piece(King, White) |> Ok
 
     _ -> Error("Invalid character `" <> char <> "` for fen decoding!")
   }
@@ -36,24 +46,24 @@ pub fn from_fen(char: String) -> Result(Piece, String) {
 
 /// Gives a unicode representation of the piece, for displaying in tests.
 pub fn to_icon(piece: Piece) -> String {
-  case piece {
-    Pawn(White) -> "♙"
-    Pawn(Black) -> "♟"
+  case piece.kind, piece.color {
+    Pawn, White -> "♙"
+    Pawn, Black -> "♟"
 
-    Rook(White) -> "♖"
-    Rook(Black) -> "♜"
+    Rook, White -> "♖"
+    Rook, Black -> "♜"
 
-    Bishop(White) -> "♗"
-    Bishop(Black) -> "♝"
+    Bishop, White -> "♗"
+    Bishop, Black -> "♝"
 
-    Knight(White) -> "♘"
-    Knight(Black) -> "♞"
+    Knight, White -> "♘"
+    Knight, Black -> "♞"
 
-    Queen(White) -> "♕"
-    Queen(Black) -> "♛"
+    Queen, White -> "♕"
+    Queen, Black -> "♛"
 
-    King(White) -> "♔"
-    King(Black) -> "♚"
+    King, White -> "♔"
+    King, Black -> "♚"
   }
 }
 
@@ -61,24 +71,24 @@ pub fn to_icon(piece: Piece) -> String {
 /// Returns an error if it recieves a pawn, since pawns need their own logic for
 /// algebraic notation generation.
 pub fn to_algebraic(piece: Piece) -> Result(String, String) {
-  case piece {
-    Knight(_) -> "N" |> Ok
-    Bishop(_) -> "B" |> Ok
-    King(_) -> "K" |> Ok
-    Pawn(_) -> Error("Pawn algebraic notation can't be generated through this!")
-    Queen(_) -> "Q" |> Ok
-    Rook(_) -> "R" |> Ok
+  case piece.kind {
+    Knight -> "N" |> Ok
+    Bishop -> "B" |> Ok
+    King -> "K" |> Ok
+    Pawn -> Error("Pawn algebraic notation can't be generated through this!")
+    Queen -> "Q" |> Ok
+    Rook -> "R" |> Ok
   }
 }
 
 /// Get the piece's name (i.e. "Queen"), for use in debugging in tests.
 pub fn to_name(piece: Piece) {
-  case piece {
-    Bishop(_) -> "Bishop"
-    King(_) -> "King"
-    Knight(_) -> "Knight"
-    Pawn(_) -> "Pawn"
-    Queen(_) -> "Queen"
-    Rook(_) -> "Rook"
+  case piece.kind {
+    Bishop -> "Bishop"
+    King -> "King"
+    Knight -> "Knight"
+    Pawn -> "Pawn"
+    Queen -> "Queen"
+    Rook -> "Rook"
   }
 }

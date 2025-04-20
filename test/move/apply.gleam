@@ -1,8 +1,8 @@
 import birdie
 import chess/board
-import chess/color
+import chess/color.{Black}
 import chess/game
-import chess/piece
+import chess/piece.{Piece, Queen}
 import chess/position
 import legal/change.{Change}
 import legal/move
@@ -55,9 +55,12 @@ pub fn en_passant_test() {
 pub fn promotion_test() {
   // Empty board other than a pawn on a2, about to promote.
   let assert Ok(game) = game.new("8/8/8/8/8/8/p7/8 w KQkq - 0 1")
+
   let assert Ok(from) = position.new("a2")
   let assert Ok(to) = position.new("a1")
-  let move = Change(from, to) |> move.Promotion(piece.Queen(color.Black))
+
+  let piece = Piece(Queen, Black)
+  let move = Change(from, to) |> move.Promotion(piece)
 
   let game = move.apply(game, move)
 

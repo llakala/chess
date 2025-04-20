@@ -1,9 +1,11 @@
 import chess/board
-import chess/color.{type Color, Black, White}
+import chess/color.{Black, White}
 import chess/file
 import chess/game.{type Game}
 import chess/offset
-import chess/piece.{type Piece, Bishop, Knight, Pawn, Queen, Rook}
+import chess/piece.{
+  type Piece, type PieceKind, Bishop, Knight, Pawn, Piece, Queen, Rook,
+}
 import chess/position.{type Position}
 import chess/rank
 import chess/sliding.{
@@ -32,9 +34,9 @@ pub fn legal_moves(game: Game, pos: Position) -> Result(List(Move), String) {
   // Returns an error if the position is empty
   use piece <- result.try(square |> square.to_piece)
 
-  case piece {
-    Pawn(_) -> legal_pawn_moves(game, pos, piece) |> Ok
-    Knight(_) -> legal_knight_moves(game, pos, piece) |> Ok
+  case piece.kind {
+    Pawn -> legal_pawn_moves(game, pos, piece) |> Ok
+    Knight -> legal_knight_moves(game, pos, piece) |> Ok
     _ -> {
       // If this gets an error, there's a logic failure!
       let assert Ok(sliding_piece) = piece |> sliding.new
@@ -68,12 +70,9 @@ fn legal_pawn_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   }
 }
 
-/// Get the pieces that a pawn can promote into. Takes a Color, so the pieces are of
-/// the same color as the to-be-promoted pawn. Hopefully I'll eventually refactor the
-/// Piece type to contain a PieceType and a Color, so this kind of thing isn't always
-/// necessary.
-fn promotable_pieces(color: Color) {
-  [Queen(color), Rook(color), Bishop(color), Knight(color)]
+/// Get the kinds of pieces that a pawn can promote into.
+fn promotable_piece_kinds() -> List(PieceKind) {
+  [Queen, Rook, Bishop, Knight]
 }
 
 /// Generates BasicMoves and Promotions.
@@ -123,7 +122,8 @@ fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
     square.None, True -> {
       // Create a move for each potential piece we could promote into
       let moves =
-        list.map(promotable_pieces(my_color), fn(piece) {
+        list.map(promotable_piece_kinds(), fn(kind) {
+          let piece = Piece(kind, my_color)
           Change(pos, new_pos) |> move.Promotion(piece)
         })
 
@@ -217,7 +217,8 @@ fn pawn_diagonal_moves(
       // Create a move for each piece we could promote into (bishop, rook, queen, or
       // Knight). This is why we use `flat_map` for each direction - some directions
       // will generate multiple moves!
-      list.map(promotable_pieces(my_color), fn(new_piece) {
+      list.map(promotable_piece_kinds(), fn(kind) {
+        let new_piece = Piece(kind, my_color)
         Change(old_pos, new_pos) |> move.PromotionCapture(new_piece)
       })
     }

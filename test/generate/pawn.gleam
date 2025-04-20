@@ -1,7 +1,7 @@
 import birdie
 import chess/color
 import chess/game
-import chess/piece
+import chess/piece.{Pawn, Piece}
 import gleam/io
 
 import chess/board
@@ -15,7 +15,7 @@ pub fn white_pawn_test() {
 
   // Set up a white pawn on e4
   let assert Ok(pos) = position.new("e4")
-  let pawn_square = piece.Pawn(color.White) |> square.new
+  let pawn_square = Piece(Pawn, color.White) |> square.new
 
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
@@ -32,7 +32,7 @@ pub fn black_pawn_test() {
 
   // Set up a black pawn on e4
   let assert Ok(pos) = position.new("e4")
-  let pawn_square = piece.Pawn(color.Black) |> square.new
+  let pawn_square = Piece(Pawn, color.Black) |> square.new
 
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
@@ -49,7 +49,7 @@ pub fn white_pawn_double_move_test() {
 
   // Set up a white pawn on e2
   let assert Ok(pos) = position.new("e2")
-  let pawn_square = piece.Pawn(color.White) |> square.new
+  let pawn_square = Piece(Pawn, color.White) |> square.new
 
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
@@ -66,7 +66,7 @@ pub fn black_pawn_double_move_test() {
 
   // Set up a black pawn on a7
   let assert Ok(pos) = position.new("a7")
-  let pawn_square = piece.Pawn(color.Black) |> square.new
+  let pawn_square = Piece(Pawn, color.Black) |> square.new
 
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })

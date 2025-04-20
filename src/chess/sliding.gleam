@@ -1,6 +1,6 @@
 import chess/color.{type Color}
 import chess/constants
-import chess/piece
+import chess/piece.{type Piece, Piece}
 import chess/square.{type Square}
 import gleam/int
 import gleam/list
@@ -33,26 +33,26 @@ pub fn from_square(square: Square) -> Result(SlidingPiece, String) {
 
 /// Take a generic piece and turn it into a Sliding piece. Return an error if
 /// the piece wasn't a sliding piece.
-pub fn new(piece: piece.Piece) -> Result(SlidingPiece, String) {
+pub fn new(piece: Piece) -> Result(SlidingPiece, String) {
   let color = piece.color
-  case piece {
-    piece.Knight(_) -> Error("Knights aren't sliding pieces!")
-    piece.Pawn(_) -> Error("Pawns aren't sliding pieces!")
+  case piece.kind {
+    piece.Knight -> Error("Knights aren't sliding pieces!")
+    piece.Pawn -> Error("Pawns aren't sliding pieces!")
 
-    piece.Bishop(_) -> Bishop(color) |> Ok
-    piece.King(_) -> King(color) |> Ok
-    piece.Queen(_) -> Queen(color) |> Ok
-    piece.Rook(_) -> Rook(color) |> Ok
+    piece.Bishop -> Bishop(color) |> Ok
+    piece.King -> King(color) |> Ok
+    piece.Queen -> Queen(color) |> Ok
+    piece.Rook -> Rook(color) |> Ok
   }
 }
 
-pub fn to_piece(sliding_piece: SlidingPiece) -> piece.Piece {
+pub fn to_piece(sliding_piece: SlidingPiece) -> Piece {
   let color = sliding_piece.color
   case sliding_piece {
-    Rook(_) -> piece.Rook(color)
-    Bishop(_) -> piece.Bishop(color)
-    Queen(_) -> piece.Queen(color)
-    King(_) -> piece.King(color)
+    Rook(_) -> Piece(piece.Rook, color)
+    Bishop(_) -> Piece(piece.Rook, color)
+    Queen(_) -> Piece(piece.Queen, color)
+    King(_) -> Piece(piece.King, color)
   }
 }
 

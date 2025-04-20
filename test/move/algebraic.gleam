@@ -1,7 +1,7 @@
 import birdie
 import chess/color.{Black}
 import chess/game
-import chess/piece
+import chess/piece.{Bishop, Piece, Queen}
 import legal/change
 import legal/move
 
@@ -10,10 +10,11 @@ pub fn promotion_test() {
   let assert Ok(game) = game.new("8/8/8/8/8/8/5p2/8 b KQkq - 0 1")
 
   let assert Ok(change) = change.new("f2", "f1")
+  let piece = Piece(Queen, Black)
 
   let assert Ok(output) =
     change
-    |> move.Promotion(piece.Queen(Black))
+    |> move.Promotion(piece)
     |> move.to_algebraic(game)
 
   output
@@ -27,10 +28,11 @@ pub fn promotion_capture_test() {
   let assert Ok(game) = game.new("8/8/8/8/8/8/6p1/7K b KQkq - 0 1")
 
   let assert Ok(change) = change.new("g2", "h1")
+  let piece = Piece(Bishop, Black)
 
   let assert Ok(output) =
     change
-    |> move.PromotionCapture(piece.Bishop(Black))
+    |> move.PromotionCapture(piece)
     |> move.to_algebraic(game)
 
   output

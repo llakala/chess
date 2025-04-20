@@ -4,4 +4,4 @@ title: Should find a white pawn!
 file: ./test/board/from_fen.gleam
 test_name: not_inverted_test
 ---
-Some(Pawn(White))
+Some(Piece(Pawn, White))
