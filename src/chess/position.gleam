@@ -72,7 +72,8 @@ pub fn in_direction(
 /// Takes a classical index (0 being the top left) and turn it into a
 /// Position.
 pub fn from_data_index(index index: Int) -> Result(Position, String) {
-  let row = index / row_len
+  // Flip the row around, so it correctly starts in the top left
+  let row = constants.num_rows - 1 - { index / row_len }
   let col = index % row_len
 
   from_indices(row:, col:)
