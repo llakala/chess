@@ -1,4 +1,5 @@
 import chess/color.{type Color, Black, White}
+import gleam/string
 
 /// A Piece stores what kind of piece it is, and the color of the piece.
 /// Notably, a Piece cannot be None - if you want that, you should use the
@@ -79,4 +80,13 @@ pub fn to_algebraic(piece: Piece) -> Result(String, String) {
     Queen -> "Q" |> Ok
     Rook -> "R" |> Ok
   }
+}
+
+/// Creates a string representation of a piece. For example, Piece(Knight,
+/// Black) would return "Black Knight".
+pub fn to_string(piece: Piece) {
+  let color = piece.color |> string.inspect
+  let kind = piece.kind |> string.inspect
+
+  color <> " " <> kind
 }
