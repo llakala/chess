@@ -1,6 +1,7 @@
 // My own helper functions for working with `iv` arrays
 import gleam/bool
 import gleam/int
+import gleam/list
 import gleam/result
 import gleam/string
 
@@ -9,7 +10,6 @@ import chess/piece
 import chess/position.{type Position}
 import chess/square.{type Square}
 
-import utils/array
 import utils/choose
 
 import iv.{type Array}
@@ -75,17 +75,17 @@ pub fn set_pos(board: Board, pos: Position, square: Square) -> Board {
 }
 
 pub fn to_string(board: Board) -> String {
-  // data represented as a list of rows, each of which is a list of single characters
-  // We use `let assert` since board is opaque, so the data should always be of
-  // length 64
-  let assert Ok(data_rows) =
-    array.sized_chunk(board.data |> iv.map(square.to_string), num_rows)
-
-  data_rows
+  board.data
+  // Performance doesn't matter here - this is just for debugging and tests.
+  |> iv.to_list
+  |> list.map(square.to_string)
+  // Take the list of 64 squares, and turn it into a list of 8 lists, each one
+  // representing a row - a classic "2d array"
+  |> list.sized_chunk(num_rows)
   // Join each element in a row together with comma separators
-  |> iv.map(array.join(_, ", "))
+  |> list.map(string.join(_, ", "))
   // Join each row together with newlines
-  |> array.join("\n")
+  |> string.join("\n")
 }
 
 fn from_fen_loop(
