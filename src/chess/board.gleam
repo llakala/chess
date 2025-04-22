@@ -75,10 +75,38 @@ pub fn set_pos(board: Board, pos: Position, square: Square) -> Board {
 }
 
 pub fn to_string(board: Board) -> String {
+  format(board, square.to_string)
+}
+
+/// Get a customizable string representation of the board, that takes a function
+/// to apply to each square on the board. This is intended for custom to_string
+/// implementations, like specific highlighting. If you just want a string
+/// representation of the board, `board.to_string` is what you're looking for.
+pub fn format(board: Board, func: fn(Square) -> String) -> String {
   board.data
   // Performance doesn't matter here - this is just for debugging and tests.
   |> iv.to_list
-  |> list.map(square.to_string)
+  // Apply the function to each position on the board
+  |> list.map(func)
+  // Take the list of 64 squares, and turn it into a list of 8 lists, each one
+  // representing a row - a classic "2d array"
+  |> list.sized_chunk(num_rows)
+  // Join each element in a row together with comma separators
+  |> list.map(string.join(_, ", "))
+  // Join each row together with newlines
+  |> string.join("\n")
+}
+
+/// Serves the same function as `board.format` (see its documentation for more
+/// info), but with a function that requires the square's position on the board.
+/// The index can be turned into a proper Position using
+/// `position.from_data_index`.
+pub fn index_format(board: Board, func: fn(Square, Int) -> String) -> String {
+  board.data
+  // Performance doesn't matter here - this is just for debugging and tests.
+  |> iv.to_list
+  // Apply the function to each position on the board
+  |> list.index_map(func)
   // Take the list of 64 squares, and turn it into a list of 8 lists, each one
   // representing a row - a classic "2d array"
   |> list.sized_chunk(num_rows)
