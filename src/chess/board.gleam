@@ -91,8 +91,8 @@ pub fn format(board: Board, func: fn(Square) -> String) -> String {
   // Take the list of 64 squares, and turn it into a list of 8 lists, each one
   // representing a row - a classic "2d array"
   |> list.sized_chunk(num_rows)
-  // Join each element in a row together with comma separators
-  |> list.map(string.join(_, ", "))
+  // Join each element in a row together
+  |> list.map(string.join(_, " "))
   // Join each row together with newlines
   |> string.join("\n")
 }
@@ -110,8 +110,8 @@ pub fn index_format(board: Board, func: fn(Square, Int) -> String) -> String {
   // Take the list of 64 squares, and turn it into a list of 8 lists, each one
   // representing a row - a classic "2d array"
   |> list.sized_chunk(num_rows)
-  // Join each element in a row together with comma separators
-  |> list.map(string.join(_, ", "))
+  // Join each element in a row together
+  |> list.map(string.join(_, " "))
   // Join each row together with newlines
   |> string.join("\n")
 }

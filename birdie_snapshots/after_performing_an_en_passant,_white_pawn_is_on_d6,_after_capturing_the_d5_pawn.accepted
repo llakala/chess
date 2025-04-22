@@ -4,11 +4,11 @@ title: After performing an en passant, white pawn is on d6, after capturing the 
 file: ./test/move/apply.gleam
 test_name: en_passant_test
 ---
-♜, ♞, ♝, ♛, ♚, ♝, ♞, ♜
-♟, ♟, ♟, 0, ♟, ♟, ♟, ♟
-0, 0, 0, ♙, 0, 0, 0, 0
-0, 0, 0, 0, 0, 0, 0, 0
-0, 0, 0, 0, 0, 0, 0, 0
-0, 0, 0, 0, 0, 0, 0, 0
-♙, ♙, ♙, ♙, 0, ♙, ♙, ♙
-♖, ♘, ♗, ♕, ♔, ♗, ♘, ♖
+♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
+♟ ♟ ♟ 0 ♟ ♟ ♟ ♟
+0 0 0 ♙ 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+♙ ♙ ♙ ♙ 0 ♙ ♙ ♙
+♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
