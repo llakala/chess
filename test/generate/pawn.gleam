@@ -22,8 +22,7 @@ pub fn white_pawn_test() {
 
   let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
-  legal_moves
-  |> generate.display
+  generate.display(legal_moves, game)
   |> birdie.snap("White pawn on e4 can only go to e5!")
 }
 
@@ -39,8 +38,7 @@ pub fn black_pawn_test() {
 
   let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
-  legal_moves
-  |> generate.display
+  generate.display(legal_moves, game)
   |> birdie.snap("Black pawn on e4 can only go to e3!")
 }
 
@@ -56,8 +54,7 @@ pub fn white_pawn_double_move_test() {
 
   let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
-  legal_moves
-  |> generate.display
+  generate.display(legal_moves, game)
   |> birdie.snap("White pawn on e2 can go to e3 and e4!")
 }
 
@@ -73,8 +70,7 @@ pub fn black_pawn_double_move_test() {
 
   let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
-  legal_moves
-  |> generate.display
+  generate.display(legal_moves, game)
   |> birdie.snap("Black pawn on a7 can go to a6 and a5!")
 }
 
@@ -91,8 +87,7 @@ pub fn passant_test() {
 
   let assert Ok(legal_moves) = generate.legal_moves(game, pawn_pos)
 
-  legal_moves
-  |> generate.display
+  generate.display(legal_moves, game)
   |> birdie.snap("White pawn can en passant to d6, or go forward to e6!")
 }
 
@@ -107,8 +102,7 @@ pub fn capture_test() {
 
   let assert Ok(legal_moves) = generate.legal_moves(game, pawn_pos)
 
-  legal_moves
-  |> generate.display
+  generate.display(legal_moves, game)
   |> birdie.snap("White pawn on e6 can capture on d7 or f7!")
 }
 
@@ -120,8 +114,7 @@ pub fn promotion_test() {
 
   let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
-  legal_moves
-  |> generate.display
+  generate.display(legal_moves, game)
   |> birdie.snap(
     "White pawn on c7 can promote into a rook, bishop, knight, or queen!",
   )
@@ -134,8 +127,7 @@ pub fn promotion_capture_test() {
 
   let assert Ok(legal_moves) = generate.legal_moves(game, pos)
 
-  legal_moves
-  |> generate.display
+  generate.display(legal_moves, game)
   |> birdie.snap(
     "White pawn on c7 can capture on d8, promoting into a rook, bishop, knight, or queen!",
   )

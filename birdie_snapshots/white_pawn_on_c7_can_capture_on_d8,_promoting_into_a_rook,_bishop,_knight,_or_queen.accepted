@@ -5,3 +5,12 @@ file: ./test/generate/pawn.gleam
 test_name: promotion_capture_test
 ---
 ["Queen Promotion & Capture c7 -> d8", "Rook Promotion & Capture c7 -> d8", "Bishop Promotion & Capture c7 -> d8", "Knight Promotion & Capture c7 -> d8"]
+Board:
+0, 0, ♖, [33m♛[0m, 0, 0, 0, 0
+0, 0, [36m♙[0m, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 0, 0
