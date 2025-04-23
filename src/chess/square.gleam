@@ -26,11 +26,6 @@ pub fn to_string(square: Square) -> String {
   case square {
     None -> "0"
 
-    _ -> {
-      // We've already handled None!
-      let assert Ok(piece) = to_piece(square)
-
-      piece.to_icon(piece)
-    }
+    Some(piece) -> piece.to_icon(piece)
   }
 }
