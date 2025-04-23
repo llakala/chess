@@ -27,6 +27,22 @@ import gleam/result
 import legal/change.{Change}
 import legal/move.{type Move, Passant}
 
+/// Generates all the legal moves for the current player based on a game state.
+pub fn legal_moves(game: Game) -> List(Move) {
+  // All the positions containing one of our pieces
+  let positions = game.player_positions(game)
+
+  // Get the moves at each position, and turn the list of results into a result
+  // of lists
+  case list.try_map(positions, moves_from(game, _)) {
+    Error(_) ->
+      panic as "One of the From positions contained None! Bad logic in getting the list of positions a player is at!"
+
+    // Need to flatten, since each starting position got its own list
+    Ok(moves_for_positions) -> moves_for_positions |> list.flatten
+  }
+}
+
 /// Given a board and a position, get all the legal moves that the piece at that
 /// position can make. A move wraps a Change, so we can differentiate things like
 /// en passant. Returns an error if the position contained None.
