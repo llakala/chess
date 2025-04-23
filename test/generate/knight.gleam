@@ -17,7 +17,7 @@ pub fn all_options_test() {
     game.initial()
     |> game.setup_board(fn(_) { my_board })
 
-  let assert Ok(moves) = generate.legal_moves(game, pos)
+  let assert Ok(moves) = generate.moves_from(game, pos)
 
   generate.display(moves, game)
   |> birdie.snap(
@@ -30,7 +30,7 @@ pub fn initial_test() {
   // Bottom left knight
   let assert Ok(pos) = position.new("b1")
 
-  let assert Ok(moves) = generate.legal_moves(game, pos)
+  let assert Ok(moves) = generate.moves_from(game, pos)
 
   generate.display(moves, game)
   |> birdie.snap(
@@ -50,7 +50,7 @@ pub fn capturing_test() {
 
   let assert Ok(pos) = position.new("b8")
 
-  let assert Ok(moves) = generate.legal_moves(game, pos)
+  let assert Ok(moves) = generate.moves_from(game, pos)
 
   generate.display(moves, game)
   |> birdie.snap(
