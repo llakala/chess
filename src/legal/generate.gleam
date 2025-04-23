@@ -28,9 +28,9 @@ import legal/change.{Change}
 import legal/move.{type Move, Passant}
 
 /// Given a board and a position, get all the legal moves that the piece at that
-/// position can make. An move wraps a Change, so we can differentiate things like
-/// en passant.Returns an error if the position contained None.
-pub fn legal_moves(game: Game, pos: Position) -> Result(List(Move), String) {
+/// position can make. A move wraps a Change, so we can differentiate things like
+/// en passant. Returns an error if the position contained None.
+pub fn moves_from(game: Game, pos: Position) -> Result(List(Move), String) {
   let board = game.board
   let square = board.get_pos(board, pos)
 

@@ -20,7 +20,7 @@ pub fn white_pawn_test() {
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
 
-  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap("White pawn on e4 can only go to e5!")
@@ -36,7 +36,7 @@ pub fn black_pawn_test() {
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
 
-  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap("Black pawn on e4 can only go to e3!")
@@ -52,7 +52,7 @@ pub fn white_pawn_double_move_test() {
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
 
-  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap("White pawn on e2 can go to e3 and e4!")
@@ -68,7 +68,7 @@ pub fn black_pawn_double_move_test() {
   let game =
     game.setup_board(game, fn(board) { board.set_pos(board, pos, pawn_square) })
 
-  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap("Black pawn on a7 can go to a6 and a5!")
@@ -85,7 +85,7 @@ pub fn passant_test() {
   // The position of the white pawn that can now perform en passant
   let assert Ok(pawn_pos) = position.new("e5")
 
-  let assert Ok(legal_moves) = generate.legal_moves(game, pawn_pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, pawn_pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap("White pawn can en passant to d6, or go forward to e6!")
@@ -100,7 +100,7 @@ pub fn capture_test() {
   // The position of the white pawn that has two capture moves
   let assert Ok(pawn_pos) = position.new("e6")
 
-  let assert Ok(legal_moves) = generate.legal_moves(game, pawn_pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, pawn_pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap("White pawn on e6 can capture on d7 or f7!")
@@ -112,7 +112,7 @@ pub fn promotion_test() {
 
   let assert Ok(pos) = position.new("c7")
 
-  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap(
@@ -125,7 +125,7 @@ pub fn promotion_capture_test() {
   let assert Ok(game) = game.new("2Rq4/2P5/8/8/8/8/8/8 w KQkq - 0 1")
   let assert Ok(pos) = position.new("c7")
 
-  let assert Ok(legal_moves) = generate.legal_moves(game, pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap(

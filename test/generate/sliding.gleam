@@ -20,7 +20,7 @@ pub fn queen_goes_up_test() {
     })
 
   let assert Ok(queen_pos) = position.new("d1")
-  let assert Ok(legal_moves) = generate.legal_moves(game, queen_pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, queen_pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap(
@@ -40,7 +40,7 @@ pub fn bishop_test() {
     })
 
   let assert Ok(bishop_pos) = position.new("f1")
-  let assert Ok(legal_moves) = generate.legal_moves(game, bishop_pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, bishop_pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap(
@@ -58,7 +58,7 @@ pub fn rook_test() {
   let h1_rook_to_d4 = Change(old_pos, new_pos) |> move.Basic
   let game = move.apply(game, h1_rook_to_d4)
 
-  let assert Ok(legal_moves) = generate.legal_moves(game, new_pos)
+  let assert Ok(legal_moves) = generate.moves_from(game, new_pos)
 
   generate.display(legal_moves, game)
   |> birdie.snap("Rook on d4 can see all of rank 4, and d{3, 7}!")
