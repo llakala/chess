@@ -4,6 +4,7 @@ import gleam/int
 import gleam/list
 import gleam/result
 import gleam/string
+
 import utils/text
 
 import chess/constants.{num_cols, num_rows}
@@ -83,6 +84,29 @@ pub fn set_pos(board: Board, pos: Position, square: Square) -> Board {
 
 pub fn to_string(board: Board) -> String {
   format(board, square.to_string)
+}
+
+/// Highlight a list of positions on the board. If you want to display moves,
+/// not positions, you probably want `generate.display`.
+pub fn highlight(board: Board, positions: List(Position)) -> String {
+  let positions_output =
+    positions
+    |> list.sort(position.compare)
+    |> list.map(fn(pos) { pos |> position.to_string })
+    |> string.inspect
+
+  let board_output =
+    index_format(board, fn(square, index) {
+      let assert Ok(pos) = index |> position.from_data_index
+      let square_str = square |> square.to_string
+
+      case list.contains(positions, pos) {
+        False -> square_str
+        True -> square_str |> text.color(text.Yellow)
+      }
+    })
+
+  positions_output <> "\n" <> board_output
 }
 
 /// Get a customizable string representation of the board, that takes a function
