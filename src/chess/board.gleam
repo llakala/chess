@@ -84,31 +84,7 @@ pub fn to_string(board: Board) -> String {
 /// implementations, like specific highlighting. If you just want a string
 /// representation of the board, `board.to_string` is what you're looking for.
 pub fn format(board: Board, func: fn(Square) -> String) -> String {
-  let output =
-    board.data
-    // Performance doesn't matter here - this is just for debugging and tests.
-    |> iv.to_list
-    // Apply the function to each position on the board
-    |> list.map(func)
-    // Take the list of 64 squares, and turn it into a list of 8 lists, each one
-    // representing a row - a classic "2d array"
-    |> list.sized_chunk(num_rows)
-    // Join each element in a row together
-    |> list.map(string.join(_, " "))
-    // Show which rank each row is before we join the rows together
-    |> list.index_map(fn(row, index) {
-      // Flips the index so it starts from 8 at the top, not 1
-      let rank = int.to_string(constants.num_rows - index)
-      text.color(rank, text.Gray) <> " " <> row
-    })
-    // Join each row together with newlines
-    |> string.join("\n")
-
-  output
-  // Extra spaces so that the file labels are lined up
-  <> "\n  "
-  // Label each column, coloring it in gray
-  <> text.color("a b c d e f g h", text.Gray)
+  create_formatter(board, list.map(_, func))
 }
 
 /// Serves the same function as `board.format` (see its documentation for more
@@ -116,12 +92,25 @@ pub fn format(board: Board, func: fn(Square) -> String) -> String {
 /// The index can be turned into a proper Position using
 /// `position.from_data_index`.
 pub fn index_format(board: Board, func: fn(Square, Int) -> String) -> String {
+  create_formatter(board, list.index_map(_, func))
+}
+
+fn create_formatter(
+  board: Board,
+  func: fn(List(Square)) -> List(String),
+) -> String {
   let output =
     board.data
     // Performance doesn't matter here - this is just for debugging and tests.
     |> iv.to_list
-    // Apply the passed function to each position on the board
-    |> list.index_map(func)
+    // Apply the passed KIND of function to each position on the board. This
+    // will be any function that takes a list of squares and returns a list
+    // of strings. I do this so I can keep the same core logic between
+    // `board.format` and `board.index_format`. Rather than constantly needing
+    // to duplicate logic between the two, they both use this function
+    // internally, passing the function THEY recieve into `board.map` and
+    // `board.index_map` respectively.
+    |> func
     // Take the list of 64 squares, and turn it into a list of 8 lists, each one
     // representing a row - a classic "2d array"
     |> list.sized_chunk(num_rows)
