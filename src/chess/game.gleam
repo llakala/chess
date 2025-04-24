@@ -6,7 +6,6 @@ import chess/sliding.{type Direction}
 import chess/square
 import gleam/bool
 import gleam/int
-import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/string
@@ -40,20 +39,36 @@ pub fn initial() -> Game {
 pub fn new(fen: String) -> Result(Game, String) {
   let split_fen = fen |> string.split(" ")
 
-  use <- bool.guard(
-    split_fen |> list.length != 6,
-    Error("Invalid fen string with parts not equal to 6!"),
-  )
-
-  // Let assert is fine, we just had a guard clause
-  let assert [
+  let #(
     board_str,
     color_fen,
     castling_fen,
     passant_fen,
     halfmoves_fen,
     fullmoves_fen,
-  ] = split_fen
+  ) = case split_fen {
+    // Fen didn't come with halfmoves and fullmoves - assume they're 1
+    [board, color, castling, passant] -> #(
+      board,
+      color,
+      castling,
+      passant,
+      "1",
+      "1",
+    )
+
+    [board, color, castling, passant, halfmoves, fullmoves] -> #(
+      board,
+      color,
+      castling,
+      passant,
+      halfmoves,
+      fullmoves,
+    )
+
+    _ ->
+      panic as "Fen wasn't able to be parsed, since it had an amount of sections we didn't expect!"
+  }
 
   use board <- result.try(board_str |> board.new)
   use color <- result.try(color_fen |> color.from_fen)
