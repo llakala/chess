@@ -1,0 +1,17 @@
+---
+version: 1.2.6
+title: Expected both the knights to be able to move to 2 positions, with the h1 knight able to capture!
+file: ./test/generate/all.gleam
+test_name: black_knights_test
+---
+["a8 -> b6", "a8 -> c7", "h1 -> f2", "Capture h1 -> g3"]
+Board:
+[38;5;244m8[0m [36m♞[0m 0 0 0 0 0 0 0
+[38;5;244m7[0m 0 0 [33m0[0m 0 0 0 0 0
+[38;5;244m6[0m 0 [33m0[0m 0 0 0 0 0 0
+[38;5;244m5[0m 0 0 0 0 0 0 0 0
+[38;5;244m4[0m 0 0 0 0 0 0 0 0
+[38;5;244m3[0m 0 0 0 0 0 0 [33m♙[0m 0
+[38;5;244m2[0m 0 0 0 0 0 [33m0[0m 0 0
+[38;5;244m1[0m 0 0 0 0 0 0 0 [36m♞[0m
+  [38;5;244ma b c d e f g h[0m

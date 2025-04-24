@@ -1,0 +1,60 @@
+import birdie
+import chess/board
+import chess/color
+import chess/game
+import legal/generate
+
+pub fn white_pawns_test() {
+  // Empty board, other than rank 2 being full of white pawns
+  let assert Ok(board) = board.new("8/8/8/8/8/8/PPPPPPPP/8")
+  let game = game.Game(..game.initial(), color: color.White, board:)
+
+  let moves = game |> generate.legal_moves
+
+  generate.display(moves, game)
+  |> birdie.snap(
+    "Expected all the pawns on rank 2 to be able to move forward to ranks 3 and 4!",
+  )
+}
+
+pub fn black_knights_test() {
+  let assert Ok(board) = board.new("n7/8/8/8/8/6P1/8/7n")
+  let game = game.Game(..game.initial(), color: color.Black, board:)
+
+  let moves = game |> generate.legal_moves
+
+  generate.display(moves, game)
+  |> birdie.snap(
+    "Expected both the knights to be able to move to 2 positions, with the h1 knight able to capture!",
+  )
+}
+
+pub fn all_queens_test() {
+  // Board entirely full of black queens
+  let assert Ok(board) =
+    board.new(
+      "qqqqqqqq/qqqqqqqq/qqqqqqqq/qqqqqqqq/qqqqqqqq/qqqqqqqq/qqqqqqqq/qqqqqqqq",
+    )
+  let game = game.Game(..game.initial(), color: color.Black, board:)
+
+  let moves = game |> generate.legal_moves
+
+  generate.display(moves, game)
+  |> birdie.snap(
+    "Expected no valid moves, since the queens would all bump into each other!",
+  )
+}
+
+pub fn no_white_moves_test() {
+  // Empty board other than a black bishop on d2
+  let assert Ok(board) = board.new("8/8/8/8/8/8/3b4/8")
+
+  let game = game.Game(..game.initial(), color: color.White, board:)
+
+  let moves = game |> generate.legal_moves
+
+  generate.display(moves, game)
+  |> birdie.snap(
+    "Expected no legal moves, since there are no white pieces on the board!",
+  )
+}
