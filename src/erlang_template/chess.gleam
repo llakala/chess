@@ -1,11 +1,11 @@
+import bot/bot
+import chess/color.{type Color, Black, White}
+import chess/game
 import gleam/dynamic/decode
+import legal/generate
+import legal/move
 
-pub type Player {
-  White
-  Black
-}
-
-pub fn player_decoder() {
+pub fn player_decoder() -> decode.Decoder(Color) {
   use player_string <- decode.then(decode.string)
   case player_string {
     "white" -> decode.success(White)
@@ -15,9 +15,14 @@ pub fn player_decoder() {
 }
 
 pub fn move(
-  _fen: String,
-  _turn: Player,
+  fen: String,
+  _turn: Color,
   _failed_moves: List(String),
 ) -> Result(String, String) {
-  todo
+  let assert Ok(game) = game.new(fen)
+  let moves = generate.legal_moves(game)
+  let move = bot.first(game, moves)
+  let assert Ok(move_output) = move |> move.to_algebraic(game)
+
+  Ok(move_output)
 }
