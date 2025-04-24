@@ -79,24 +79,6 @@ pub fn to_string(board: Board) -> String {
   format(board, square.to_string)
 }
 
-/// Helper function for `format` and `index_format`, that adds the current rank
-/// to the beginning of each row in gray
-fn row_to_rank(row, index) {
-  let rank = case index {
-    0 -> "h"
-    1 -> "g"
-    2 -> "f"
-    3 -> "e"
-    4 -> "d"
-    5 -> "c"
-    6 -> "b"
-    7 -> "a"
-    // I prefer this to implementing some hack like "z"
-    _ -> panic as "You had too many rows!"
-  }
-  text.color(rank, text.Gray) <> " " <> row
-}
-
 /// Get a customizable string representation of the board, that takes a function
 /// to apply to each square on the board. This is intended for custom to_string
 /// implementations, like specific highlighting. If you just want a string
@@ -114,7 +96,11 @@ pub fn format(board: Board, func: fn(Square) -> String) -> String {
     // Join each element in a row together
     |> list.map(string.join(_, " "))
     // Show which rank each row is before we join the rows together
-    |> list.index_map(row_to_rank)
+    |> list.index_map(fn(row, index) {
+      // Flips the index so it starts from 8 at the top, not 1
+      let rank = int.to_string(constants.num_rows - index)
+      text.color(rank, text.Gray) <> " " <> row
+    })
     // Join each row together with newlines
     |> string.join("\n")
 
@@ -122,7 +108,7 @@ pub fn format(board: Board, func: fn(Square) -> String) -> String {
   // Extra spaces so that the file labels are lined up
   <> "\n  "
   // Label each column, coloring it in gray
-  <> text.color("1 2 3 4 5 6 7 8", text.Gray)
+  <> text.color("a b c d e f g h", text.Gray)
 }
 
 /// Serves the same function as `board.format` (see its documentation for more
@@ -142,7 +128,11 @@ pub fn index_format(board: Board, func: fn(Square, Int) -> String) -> String {
     // Join each element in a row together
     |> list.map(string.join(_, " "))
     // Show which rank each row is before we join the rows together
-    |> list.index_map(row_to_rank)
+    |> list.index_map(fn(row, index) {
+      // Flips the index so it starts from 8 at the top, not 1
+      let rank = int.to_string(constants.num_rows - index)
+      text.color(rank, text.Gray) <> " " <> row
+    })
     // Join each row together with newlines
     |> string.join("\n")
 
@@ -150,7 +140,7 @@ pub fn index_format(board: Board, func: fn(Square, Int) -> String) -> String {
   // Extra spaces so that the file labels are lined up
   <> "\n  "
   // Label each column, coloring it in gray
-  <> text.color("1 2 3 4 5 6 7 8", text.Gray)
+  <> text.color("a b c d e f g h", text.Gray)
 }
 
 fn from_fen_loop(
