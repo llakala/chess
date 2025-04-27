@@ -1,12 +1,16 @@
 import birdie
+import chess/algebraic
 import chess/board
 import chess/game
 import legal/change
+import legal/move
 
 pub fn pawn_forward_test() {
   let game = game.initial()
+
   let assert Ok(change) = change.new("e2", "e4")
-  let assert Ok(output) = change.to_algebraic(change, game)
+  let move = change |> move.Basic
+  let assert Ok(output) = algebraic.notation(move, game)
 
   output
   |> birdie.snap(
@@ -22,7 +26,8 @@ pub fn pawn_capture_test() {
   let game = game.Game(..game, board:)
 
   let assert Ok(change) = change.new("e3", "d4")
-  let assert Ok(output) = change |> change.to_algebraic(game)
+  let move = change |> move.Capture
+  let assert Ok(output) = algebraic.notation(move, game)
 
   output
   |> birdie.snap(
@@ -37,7 +42,8 @@ pub fn normal_piece_test() {
   let game = game.Game(..game, board:)
 
   let assert Ok(change) = change.new("a8", "f3")
-  let assert Ok(output) = change |> change.to_algebraic(game)
+  let move = change |> move.Basic
+  let assert Ok(output) = algebraic.notation(move, game)
 
   output
   |> birdie.snap("Expected queen from a8 -> f3 to be represented as `Qa8f3`!")
