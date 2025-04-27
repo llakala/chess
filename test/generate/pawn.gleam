@@ -2,7 +2,6 @@ import birdie
 import chess/color
 import chess/game
 import chess/piece.{Pawn, Piece}
-import gleam/io
 
 import chess/board
 import chess/position
@@ -79,8 +78,6 @@ pub fn passant_test() {
   // with the black pawn just moving from d7 to d5, making en passant possible
   let assert Ok(game) =
     game.new("rnbqkbnr/pppppppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq d6 0 1")
-
-  game |> game.to_string |> io.println
 
   // The position of the white pawn that can now perform en passant
   let assert Ok(pawn_pos) = position.new("e5")
