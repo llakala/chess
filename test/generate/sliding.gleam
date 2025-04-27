@@ -52,7 +52,7 @@ pub fn rook_test() {
   let assert Ok(new_pos) = position.new("d4")
 
   let h1_rook_to_d4 = Change(old_pos, new_pos) |> move.Basic
-  let game = move.apply(game, h1_rook_to_d4)
+  let game = game.apply_move(game, h1_rook_to_d4)
 
   let assert Ok(legal_moves) = generate.moves_from(game, new_pos)
 

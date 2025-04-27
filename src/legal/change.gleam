@@ -1,8 +1,5 @@
-import chess/board
-import chess/game.{type Game, Game}
 import chess/offset.{type Offset}
 import chess/position.{type Position}
-import chess/square
 import gleam/order.{type Order}
 import gleam/result
 
@@ -24,20 +21,6 @@ pub fn compare(first: Change, second: Change) -> Order {
   // ALSO returns Eq do we return Eq.
   use <- order.lazy_break_tie(position.compare(first.from, second.from))
   position.compare(first.to, second.to)
-}
-
-/// Apply some change to the board directly, moving the value at one position to some
-/// other position. Note that this is currently not checked to ensure that
-/// `change.from` is non-empty - be careful!
-pub fn apply(game: Game, change: Change) -> Game {
-  let square = board.get_pos(game.board, change.from)
-  let new_board =
-    game.board
-    |> board.set_pos(change.from, square.None)
-    |> board.set_pos(change.to, square)
-
-  // Update the game with the new board
-  Game(..game, board: new_board)
 }
 
 /// Get the offset of the change - aka the distance the change takes it horizontally
