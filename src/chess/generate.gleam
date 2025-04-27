@@ -308,7 +308,6 @@ fn en_passant_move(game: Game, pos: Position, piece: Piece) -> Option(Move) {
   }
 }
 
-/// TODO
 fn legal_knight_moves(
   game: Game,
   current_pos: Position,
