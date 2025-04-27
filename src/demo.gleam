@@ -1,8 +1,8 @@
 import bot/bot
 import chess/game
+import chess/generate
 import gleam/io
 import gleam/list
-import legal/generate
 
 // Most of these are here because they fail with the existing logic (probably
 // because of check)

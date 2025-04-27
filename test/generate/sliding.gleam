@@ -1,13 +1,13 @@
 import birdie
 import chess/game
-import legal/move
+import position/move
 
 import chess/board
-import chess/position
-import chess/square
+import piece/square
+import position/position
 
-import legal/change.{Change}
-import legal/generate
+import chess/generate
+import position/change.{Change}
 
 pub fn queen_goes_up_test() {
   let game = game.initial()

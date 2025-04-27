@@ -1,7 +1,7 @@
 import birdie
 import chess/board
-import chess/position
 import gleam/string
+import position/position
 
 pub fn from_fen_test() {
   let board = board.initial()

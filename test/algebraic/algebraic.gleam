@@ -1,10 +1,10 @@
 import birdie
 import chess/algebraic
-import chess/color.{Black}
 import chess/game
-import chess/piece.{Bishop, Piece, Queen}
-import legal/change
-import legal/move
+import piece/color.{Black}
+import piece/piece.{Bishop, Piece, Queen}
+import position/change
+import position/move
 
 pub fn promotion_test() {
   // Empty board, other than a black pawn on f2

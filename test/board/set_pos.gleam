@@ -1,10 +1,10 @@
 import birdie
 import chess/board
-import chess/color.{White}
-import chess/piece.{Pawn, Piece}
-import chess/position
-import chess/square.{Some}
 import gleam/string
+import piece/color.{White}
+import piece/piece.{Pawn, Piece}
+import piece/square.{Some}
+import position/position
 
 pub fn set_pos_passing_test() {
   let board = board.empty()

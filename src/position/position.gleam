@@ -1,9 +1,9 @@
 import chess/constants.{col_len, row_len}
-import chess/file.{type File}
-import chess/offset.{type Offset}
-import chess/rank.{type Rank}
 import chess/sliding.{type Direction}
 import gleam/order.{type Order}
+import position/file.{type File}
+import position/offset.{type Offset}
+import position/rank.{type Rank}
 
 import gleam/bool
 import gleam/result

@@ -1,7 +1,7 @@
 import birdie
 import gleam/string
-import legal/change
-import legal/move
+import position/change
+import position/move
 
 pub fn basic_then_capture_test() {
   let assert Ok(a1_to_a2) = change.new("a1", "a2")

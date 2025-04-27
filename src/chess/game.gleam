@@ -1,24 +1,24 @@
 import chess/board
 import chess/castling.{type Castling}
-import chess/color
-import chess/position.{type Position}
 import chess/sliding.{type Direction}
-import chess/square
 import gleam/bool
 import gleam/int
 import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/string
 import iv
-import legal/move.{
+import piece/color
+import piece/square
+import position/move.{
   type Move, Basic, KingCastle, Passant, Promotion, PromotionCapture,
   QueenCastle,
 }
+import position/position.{type Position}
 import utils/choose
 
-import chess/offset.{Offset}
-import chess/piece.{type Piece}
-import legal/change.{type Change}
+import piece/piece.{type Piece}
+import position/change.{type Change}
+import position/offset.{Offset}
 
 pub type Distance {
   NonCapture(distance: Int)

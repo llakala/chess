@@ -1,7 +1,7 @@
 import birdie
 import chess/board
-import chess/color.{Black, White}
 import chess/game
+import piece/color.{Black, White}
 
 pub fn initial_white_test() {
   let game = game.Game(..game.initial(), color: White)

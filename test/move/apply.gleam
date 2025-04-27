@@ -1,11 +1,11 @@
 import birdie
 import chess/board
-import chess/color.{Black}
 import chess/game
-import chess/piece.{Piece, Queen}
-import chess/position
-import legal/change.{Change}
-import legal/move
+import piece/color.{Black}
+import piece/piece.{Piece, Queen}
+import position/change.{Change}
+import position/move
+import position/position
 
 pub fn move_forward_test() {
   let game = game.initial()

@@ -1,9 +1,9 @@
 import birdie
-import chess/color
 import chess/game
-import chess/position
 import chess/sliding
 import gleam/string
+import piece/color
+import position/position
 
 /// Piece on E2 has a distance of 5 until the black pawn in front of it, because
 /// of capturing.

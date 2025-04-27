@@ -1,10 +1,10 @@
-import chess/color.{type Color}
 import chess/constants
-import chess/piece.{type Piece, Piece}
-import chess/square.{type Square}
 import gleam/int
 import gleam/list
 import gleam/result
+import piece/color.{type Color}
+import piece/piece.{type Piece, Piece}
+import piece/square.{type Square}
 
 pub type Direction {
   Up

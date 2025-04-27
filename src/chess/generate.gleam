@@ -1,18 +1,18 @@
 import chess/board
-import chess/color.{Black, White}
-import chess/file
 import chess/game.{type Game}
-import chess/offset
-import chess/piece.{
-  type Piece, type PieceKind, Bishop, Knight, Pawn, Piece, Queen, Rook,
-}
-import chess/position.{type Position}
-import chess/rank
 import chess/sliding.{
   type Direction, type SlidingPiece, Down, DownLeft, DownRight, Up, UpLeft,
   UpRight,
 }
-import chess/square
+import piece/color.{Black, White}
+import piece/piece.{
+  type Piece, type PieceKind, Bishop, Knight, Pawn, Piece, Queen, Rook,
+}
+import piece/square
+import position/file
+import position/offset
+import position/position.{type Position}
+import position/rank
 
 import gleam/option.{type Option}
 import gleam/string
@@ -24,8 +24,8 @@ import gleam/bool
 import gleam/int
 import gleam/list
 import gleam/result
-import legal/change.{Change}
-import legal/move.{type Move, Passant}
+import position/change.{Change}
+import position/move.{type Move, Passant}
 
 /// Generates all the legal moves for the current player based on a game state.
 pub fn legal_moves(game: Game) -> List(Move) {

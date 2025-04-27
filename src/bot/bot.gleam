@@ -1,7 +1,7 @@
 import chess/game
 import gleam/int
 import iv
-import legal/move.{type Move}
+import position/move.{type Move}
 
 /// Always choose the first move in the list of moves
 pub fn first(_game: game.Game, moves: List(Move)) -> Move {

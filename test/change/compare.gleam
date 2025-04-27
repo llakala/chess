@@ -1,7 +1,7 @@
 import birdie
 import gleam/list
 import gleam/string
-import legal/change
+import position/change
 
 pub fn different_to_test() {
   let assert Ok(change1) = change.new("a1", "a2")

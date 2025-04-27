@@ -1,13 +1,13 @@
 import birdie
-import chess/color
 import chess/game
-import chess/piece.{Pawn, Piece}
+import piece/color
+import piece/piece.{Pawn, Piece}
 
 import chess/board
-import chess/position
-import chess/square
+import piece/square
+import position/position
 
-import legal/generate
+import chess/generate
 
 pub fn white_pawn_test() {
   let game = game.initial()

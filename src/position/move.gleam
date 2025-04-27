@@ -1,7 +1,7 @@
-import chess/piece
 import gleam/order.{type Order}
 import gleam/string
-import legal/change.{type Change}
+import piece/piece
+import position/change.{type Change}
 
 pub type Move {
   Basic(change: Change)

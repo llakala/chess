@@ -1,7 +1,7 @@
 import birdie
-import chess/position
 import gleam/string
 import gleeunit/should
+import position/position
 
 pub fn new_test() {
   "h8" |> position.new |> should.equal(position.from_indices(7, 7))

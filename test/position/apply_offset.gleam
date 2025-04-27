@@ -1,8 +1,8 @@
 import birdie
-import chess/offset
-import chess/position
 import chess/sliding
 import gleam/string
+import position/offset
+import position/position
 
 pub fn one_forward_test() {
   let one_up = offset.in_direction(sliding.Up, 1)

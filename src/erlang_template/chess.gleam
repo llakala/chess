@@ -1,9 +1,9 @@
 import bot/bot
 import chess/algebraic
-import chess/color.{type Color, Black, White}
 import chess/game
+import chess/generate
 import gleam/dynamic/decode
-import legal/generate
+import piece/color.{type Color, Black, White}
 
 pub fn player_decoder() -> decode.Decoder(Color) {
   use player_string <- decode.then(decode.string)

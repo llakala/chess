@@ -8,9 +8,9 @@ import gleam/string
 import utils/text
 
 import chess/constants.{num_cols, num_rows}
-import chess/piece
-import chess/position.{type Position}
-import chess/square.{type Square}
+import piece/piece
+import piece/square.{type Square}
+import position/position.{type Position}
 
 import utils/choose
 
