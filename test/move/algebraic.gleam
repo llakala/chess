@@ -1,4 +1,5 @@
 import birdie
+import chess/algebraic
 import chess/color.{Black}
 import chess/game
 import chess/piece.{Bishop, Piece, Queen}
@@ -15,7 +16,7 @@ pub fn promotion_test() {
   let assert Ok(output) =
     change
     |> move.Promotion(piece)
-    |> move.to_algebraic(game)
+    |> algebraic.notation(game)
 
   output
   |> birdie.snap(
@@ -33,7 +34,7 @@ pub fn promotion_capture_test() {
   let assert Ok(output) =
     change
     |> move.PromotionCapture(piece)
-    |> move.to_algebraic(game)
+    |> algebraic.notation(game)
 
   output
   |> birdie.snap(
