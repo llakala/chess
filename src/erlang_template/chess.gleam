@@ -1,9 +1,9 @@
 import bot/bot
+import chess/algebraic
 import chess/color.{type Color, Black, White}
 import chess/game
 import gleam/dynamic/decode
 import legal/generate
-import legal/move
 
 pub fn player_decoder() -> decode.Decoder(Color) {
   use player_string <- decode.then(decode.string)
@@ -22,7 +22,7 @@ pub fn move(
   let assert Ok(game) = game.new(fen)
   let moves = generate.legal_moves(game)
   let move = bot.first(game, moves)
-  let assert Ok(move_output) = move |> move.to_algebraic(game)
+  let assert Ok(move_output) = move |> algebraic.notation(game)
 
   Ok(move_output)
 }
