@@ -6,6 +6,7 @@ import chess/piece.{Piece, Queen}
 import chess/position
 import chess/square
 import legal/generate
+import legal/moves
 
 pub fn all_options_test() {
   // Empty board, other than a knight on d4
@@ -17,9 +18,9 @@ pub fn all_options_test() {
     game.initial()
     |> game.setup_board(fn(_) { my_board })
 
-  let assert Ok(moves) = generate.choices_from(game, pos)
+  let assert Ok(moves) = generate.moves_from(game, pos)
 
-  generate.display(moves, game)
+  moves.display(moves, game)
   |> birdie.snap(
     "Expected all the valid knight moves on an empty board - b3, b5, c2, c6, e2, e6, f3, and f5!",
   )
@@ -30,9 +31,9 @@ pub fn initial_test() {
   // Bottom left knight
   let assert Ok(pos) = position.new("b1")
 
-  let assert Ok(moves) = generate.choices_from(game, pos)
+  let assert Ok(moves) = generate.moves_from(game, pos)
 
-  generate.display(moves, game)
+  moves.display(moves, game)
   |> birdie.snap(
     "Expected b1 knight on initial board to be able to move to a3 and c3!",
   )
@@ -50,9 +51,9 @@ pub fn capturing_test() {
 
   let assert Ok(pos) = position.new("b8")
 
-  let assert Ok(moves) = generate.choices_from(game, pos)
+  let assert Ok(moves) = generate.moves_from(game, pos)
 
-  generate.display(moves, game)
+  moves.display(moves, game)
   |> birdie.snap(
     "Given the initial board, but with a white queen on d7, expected the b8 knight to be able to move to a6, c6, and capture on d7!",
   )

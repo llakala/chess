@@ -1,0 +1,15 @@
+---
+version: 1.2.6
+title: White pawn on c7 can capture on d8, promoting into a rook, bishop, knight, or queen!
+---
+c7 -> ["d8(Promotion & Capture to Queen)", "d8(Promotion & Capture to Rook)", "d8(Promotion & Capture to Bishop)", "d8(Promotion & Capture to Knight)"]
+Board:
+[38;5;244m8[0m 0 0 ♖ [33m♛[0m 0 0 0 0
+[38;5;244m7[0m 0 0 [36m♙[0m 0 0 0 0 0
+[38;5;244m6[0m 0 0 0 0 0 0 0 0
+[38;5;244m5[0m 0 0 0 0 0 0 0 0
+[38;5;244m4[0m 0 0 0 0 0 0 0 0
+[38;5;244m3[0m 0 0 0 0 0 0 0 0
+[38;5;244m2[0m 0 0 0 0 0 0 0 0
+[38;5;244m1[0m 0 0 0 0 0 0 0 0
+  [38;5;244ma b c d e f g h[0m

@@ -13,6 +13,8 @@ import chess/sliding.{
   UpRight,
 }
 import chess/square
+import gleam/string
+import utils/text
 
 import legal/moves.{type MovesFromPosition}
 import legal/target.{
@@ -40,6 +42,49 @@ pub fn legal_moves(game: Game) -> List(MovesFromPosition) {
 
     Ok(moves_for_positions) -> moves_for_positions
   }
+}
+
+/// Given some moves from a position, format/sort the targets, and show the origin
+/// and destinations on the board.
+pub fn display(moves: List(MovesFromPosition), game: Game) -> String {
+  let origins = moves |> list.map(fn(position_moves) { position_moves.origin })
+  let destinations =
+    moves
+    |> list.map(fn(position_moves) {
+      position_moves.targets |> list.map(fn(target) { target.pos })
+    })
+    |> list.flatten
+
+  // Takes a square and an index, and gives it a color if it's the origin or one
+  // of the destinations
+  let colorize_square = fn(square, index) {
+    let assert Ok(pos) = index |> position.from_data_index
+    let square_str = square |> square.to_string
+
+    case list.contains(origins, pos), list.contains(destinations, pos) {
+      False, False -> square_str
+
+      // Origin, not a destination
+      True, False -> square_str |> text.color(text.Cyan)
+
+      // Destination, not an origin
+      False, True -> square_str |> text.color(text.Yellow)
+
+      // An origin and a destination
+      True, True -> square_str |> text.color(text.RGB)
+    }
+  }
+
+  let moves_output =
+    moves
+    // Sort the internal moves
+    |> list.map(moves.sort)
+    |> list.map(moves.to_string)
+    |> string.inspect
+
+  let board_output = board.index_format(game.board, colorize_square)
+
+  moves_output <> "\nBoard:\n" <> board_output
 }
 
 /// Given a board and a position, get all the places we could move from that
