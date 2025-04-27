@@ -14,10 +14,8 @@ pub fn queen_goes_up_test() {
 
   // Get rid of the pawn on d2, so we can get the legal moves of the queen behind
   let assert Ok(pawn_pos) = position.new("d2")
-  let game =
-    game.setup_board(game, fn(board) {
-      board |> board.set_pos(pawn_pos, square.None)
-    })
+  let my_board = game.board |> board.set_pos(pawn_pos, square.None)
+  let game = game.Game(..game, board: my_board)
 
   let assert Ok(queen_pos) = position.new("d1")
   let assert Ok(legal_moves) = generate.moves_from(game, queen_pos)
@@ -34,10 +32,8 @@ pub fn bishop_test() {
   // Get rid of the pawn on e2, so we can get the legal moves of the bishop it's
   // blocking
   let assert Ok(pawn_pos) = position.new("e2")
-  let game =
-    game.setup_board(game, fn(board) {
-      board |> board.set_pos(pawn_pos, square.None)
-    })
+  let my_board = game.board |> board.set_pos(pawn_pos, square.None)
+  let game = game.Game(..game, board: my_board)
 
   let assert Ok(bishop_pos) = position.new("f1")
   let assert Ok(legal_moves) = generate.moves_from(game, bishop_pos)

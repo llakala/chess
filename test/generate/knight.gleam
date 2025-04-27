@@ -12,10 +12,7 @@ pub fn all_options_test() {
   let assert Ok(my_board) = board.new("8/8/8/8/3N4/8/8/8")
   let assert Ok(pos) = position.new("d4")
 
-  // Create a Game instance using my custom board
-  let game =
-    game.initial()
-    |> game.setup_board(fn(_) { my_board })
+  let game = game.Game(..game.initial(), board: my_board)
 
   let assert Ok(moves) = generate.moves_from(game, pos)
 
@@ -39,14 +36,14 @@ pub fn initial_test() {
 }
 
 pub fn capturing_test() {
-  // Initial board, but with a white queen on d7, capturable by the b8 knight
-  let game =
-    game.initial()
-    |> game.setup_board(fn(board) {
-      let white_queen_square = Piece(Queen, White) |> square.Some
-      let assert Ok(pos) = position.new("d7")
-      board |> board.set_pos(pos, white_queen_square)
-    })
+  let game = game.initial()
+
+  let white_queen_square = Piece(Queen, White) |> square.Some
+  let assert Ok(pos) = position.new("d7")
+  let my_board = game.board |> board.set_pos(pos, white_queen_square)
+
+  // Make the game instance use our custom board
+  let game = game.Game(..game.initial(), board: my_board)
 
   let assert Ok(pos) = position.new("b8")
 
