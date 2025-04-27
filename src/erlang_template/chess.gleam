@@ -22,7 +22,5 @@ pub fn move(
   let assert Ok(game) = game.new(fen)
   let moves = generate.legal_moves(game)
   let move = bot.first(game, moves)
-  let assert Ok(move_output) = move |> move.to_algebraic(game)
-
-  Ok(move_output)
+  todo
 }

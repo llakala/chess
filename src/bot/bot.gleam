@@ -2,12 +2,16 @@ import chess/game
 import gleam/int
 import iv
 import legal/move.{type Move}
+import legal/moves.{type MovesFromPosition}
 
-/// Always choose the first move in the list of moves
-pub fn first(_game: game.Game, moves: List(Move)) -> Move {
+/// Always choose the first position, and the first move from that position
+pub fn first(
+  _game: game.Game,
+  moves: List(MovesFromPosition),
+) -> moves.MovesFromPosition {
   case moves {
     [] -> panic as "No moves to select!"
-    [first, ..] -> first
+    [position_moves, ..] -> position_moves
   }
 }
 
