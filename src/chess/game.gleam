@@ -1,4 +1,4 @@
-import chess/board
+import chess/board.{type Board}
 import chess/castling.{type Castling}
 import chess/color
 import chess/position.{type Position}
@@ -159,13 +159,12 @@ pub fn apply_move(game: Game, move: Move) -> Game {
   let change = move.change
 
   case move {
-    Basic(_) -> apply_generic(game, change)
-
     // We currently handle captures the same - but having them as Capture means
-    // we can have special logic for them in other cases. This can't be
+    // we can have special logic for them in other cases. The record can't be
     // unqualified, since we have something else with the name Capture in this
     // module!
-    move.Capture(_) -> apply_generic(game, change)
+    Basic(_) | move.Capture(_) ->
+      Game(..game, board: game.board |> apply_to_board(change))
 
     QueenCastle(_) -> apply_queen_castle(game, change)
     KingCastle(_) -> apply_king_castle(game, change)
@@ -179,15 +178,12 @@ pub fn apply_move(game: Game, move: Move) -> Game {
 /// Apply some change to the board directly, moving the value at one position to some
 /// other position. Note that this is currently not checked to ensure that
 /// `change.from` is non-empty - be careful!
-fn apply_generic(game: Game, change: Change) -> Game {
-  let square = board.get_pos(game.board, change.from)
-  let new_board =
-    game.board
-    |> board.set_pos(change.from, square.None)
-    |> board.set_pos(change.to, square)
+fn apply_to_board(board: Board, change: Change) -> Board {
+  let square = board |> board.get_pos(change.from)
 
-  // Update the game with the new board
-  Game(..game, board: new_board)
+  board
+  |> board.set_pos(change.from, square.None)
+  |> board.set_pos(change.to, square)
 }
 
 fn apply_king_castle(_game: Game, _change: Change) -> Game {
@@ -207,20 +203,23 @@ fn apply_passant(game: Game, change: Change) -> Game {
   let assert Ok(enemy_pos) =
     Offset(0, offset.horizontal) |> position.apply_offset(change.from, _)
 
-  // Move our piece diagonally to the new position
-  let game = apply_generic(game, change)
+  let board =
+    game.board
+    // Move our piece diagonally to the new position
+    |> apply_to_board(change)
+    // Remove the enemy, thereby capturing it.
+    |> board.set_pos(enemy_pos, square.None)
 
-  // Remove the enemy, thereby capturing it.
-  Game(..game, board: board.set_pos(game.board, enemy_pos, square.None))
+  Game(..game, board:)
 }
 
 fn apply_promotion(game: Game, change: Change, piece: Piece) -> Game {
-  // Move the original piece to the new position
-  let game = apply_generic(game, change)
-
-  // Replace the moved piece with the piece it's promoting into
   let square = piece |> square.Some
-  let board = game.board |> board.set_pos(change.to, square)
+  let board =
+    game.board
+    |> apply_to_board(change)
+    // Replace the moved piece with the piece it's promoting into
+    |> board.set_pos(change.to, square)
 
   // Replace the existing board with our new board
   Game(..game, board:)
