@@ -1,4 +1,5 @@
 import birdie
+import chess/apply
 import chess/board
 import chess/game
 import piece/color.{Black}
@@ -14,7 +15,7 @@ pub fn move_forward_test() {
   let assert Ok(to) = position.new("e4")
   let move = Change(from, to) |> move.Basic
 
-  let game = game.apply_move(game, move)
+  let game = apply.move(game, move)
 
   game.board |> board.to_string |> birdie.snap(title: "Pawn from e2 to e4!")
 }
@@ -26,7 +27,7 @@ pub fn move_capture_test() {
   let assert Ok(to) = position.new("e7")
   let move = Change(from, to) |> move.Capture
 
-  let game = game.apply_move(game, move)
+  let game = apply.move(game, move)
 
   game.board
   |> board.to_string
@@ -43,7 +44,7 @@ pub fn en_passant_test() {
   let assert Ok(to) = position.new("d6")
   let move = Change(from, to) |> move.Passant
 
-  let game = game.apply_move(game, move)
+  let game = apply.move(game, move)
 
   game.board
   |> board.to_string
@@ -62,7 +63,7 @@ pub fn promotion_test() {
   let piece = Piece(Queen, Black)
   let move = Change(from, to) |> move.Promotion(piece)
 
-  let game = game.apply_move(game, move)
+  let game = apply.move(game, move)
 
   game.board
   |> board.to_string
