@@ -1,6 +1,6 @@
 import chess/board
 import chess/game.{type Game}
-import chess/target
+import chess/targets
 import gleam/result
 import position/change
 
@@ -34,18 +34,16 @@ pub fn legal_moves(game: Game) -> List(Move) {
 /// position can make. A move wraps a Change, so we can differentiate things like
 /// en passant. Returns an error if the position contained None. The data this
 /// returns is pretty inefficient, since it stores a bunch of duplicate origin
-/// positions. If you want better packed data, use `target.targets_from` - this
+/// positions. If you want better packed data, use `targets.from_pos` - this
 /// just wraps its functionality anyways.
 pub fn moves_from(game: Game, origin: Position) -> Result(List(Move), String) {
-  target.targets_from(game, origin)
-  |> result.map(fn(targets_from_pos) {
-    let origin = targets_from_pos.0
-    let targets = targets_from_pos.1
-
-    // Map a single target to a move from the origin to the destination
+  targets.from_pos(game, origin)
+  // Map the result if we got an Ok value
+  |> result.map(fn(targets) {
+    // Map each target to a move from the origin to the destination, persisting
+    // the MoveKind.
     list.map(targets, fn(target) {
       let change = change.Change(origin, target.destination)
-
       move.Move(change, target.kind)
     })
   })

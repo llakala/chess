@@ -30,13 +30,9 @@ pub type Target {
 
 /// Given a board and a position, get all the legal targets that the piece at that
 /// position can make. A target stores the new position, and the kind of move
-/// that would be required to move to the given destination. We also return the
-/// origin position, so it's easy to reconstruct a Move if need be. Returns an
-/// error if the origin position passed contained None.
-pub fn targets_from(
-  game: Game,
-  origin: Position,
-) -> Result(#(Position, List(Target)), String) {
+/// that would be required to move to the given destination. Returns an error
+/// if the origin position passed contained None.
+pub fn from_pos(game: Game, origin: Position) -> Result(List(Target), String) {
   let board = game.board
   let square = board.get_pos(board, origin)
 
@@ -54,7 +50,7 @@ pub fn targets_from(
     }
   }
 
-  #(origin, targets) |> Ok
+  targets |> Ok
 }
 
 fn legal_pawn_targets(game: Game, pos: Position, piece: Piece) -> List(Target) {
