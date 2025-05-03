@@ -1,6 +1,7 @@
 import birdie
 import chess/apply
 import chess/game
+import piece/color
 import position/move
 
 import chess/board
@@ -48,12 +49,14 @@ pub fn bishop_test() {
 pub fn rook_test() {
   let game = game.initial()
 
-  // Obviously very illegal, but lets us test what the rook can see
+  // Obviously very illegal, but lets us test what the rook can see from d4
   let assert Ok(old_pos) = position.new("h1")
   let assert Ok(new_pos) = position.new("d4")
-
   let h1_rook_to_d4 = Change(old_pos, new_pos) |> move.Basic
   let game = apply.move(game, h1_rook_to_d4)
+
+  // Applying a move flips the color, so unflip it!
+  let game = game.Game(..game, color: color.White)
 
   let assert Ok(legal_moves) = generate.moves_from(game, new_pos)
 

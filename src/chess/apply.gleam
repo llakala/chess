@@ -1,5 +1,6 @@
 import chess/board
 import chess/game.{type Game, Game}
+import piece/color.{Black, White}
 import piece/square
 import position/move.{
   type Move, Basic, KingCastle, Passant, Promotion, PromotionCapture,
@@ -34,17 +35,38 @@ pub fn move(game: Game, move: Move) -> Game {
 }
 
 /// Apply some change to the board directly, moving the value at one position to some
-/// other position. Note that this is currently not checked to ensure that
-/// `change.from` is non-empty - be careful!
+/// other position. We also flip the current color, and increase the number of
+/// moves. Note that this is currently not checked to ensure that `change.from`
+/// is non-empty - be careful!
 fn apply_generic(game: Game, change: Change) -> Game {
   let square = board.get_pos(game.board, change.from)
+
   let new_board =
     game.board
     |> board.set_pos(change.from, square.None)
     |> board.set_pos(change.to, square)
 
-  // Update the game with the new board
-  Game(..game, board: new_board)
+  let flipped_color = case game.color {
+    White -> Black
+    Black -> White
+  }
+
+  // If it's black's turn, and white started, `halfmoves % 2 == 0` - increment
+  // fullmoves!
+  let fullmoves = case game.color {
+    White -> game.fullmoves
+    Black -> game.fullmoves + 1
+  }
+
+  // Update the game with the new board, flip the color, and increment the
+  // halfmoves and fullmoves
+  Game(
+    ..game,
+    board: new_board,
+    color: flipped_color,
+    halfmoves: game.halfmoves + 1,
+    fullmoves:,
+  )
 }
 
 fn apply_king_castle(_game: Game, _change: Change) -> Game {
