@@ -19,7 +19,7 @@ pub opaque type Castling {
 /// "White: King, Queen
 /// Black: King, Queen"
 /// ```
-pub fn to_string(castling: Castling) {
+pub fn to_string(castling: Castling) -> String {
   let black_king = case castling.black_king {
     False -> ""
     True -> " King"

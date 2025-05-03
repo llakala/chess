@@ -82,7 +82,7 @@ pub fn from_data_index(index index: Int) -> Result(Position, String) {
 /// Get the index of a position, oriented so it's intuitive as white.
 /// This does NOT give you the index of a position in the data. instead, (0, 0) corresponds to the bottom left of the data here. This is for easy
 /// conversions between Position and index
-pub fn to_player_index(position pos: Position) {
+pub fn to_player_index(position pos: Position) -> Int {
   let row = pos.rank |> rank.to_index
   let col = pos.file |> file.to_index
 

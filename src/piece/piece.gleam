@@ -84,7 +84,7 @@ pub fn to_algebraic(piece: Piece) -> Result(String, String) {
 
 /// Creates a string representation of a piece. For example, Piece(Knight,
 /// Black) would return "Black Knight".
-pub fn to_string(piece: Piece) {
+pub fn to_string(piece: Piece) -> String {
   let color = piece.color |> string.inspect
   let kind = piece.kind |> string.inspect
 

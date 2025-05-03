@@ -94,7 +94,7 @@ fn rook_distance(dir: Direction) -> Int {
   }
 }
 
-fn bishop_distance(dir: Direction) {
+fn bishop_distance(dir: Direction) -> Int {
   // Subtract 1 since we're currently on a piece
   let horizontal_distance = constants.row_len - 1
   let vertical_distance = constants.col_len - 1

@@ -15,7 +15,7 @@ import gleam/list
 import position/move.{type Move}
 
 /// Generates all the legal moves for the current player based on a game state.
-pub fn legal_moves(game: Game) {
+pub fn legal_moves(game: Game) -> List(Move) {
   // All the positions containing one of our pieces
   let origins = game.player_positions(game)
 

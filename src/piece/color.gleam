@@ -3,7 +3,7 @@ pub type Color {
   Black
 }
 
-pub fn from_fen(fen: String) {
+pub fn from_fen(fen: String) -> Result(Color, String) {
   case fen {
     "w" -> Ok(White)
     "b" -> Ok(Black)

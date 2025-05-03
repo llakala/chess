@@ -8,7 +8,7 @@ pub type Ansi {
   Gray
 }
 
-fn to_ansi(color: Ansi) {
+fn to_ansi(color: Ansi) -> String {
   case color {
     Gray -> "\u{001B}[38;5;244m"
     Cyan -> "\u{001b}[36m"
@@ -17,7 +17,7 @@ fn to_ansi(color: Ansi) {
   }
 }
 
-pub fn color(text: String, color: Ansi) {
+pub fn color(text: String, color: Ansi) -> String {
   let ansi = to_ansi(color)
   ansi <> text <> reset
 }

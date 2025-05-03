@@ -5,7 +5,7 @@ import gleam/string
 import iv.{type Array}
 
 /// QOL debug function, to turn the Array into a list, print it to stderr, and return it unchanged
-pub fn debug(arr: Array(a)) {
+pub fn debug(arr: Array(a)) -> Array(a) {
   arr |> iv.to_list |> echo |> iv.from_list
 }
 

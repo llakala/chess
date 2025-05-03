@@ -81,7 +81,7 @@ pub fn new(fen: String) -> Result(Game, String) {
 }
 
 /// Does NOT turn it back into a fen string - simply displays for debugging
-pub fn to_string(fen: Game) {
+pub fn to_string(fen: Game) -> String {
   let board_str = fen.board |> board.to_string
   let color_str = fen.color |> string.inspect
   let castling_str = fen.castling |> castling.to_string

@@ -25,7 +25,7 @@ import gleam/result
 import position/move
 
 pub type Target {
-  Target(destination: position.Position, kind: move.MoveKind)
+  Target(destination: Position, kind: move.MoveKind)
 }
 
 /// Given a board and a position, get all the legal targets that the piece at that
