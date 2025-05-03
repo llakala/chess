@@ -1,18 +1,18 @@
 import chess/board
 import chess/game.{type Game}
-import chess/targets
-import gleam/result
+
 import position/change
+import position/move.{type Move}
+import position/position.{type Position}
+import position/targets
 
 import piece/square
-import position/position.{type Position}
-
-import gleam/string
 
 import utils/text
 
 import gleam/list
-import position/move.{type Move}
+import gleam/result
+import gleam/string
 
 /// Generates all the legal moves for the current player based on a game state.
 pub fn legal_moves(game: Game) -> List(Move) {
@@ -34,7 +34,7 @@ pub fn legal_moves(game: Game) -> List(Move) {
 /// position can make. A move wraps a Change, so we can differentiate things like
 /// en passant. Returns an error if the position contained None. The data this
 /// returns is pretty inefficient, since it stores a bunch of duplicate origin
-/// positions. If you want better packed data, use `targets.from_pos` - this
+/// positions. If you want better packed data, use `target.from_pos` - this
 /// just wraps its functionality anyways.
 pub fn moves_from(game: Game, origin: Position) -> Result(List(Move), String) {
   targets.from_pos(game, origin)
