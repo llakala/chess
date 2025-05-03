@@ -144,11 +144,11 @@
     "gleam": {
       "flake": false,
       "locked": {
-        "lastModified": 1745523843,
-        "narHash": "sha256-XY7n5zuDMf9MUjepufC7pO+z7MGYYh0ohM15aKHlPTg=",
+        "lastModified": 1746204656,
+        "narHash": "sha256-u6FKMVNL66j6gU5lcGy0IL6oP8vRtWKOIDPR/80x/rI=",
         "owner": "gleam-lang",
         "repo": "gleam",
-        "rev": "4513acab09048dfe024e1863755ad9deb646ff2a",
+        "rev": "cdde47fe6e8ea97896d4369960933f4eb2a9127d",
         "type": "github"
       },
       "original": {
@@ -170,11 +170,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1745558452,
-        "narHash": "sha256-TWk7yIvKRx3C+RaJbMUVEhqm4Qxs7pClD4o4+hrWxTQ=",
+        "lastModified": 1746249692,
+        "narHash": "sha256-LdR6qdq8ZaW2w6RyVoXWoaNRCiujiV5G0aM3Pgvt/H0=",
         "owner": "vic",
         "repo": "gleam-nix",
-        "rev": "5cd5ad81bf589cb4520830df361f4a840e0c1ef0",
+        "rev": "d2c37620ef86514ea6bfe947788f2decf0edf688",
         "type": "github"
       },
       "original": {
@@ -221,11 +221,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1745526057,
-        "narHash": "sha256-ITSpPDwvLBZBnPRS2bUcHY3gZSwis/uTe255QgMtTLA=",
+        "lastModified": 1746232882,
+        "narHash": "sha256-MHmBH2rS8KkRRdoU/feC/dKbdlMkcNkB5mwkuipVHeQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "f771eb401a46846c1aebd20552521b233dd7e18b",
+        "rev": "7a2622e2c0dbad5c4493cb268aba12896e28b008",
         "type": "github"
       },
       "original": {
