@@ -13,15 +13,15 @@ import position/position
 /// Creates a representation of the move in algebraic notation, for sending as our
 /// HTTP response
 pub fn notation(move: Move, game: Game) -> Result(String, String) {
-  case move {
-    KingCastle(_) -> "0-0" |> Ok
-    QueenCastle(_) -> "0-0-0" |> Ok
+  case move.kind {
+    KingCastle -> "0-0" |> Ok
+    QueenCastle -> "0-0-0" |> Ok
 
     // Even though these are different records, they get the same logic for
     // generating the algebraic notation - since only pawns have special capture
     // notation, and we encoded that in the `handle_generic` function. In the
     // future, it might make sense to move that logic here.
-    Promotion(_, new_piece) | PromotionCapture(_, new_piece) -> {
+    Promotion(new_piece) | PromotionCapture(new_piece) -> {
       // Fails if the change was obviously invalid (if it was moving an empty
       // square somewhere else, for example)
       use change_str <- result.try(handle_generic(move.change, game))

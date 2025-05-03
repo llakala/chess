@@ -4,16 +4,14 @@ import chess/board
 import chess/game
 import piece/color.{Black}
 import piece/piece.{Piece, Queen}
-import position/change.{Change}
-import position/move
-import position/position
+import position/change
+import position/move.{Move}
 
 pub fn move_forward_test() {
   let game = game.initial()
 
-  let assert Ok(from) = position.new("e2")
-  let assert Ok(to) = position.new("e4")
-  let move = Change(from, to) |> move.Basic
+  let assert Ok(change) = change.new("e2", "e4")
+  let move = Move(change, move.Basic)
 
   let game = apply.move(game, move)
 
@@ -23,9 +21,8 @@ pub fn move_forward_test() {
 pub fn move_capture_test() {
   let game = game.initial()
 
-  let assert Ok(from) = position.new("e2")
-  let assert Ok(to) = position.new("e7")
-  let move = Change(from, to) |> move.Capture
+  let assert Ok(change) = change.new("e2", "e7")
+  let move = Move(change, move.Capture)
 
   let game = apply.move(game, move)
 
@@ -40,9 +37,8 @@ pub fn en_passant_test() {
   let assert Ok(game) =
     game.new("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1")
 
-  let assert Ok(from) = position.new("e5")
-  let assert Ok(to) = position.new("d6")
-  let move = Change(from, to) |> move.Passant
+  let assert Ok(change) = change.new("e5", "d6")
+  let move = Move(change, move.Passant)
 
   let game = apply.move(game, move)
 
@@ -57,11 +53,9 @@ pub fn promotion_test() {
   // Empty board other than a pawn on a2, about to promote.
   let assert Ok(game) = game.new("8/8/8/8/8/8/p7/8 w KQkq - 0 1")
 
-  let assert Ok(from) = position.new("a2")
-  let assert Ok(to) = position.new("a1")
-
+  let assert Ok(change) = change.new("a2", "a1")
   let piece = Piece(Queen, Black)
-  let move = Change(from, to) |> move.Promotion(piece)
+  let move = Move(change, move.Promotion(piece))
 
   let game = apply.move(game, move)
 

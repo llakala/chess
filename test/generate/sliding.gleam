@@ -52,7 +52,8 @@ pub fn rook_test() {
   // Obviously very illegal, but lets us test what the rook can see from d4
   let assert Ok(old_pos) = position.new("h1")
   let assert Ok(new_pos) = position.new("d4")
-  let h1_rook_to_d4 = Change(old_pos, new_pos) |> move.Basic
+  let change = Change(old_pos, new_pos)
+  let h1_rook_to_d4 = move.Move(change, move.Basic)
   let game = apply.move(game, h1_rook_to_d4)
 
   // Applying a move flips the color, so unflip it!

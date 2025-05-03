@@ -25,7 +25,7 @@ import gleam/int
 import gleam/list
 import gleam/result
 import position/change.{Change}
-import position/move.{type Move, Passant}
+import position/move.{type Move, Move}
 
 /// Generates all the legal moves for the current player based on a game state.
 pub fn legal_moves(game: Game) -> List(Move) {
@@ -161,7 +161,8 @@ fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
 
     // We can move, but we couldn't promote
     square.None, False -> {
-      let move = Change(pos, new_pos) |> move.Basic
+      let change = Change(pos, new_pos)
+      let move = Move(change, move.Basic)
       #(move |> list.wrap, True)
     }
 
@@ -170,8 +171,9 @@ fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
       // Create a move for each potential piece we could promote into
       let moves =
         list.map(promotable_piece_kinds(), fn(kind) {
+          let change = Change(pos, new_pos)
           let piece = Piece(kind, my_color)
-          Change(pos, new_pos) |> move.Promotion(piece)
+          Move(change, move.Promotion(piece))
         })
 
       // Even though we technically did single-move successfully, promoting means
@@ -197,7 +199,8 @@ fn pawn_vertical_moves(game: Game, pos: Position, piece: Piece) -> List(Move) {
   case square {
     square.Some(_) -> moves
     square.None -> {
-      let double = Change(pos, new_pos) |> move.Basic
+      let change = Change(pos, new_pos)
+      let double = Move(change, move.Basic)
       [double, ..moves]
     }
   }
@@ -255,8 +258,10 @@ fn pawn_diagonal_moves(
 
     // There's a piece in that direction, and it's an enemy (but we can't promote).
     // Use the Capture constructor, so we can give this move higher priority in evaluation
-    square.Some(_), True, False ->
-      Change(old_pos, new_pos) |> move.Capture |> list.wrap
+    square.Some(_), True, False -> {
+      let change = Change(old_pos, new_pos)
+      Move(change, move.Capture) |> list.wrap
+    }
 
     // Promotion!
     square.Some(_), True, True -> {
@@ -266,7 +271,8 @@ fn pawn_diagonal_moves(
       // will generate multiple moves!
       list.map(promotable_piece_kinds(), fn(kind) {
         let new_piece = Piece(kind, my_color)
-        Change(old_pos, new_pos) |> move.PromotionCapture(new_piece)
+        let change = Change(old_pos, new_pos)
+        Move(change, move.PromotionCapture(new_piece))
       })
     }
   }
@@ -300,7 +306,8 @@ fn en_passant_move(game: Game, pos: Position, piece: Piece) -> Option(Move) {
       // The cool thing about the fen representation of passant is that it stores
       // the position that the passant piece skipped over - meaning we can just move
       // there.
-      let passant = Change(pos, passant_pos) |> Passant
+      let change = Change(pos, passant_pos)
+      let passant = Move(change, move.Passant)
       passant |> option.Some
     }
 
@@ -324,14 +331,16 @@ fn legal_knight_moves(
   // Filter out the invalid positions, and turn the valid positions into Moves
   list.filter_map(potential_positions, fn(new_pos) {
     let new_square = board.get_pos(board, new_pos)
+    // I expect precomputing this will be faster than computing it every time
+    let change = Change(current_pos, new_pos)
 
     case new_square {
       // If the square we want to move to is empty, it's a basic move! Exit early.
-      square.None -> change.Change(current_pos, new_pos) |> move.Basic |> Ok
+      square.None -> Move(change, move.Basic) |> Ok
 
       // It's an enemy that we can capture!
       square.Some(other_piece) if other_piece.color != my_color ->
-        change.Change(current_pos, new_pos) |> move.Capture |> Ok
+        Move(change, move.Capture) |> Ok
 
       // It's a friend - can't go there.
       _ -> Error(Nil)
@@ -366,7 +375,8 @@ fn legal_sliding_moves(
       // exist)
       let assert Ok(capture_pos) =
         position.in_direction(current_pos, max_distance, dir)
-      let capture = Change(current_pos, capture_pos) |> move.Capture
+      let change = Change(current_pos, capture_pos)
+      let capture = Move(change, move.Capture)
 
       let non_captures =
         sliding_moves_for_dir(current_pos, max_distance - 1, dir)
@@ -401,6 +411,7 @@ fn sliding_moves_for_dir(
     // if it ever fails, we must've somehow had invalid logic. Insta-fail!
     let assert Ok(new_pos) = position.in_direction(current_pos, dist, dir)
 
-    Change(current_pos, new_pos) |> move.Basic
+    let change = Change(current_pos, new_pos)
+    move.Move(change, move.Basic)
   })
 }

@@ -16,20 +16,20 @@ import position/offset.{Offset}
 pub fn move(game: Game, move: Move) -> Game {
   let change = move.change
 
-  case move {
-    Basic(_) -> apply_generic(game, change)
+  case move.kind {
+    Basic -> apply_generic(game, change)
 
     // We currently handle captures the same - but having them as Capture means
     // we can have special logic for them in other cases. This can't be
     // unqualified, since we have something else with the name Capture in this
     // module!
-    move.Capture(_) -> apply_generic(game, change)
+    move.Capture -> apply_generic(game, change)
 
-    QueenCastle(_) -> apply_queen_castle(game, change)
-    KingCastle(_) -> apply_king_castle(game, change)
+    QueenCastle -> apply_queen_castle(game, change)
+    KingCastle -> apply_king_castle(game, change)
 
-    Passant(_) -> apply_passant(game, change)
-    Promotion(_, piece) | PromotionCapture(_, piece) ->
+    Passant -> apply_passant(game, change)
+    Promotion(piece) | PromotionCapture(piece) ->
       apply_promotion(game, change, piece)
   }
 }

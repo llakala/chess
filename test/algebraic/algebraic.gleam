@@ -4,7 +4,7 @@ import chess/game
 import piece/color.{Black}
 import piece/piece.{Bishop, Piece, Queen}
 import position/change
-import position/move
+import position/move.{Move, PromotionCapture}
 
 pub fn promotion_test() {
   // Empty board, other than a black pawn on f2
@@ -14,8 +14,7 @@ pub fn promotion_test() {
   let piece = Piece(Queen, Black)
 
   let assert Ok(output) =
-    change
-    |> move.Promotion(piece)
+    Move(change, move.Promotion(piece))
     |> algebraic.notation(game)
 
   output
@@ -32,8 +31,7 @@ pub fn promotion_capture_test() {
   let piece = Piece(Bishop, Black)
 
   let assert Ok(output) =
-    change
-    |> move.PromotionCapture(piece)
+    Move(change, PromotionCapture(piece))
     |> algebraic.notation(game)
 
   output

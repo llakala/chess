@@ -3,13 +3,13 @@ import chess/algebraic
 import chess/board
 import chess/game
 import position/change
-import position/move
+import position/move.{Move}
 
 pub fn pawn_forward_test() {
   let game = game.initial()
 
   let assert Ok(change) = change.new("e2", "e4")
-  let move = change |> move.Basic
+  let move = Move(change, move.Basic)
   let assert Ok(output) = algebraic.notation(move, game)
 
   output
@@ -26,7 +26,7 @@ pub fn pawn_capture_test() {
   let game = game.Game(..game, board:)
 
   let assert Ok(change) = change.new("e3", "d4")
-  let move = change |> move.Capture
+  let move = Move(change, move.Capture)
   let assert Ok(output) = algebraic.notation(move, game)
 
   output
@@ -42,7 +42,7 @@ pub fn normal_piece_test() {
   let game = game.Game(..game, board:)
 
   let assert Ok(change) = change.new("a8", "f3")
-  let move = change |> move.Basic
+  let move = Move(change, move.Basic)
   let assert Ok(output) = algebraic.notation(move, game)
 
   output

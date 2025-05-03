@@ -1,12 +1,12 @@
 import birdie
 import gleam/string
 import position/change
-import position/move
+import position/move.{Move}
 
 pub fn basic_then_capture_test() {
   let assert Ok(a1_to_a2) = change.new("a1", "a2")
-  let basic_move = a1_to_a2 |> move.Basic
-  let capture_move = a1_to_a2 |> move.Capture
+  let basic_move = Move(a1_to_a2, move.Basic)
+  let capture_move = Move(a1_to_a2, move.Capture)
 
   move.compare(basic_move, capture_move)
   |> string.inspect
@@ -17,8 +17,8 @@ pub fn basic_then_capture_test() {
 
 pub fn neither_basic_test() {
   let assert Ok(change) = change.new("a1", "a2")
-  let basic = change |> move.Passant
-  let capture = change |> move.Capture
+  let basic = Move(change, move.Passant)
+  let capture = Move(change, move.Capture)
 
   move.compare(basic, capture)
   |> string.inspect
@@ -28,10 +28,10 @@ pub fn neither_basic_test() {
 }
 
 pub fn fallback_test() {
-  let assert Ok(a1_to_a2) = change.new("a1", "a2")
-  let assert Ok(a1_to_a3) = change.new("a1", "a3")
-  let basic1 = a1_to_a2 |> move.Basic
-  let basic2 = a1_to_a3 |> move.Basic
+  let assert Ok(to_a2) = change.new("a1", "a2")
+  let assert Ok(to_a3) = change.new("a1", "a3")
+  let basic1 = Move(to_a2, move.Basic)
+  let basic2 = Move(to_a3, move.Basic)
 
   move.compare(basic1, basic2)
   |> string.inspect
