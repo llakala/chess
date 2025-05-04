@@ -58,7 +58,7 @@ pub fn display(moves: List(Move), game: Game) -> String {
   // Takes a square and an index, and colors in the origins and destinations of
   // the moves.
   let colorize_square = fn(square, index) {
-    let assert Ok(pos) = index |> position.from_data_index
+    let assert Ok(pos) = index |> position.from_index
     let square_str = square |> square.to_string
 
     case list.contains(origins, pos), list.contains(destinations, pos) {

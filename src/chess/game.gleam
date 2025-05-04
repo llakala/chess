@@ -126,7 +126,7 @@ pub fn player_positions(game: Game) -> List(Position) {
       square.Some(_) -> {
         // This only fails if the index is out of bounds, which it should never
         // be with a board unless I have a logic error.
-        let assert Ok(pos) = position.from_data_index(index)
+        let assert Ok(pos) = position.from_index(index)
 
         [pos, ..positions]
       }

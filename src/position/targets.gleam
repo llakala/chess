@@ -9,10 +9,8 @@ import piece/piece.{
   type Piece, type PieceKind, Bishop, Knight, Pawn, Piece, Queen, Rook,
 }
 import piece/square
-import position/file
 import position/offset
 import position/position.{type Position}
-import position/rank
 
 import gleam/option.{type Option}
 
@@ -81,16 +79,16 @@ fn pawn_vertical_targets(
   let board = game.board
   let my_color = piece.color
 
-  // A 1-based index, with 0 representing the bottom row
-  let rank_index = pos |> position.get_rank |> rank.to_index
+  // A 0-based index, with 0 representing the bottom row
+  let row_index = pos |> position.rank_index
 
-  let can_double_move = case piece.color, rank_index {
+  let can_double_move = case piece.color, row_index {
     Black, 6 -> True
     White, 1 -> True
     _, _ -> False
   }
 
-  let can_promote = case piece.color, rank_index {
+  let can_promote = case piece.color, row_index {
     Black, rank -> rank - 1 == 0
     White, rank -> rank + 1 == 7
   }
@@ -170,10 +168,10 @@ fn pawn_diagonal_targets(
     White -> [UpLeft, UpRight]
   }
 
-  // A 1-based index, with 0 representing the bottom row
-  let rank_index = old_pos |> position.get_rank |> rank.to_index
+  // A 0-based index, with 0 representing the bottom row
+  let row = old_pos |> position.rank_index
 
-  let can_promote = case piece.color, rank_index {
+  let can_promote = case piece.color, row {
     Black, rank -> rank - 1 == 0
     White, rank -> rank + 1 == 7
   }
@@ -232,12 +230,12 @@ fn pawn_diagonal_targets(
 /// time.
 fn en_passant_target(game: Game, pos: Position, piece: Piece) -> Option(Target) {
   // 0-based indices
-  let rank = pos |> position.get_rank |> rank.to_index
-  let file = pos |> position.get_file |> file.to_index
+  let row = pos |> position.rank_index
+  let col = pos |> position.file_index
 
   let moved_three_spaces = case piece.color {
-    White -> rank == 4
-    Black -> rank == 5
+    White -> row == 4
+    Black -> row == 5
   }
 
   // For en passant to happen, an enemy piece had to move two spaces in the previous
@@ -246,11 +244,11 @@ fn en_passant_target(game: Game, pos: Position, piece: Piece) -> Option(Target) 
   // on adjacent columns now.
   case game.passant, moved_three_spaces {
     option.Some(passant_pos), True -> {
-      let passant_file = passant_pos |> position.get_rank |> rank.to_index
+      let passant_row = passant_pos |> position.rank_index
 
       // absolute value lets us check that the difference between the two ranks
       // is 1 - note that we already checked that the rank was correct!
-      let on_adjacent_file = int.absolute_value(passant_file - file) == 1
+      let on_adjacent_file = int.absolute_value(passant_row - col) == 1
       use <- bool.guard(on_adjacent_file == False, option.None)
 
       // The cool thing about the fen representation of passant is that it stores

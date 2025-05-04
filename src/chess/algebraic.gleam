@@ -91,7 +91,7 @@ fn pawn_to_algebraic(
     // may be split out to be handled only when the move is of type Capture.
     _ -> {
       // "e", for example
-      let file_str = change.from |> position.get_file |> file.to_string
+      let file_str = change.from |> position.file_index |> file.to_string
 
       let destination_str = change.to |> position.to_string
       Ok(file_str <> "x" <> destination_str)

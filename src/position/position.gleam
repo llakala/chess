@@ -1,16 +1,18 @@
-import chess/constants.{col_len, row_len}
+import chess/constants
 import chess/sliding.{type Direction}
 import gleam/order.{type Order}
-import position/file.{type File}
+import position/file
 import position/offset.{type Offset}
-import position/rank.{type Rank}
+import position/rank
 
 import gleam/bool
 import gleam/result
 import gleam/string
 
+// Internal index is stored with 0 corresponding to the bottom left. This may
+// change in the future, but we're keeping it for now.
 pub opaque type Position {
-  Position(file: File, rank: Rank)
+  Position(index: Int)
 }
 
 /// Get a position from algebraic notation. Returns an error if the algebraic notation was invalid
@@ -25,31 +27,27 @@ pub fn new(fen fen: String) -> Result(Position, String) {
     ),
   )
 
-  use file <- result.try(file_str |> file.new)
-  use rank <- result.try(rank_str |> rank.new)
+  use file <- result.try(file_str |> file.parse)
+  use rank <- result.try(rank_str |> rank.parse)
 
-  // The `new()` function expects integers, not Ranks and Files. We use
-  // the record directly, since we're within the type, and we already
-  // validated both the rank and file. A function to handle this kind of
-  // thing in the future might be nice, but it's fine for now.
-  Position(rank:, file:) |> Ok
+  from_indices(file:, rank:)
 }
 
-/// Generate a new position based on a 0-based column and row index.
-/// Errors if it receives value outside of the row/col length
-pub fn from_indices(col col: Int, row row: Int) -> Result(Position, String) {
-  use rank <- result.try(row |> rank.from_index)
-  use file <- result.try(col |> file.from_index)
+/// Generate a new position based on a 0-based file and rank index. Bottom-left
+/// oriented. Errors if it receives value outside of the row/col length
+pub fn from_indices(file file: Int, rank rank: Int) -> Result(Position, String) {
+  use rank <- result.try(rank |> rank.validate)
+  use file <- result.try(file |> file.validate)
 
-  Position(rank:, file:) |> Ok
+  Position(rank * constants.rank_len + file) |> Ok
 }
 
 pub fn apply_offset(pos: Position, offset: Offset) -> Result(Position, String) {
-  let file = pos.file |> file.to_index
+  let file = file_index(pos)
   // Changing the file moves you horizontally
   let file_change = offset.horizontal
 
-  let rank = pos.rank |> rank.to_index
+  let rank = rank_index(pos)
   // Changing the rank moves you vertically
   let rank_change = offset.vertical
 
@@ -71,57 +69,41 @@ pub fn in_direction(
 
 /// Takes a classical index (0 being the top left) and turn it into a
 /// Position.
-pub fn from_data_index(index index: Int) -> Result(Position, String) {
+pub fn from_index(index index: Int) -> Result(Position, String) {
   // Flip the row around, so it correctly starts in the bottom left
-  let row = constants.num_rows - 1 - { index / row_len }
-  let col = index % row_len
+  let rank = constants.num_ranks - 1 - { index / constants.num_ranks }
+  let file = index % constants.num_files
 
-  from_indices(row:, col:)
+  from_indices(file:, rank:)
 }
 
-/// Get the index of a position, oriented so it's intuitive as white. This does
-/// NOT give you the index of a position in the data. instead, (0, 0) corresponds
-/// to the bottom left of the data here. This is for easy conversions between
-/// Position and index
-pub fn to_player_index(position pos: Position) -> Int {
-  let row = pos.rank |> rank.to_index
-  let col = pos.file |> file.to_index
+/// Get a data-oriented index, with 0 corresponding to the top left.
+pub fn to_index(position pos: Position) -> Int {
+  let rank = constants.num_ranks - 1 - rank_index(pos)
+  let file = file_index(pos)
 
-  let bottom_left = { row_len * col_len } - { 1 * row_len }
-
-  bottom_left - { row * row_len } + col
-}
-
-pub fn to_data_index(position pos: Position) -> Int {
-  let row = constants.num_rows - 1 - { pos.rank |> rank.to_index }
-  let col = pos.file |> file.to_index
-
-  row * row_len + col
+  rank * constants.rank_len + file
 }
 
 pub fn to_string(position pos: Position) -> String {
-  let file = pos.file |> file.to_string
-  let rank = pos.rank |> rank.to_string
+  let file_str = file_index(pos) |> file.to_string
+  let rank_str = rank_index(pos) |> rank.to_string
 
-  file <> rank
+  file_str <> rank_str
 }
 
-/// Returns a pair that looks like #(rank, file). 0-based indexing.
+/// Returns a pair that looks like #(rank, file). 0-based indexing, oriented
+/// with 0 corresponding to the bottom row.
 pub fn to_indices(position pos: Position) -> #(Int, Int) {
-  let rank_index = pos.rank |> rank.to_index
-  let file_index = pos.file |> file.to_index
-
-  #(rank_index, file_index)
+  #(rank_index(pos), file_index(pos))
 }
 
-/// Get the rank of the position, typically thought of as the row
-pub fn get_rank(position pos: Position) -> Rank {
-  pos.rank
+pub fn rank_index(position pos: Position) -> Int {
+  pos.index / constants.num_ranks
 }
 
-/// Get the file of the position, typically thought of as the column
-pub fn get_file(position pos: Position) -> File {
-  pos.file
+pub fn file_index(position pos: Position) -> Int {
+  pos.index % constants.num_files
 }
 
 /// Sorts two positions first based on the ranks, then falling back to the file.

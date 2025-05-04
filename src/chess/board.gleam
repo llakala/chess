@@ -54,7 +54,7 @@ pub fn new(fen: String) -> Result(Board, String) {
 /// is an opaque type and checked on creation
 pub fn get_pos(board: Board, pos: Position) -> Square {
   // 0 corresponds to bottom left of board, in relation to the player
-  let index: Int = position.to_player_index(pos)
+  let index: Int = position.to_index(pos)
 
   // If this ever fails, it's a logic error, not a user issue
   let assert Ok(square) = board.data |> iv.get(index)
@@ -72,8 +72,8 @@ pub fn get_data(board: Board) -> Array(Square) {
 /// Doesn't need to return an error - all of these are
 /// opaque types that must be valid to be created
 pub fn set_pos(board: Board, pos: Position, square: Square) -> Board {
-  // 0 corresponds to bottom left of the board, in relation to the player
-  let index: Int = position.to_player_index(pos)
+  // 0 corresponds to top left of the board, in relation to the player
+  let index: Int = position.to_index(pos)
 
   let assert Ok(new_data) =
     board.data
@@ -97,7 +97,7 @@ pub fn highlight(board: Board, positions: List(Position)) -> String {
 
   let board_output =
     index_format(board, fn(square, index) {
-      let assert Ok(pos) = index |> position.from_data_index
+      let assert Ok(pos) = index |> position.from_index
       let square_str = square |> square.to_string
 
       case list.contains(positions, pos) {
@@ -119,8 +119,7 @@ pub fn format(board: Board, func: fn(Square) -> String) -> String {
 
 /// Serves the same function as `board.format` (see its documentation for more
 /// info), but with a function that requires the square's position on the board.
-/// The index can be turned into a proper Position using
-/// `position.from_data_index`.
+/// The index can be turned into a proper Position using `position.from_index`.
 pub fn index_format(board: Board, func: fn(Square, Int) -> String) -> String {
   create_formatter(board, list.index_map(_, func))
 }

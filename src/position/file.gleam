@@ -1,15 +1,11 @@
-import chess/constants.{num_cols}
+import chess/constants
 import gleam/bool
 import gleam/int
 import gleam/string
 
-/// Typically thought of as a column
-pub opaque type File {
-  File(value: Int)
-}
-
-/// Takes a string, for working with algebraic notation
-pub fn new(file: String) -> Result(File, String) {
+/// Given some string, parse it into the correct integer value. "a" -> 0,
+/// "b" -> 1, etc.
+pub fn parse(file: String) -> Result(Int, String) {
   use <- bool.guard(
     string.contains(does: "abcdefgh", contain: file) == False,
     Error(
@@ -18,6 +14,7 @@ pub fn new(file: String) -> Result(File, String) {
       <> "` passed! Files are only expected to be a-h.",
     ),
   )
+
   case file {
     "a" -> 0
     "b" -> 1
@@ -32,14 +29,13 @@ pub fn new(file: String) -> Result(File, String) {
     // error above. Gotta handle it anyways. I wish the compiler understood bool.guard!
     _ -> -1
   }
-  |> File
   |> Ok
 }
 
-/// Takes a 0-based index, for working with data
-pub fn from_index(index: Int) -> Result(File, String) {
+/// Given some index, either return it unchanged, or error out if it's invalid
+pub fn validate(index: Int) -> Result(Int, String) {
   use <- bool.guard(
-    index < 0 || index >= num_cols,
+    index < 0 || index >= constants.num_cols,
     Error(
       "Invalid index `"
       <> index |> int.to_string
@@ -47,11 +43,11 @@ pub fn from_index(index: Int) -> Result(File, String) {
     ),
   )
 
-  index |> File |> Ok
+  index |> Ok
 }
 
-pub fn to_string(file: File) -> String {
-  case file.value {
+pub fn to_string(value: Int) -> String {
+  case value {
     0 -> "a"
     1 -> "b"
     2 -> "c"
@@ -65,9 +61,4 @@ pub fn to_string(file: File) -> String {
     // except 0.7. Handle it anyways.
     _ -> "z"
   }
-}
-
-/// 0-based index for working with data
-pub fn to_index(file: File) -> Int {
-  file.value
 }
