@@ -7,7 +7,7 @@ import chess/board
 import piece/square
 import position/position
 
-import chess/generate
+import legal/generate
 
 pub fn white_pawn_test() {
   let game = game.initial()

@@ -1,6 +1,6 @@
 import birdie
-import chess/apply
 import chess/game
+import legal/apply
 import piece/color
 import position/move
 
@@ -8,7 +8,7 @@ import chess/board
 import piece/square
 import position/position
 
-import chess/generate
+import legal/generate
 import position/change.{Change}
 
 pub fn queen_goes_up_test() {

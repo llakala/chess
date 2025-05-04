@@ -1,14 +1,15 @@
 import chess/board
 import chess/game.{type Game}
-import chess/sliding.{
-  type Direction, type SlidingPiece, Down, DownLeft, DownRight, Up, UpLeft,
-  UpRight,
-}
 import piece/color.{Black, White}
 import piece/piece.{
   type Piece, type PieceKind, Bishop, Knight, Pawn, Piece, Queen, Rook,
 }
+
+import piece/sliding.{type SlidingPiece}
 import piece/square
+import position/direction.{
+  type Direction, Down, DownLeft, DownRight, Up, UpLeft, UpRight,
+}
 import position/offset
 import position/position.{type Position}
 

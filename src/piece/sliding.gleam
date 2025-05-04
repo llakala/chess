@@ -57,7 +57,7 @@ pub fn to_string(piece: SlidingPiece) -> String {
 }
 
 /// Get a list of all the directions a piece is able to go.
-pub fn piece_directions(piece: SlidingPiece) -> List(direction.Direction) {
+pub fn piece_directions(piece: SlidingPiece) -> List(Direction) {
   let straights = [Up, Down, Left, Right]
   let diagonals = [UpLeft, UpRight, DownLeft, DownRight]
 

@@ -1,7 +1,7 @@
 import birdie
-import chess/apply
 import chess/board
 import chess/game
+import legal/apply
 import piece/color.{Black}
 import piece/piece.{Piece, Queen}
 import position/change

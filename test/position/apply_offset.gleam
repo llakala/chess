@@ -1,11 +1,11 @@
 import birdie
-import chess/sliding
 import gleam/string
+import position/direction
 import position/offset
 import position/position
 
 pub fn one_forward_test() {
-  let one_up = offset.in_direction(sliding.Up, 1)
+  let one_up = offset.in_direction(direction.Up, 1)
   let assert Ok(pos) = position.new("e2")
   let assert Ok(new_pos) = position.apply_offset(pos, one_up)
   new_pos
@@ -14,7 +14,7 @@ pub fn one_forward_test() {
 }
 
 pub fn down_left_test() {
-  let down_left = offset.in_direction(sliding.DownLeft, 3)
+  let down_left = offset.in_direction(direction.DownLeft, 3)
   let assert Ok(pos) = position.new("g5")
   let assert Ok(new_pos) = position.apply_offset(pos, down_left)
   new_pos
@@ -23,7 +23,7 @@ pub fn down_left_test() {
 }
 
 pub fn hit_wall_test() {
-  let down_left = offset.in_direction(sliding.UpRight, 8)
+  let down_left = offset.in_direction(direction.UpRight, 8)
   let assert Ok(pos) = position.new("a1")
   let applied_result = position.apply_offset(pos, down_left)
   applied_result

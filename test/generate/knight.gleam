@@ -1,7 +1,7 @@
 import birdie
 import chess/board
 import chess/game
-import chess/generate
+import legal/generate
 import piece/color.{White}
 import piece/piece.{Piece, Queen}
 import piece/square

@@ -1,6 +1,5 @@
 import chess/board
 import chess/castling.{type Castling}
-import chess/sliding.{type Direction}
 import gleam/bool
 import gleam/int
 import gleam/option.{type Option, None, Some}
@@ -9,6 +8,7 @@ import gleam/string
 import iv
 import piece/color
 import piece/square
+import position/direction.{type Direction}
 import position/position.{type Position}
 import utils/choose
 

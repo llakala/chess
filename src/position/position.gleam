@@ -1,6 +1,6 @@
 import chess/constants
-import chess/sliding.{type Direction}
 import gleam/order.{type Order}
+import position/direction.{type Direction}
 import position/file
 import position/offset.{type Offset}
 import position/rank

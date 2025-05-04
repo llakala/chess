@@ -1,8 +1,8 @@
 import birdie
 import chess/game
-import chess/sliding
 import gleam/string
 import piece/color
+import position/direction
 import position/position
 
 /// Piece on E2 has a distance of 5 until the black pawn in front of it, because
@@ -11,7 +11,7 @@ pub fn until_enemy_test() {
   // Initial game has the color set to white, which is what we want.
   let game = game.initial()
   let assert Ok(pos) = position.new("e2")
-  let dir = sliding.Up
+  let dir = direction.Up
 
   let dist = game.obstructed_distance(game, pos, dir)
 
@@ -26,7 +26,7 @@ pub fn until_friend_test() {
   let game = game.Game(..game.initial(), color: color.Black)
 
   let assert Ok(pos) = position.new("e2")
-  let dir = sliding.Up
+  let dir = direction.Up
 
   let dist = game.obstructed_distance(game, pos, dir)
   dist
@@ -39,7 +39,7 @@ pub fn hit_wall_test() {
   let game = game.initial()
 
   let assert Ok(pos) = position.new("e1")
-  let dir = sliding.Down
+  let dir = direction.Down
 
   let dist = game.obstructed_distance(game, pos, dir)
   dist

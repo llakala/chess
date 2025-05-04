@@ -1,10 +1,10 @@
 import chess/board
 import chess/game.{type Game}
 
+import legal/targets
 import position/change
 import position/move.{type Move}
 import position/position.{type Position}
-import position/targets
 
 import piece/square
 
