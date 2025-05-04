@@ -1,7 +1,7 @@
 ---
 version: 1.2.6
 title: Black pawn on f2 moving to f1 and promoting to a queen is represented algebraically as `f1=Q`!
-file: ./test/move/algebraic.gleam
+file: ./test/algebraic/algebraic.gleam
 test_name: promotion_test
 ---
 f1=Q
