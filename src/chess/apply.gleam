@@ -46,11 +46,6 @@ fn apply_generic(game: Game, change: Change) -> Game {
     |> board.set_pos(change.from, square.None)
     |> board.set_pos(change.to, square)
 
-  let flipped_color = case game.color {
-    White -> Black
-    Black -> White
-  }
-
   // If it's black's turn, and white started, `halfmoves % 2 == 0` - increment
   // fullmoves!
   let fullmoves = case game.color {
@@ -63,7 +58,7 @@ fn apply_generic(game: Game, change: Change) -> Game {
   Game(
     ..game,
     board: new_board,
-    color: flipped_color,
+    color: game.color |> color.invert,
     halfmoves: game.halfmoves + 1,
     fullmoves:,
   )

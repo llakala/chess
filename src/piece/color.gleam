@@ -15,3 +15,12 @@ pub fn from_fen(fen: String) -> Result(Color, String) {
       )
   }
 }
+
+/// Given some color, return the other color. Great for finding what your enemy
+/// would do!
+pub fn invert(color: Color) -> Color {
+  case color {
+    White -> Black
+    Black -> White
+  }
+}
