@@ -24,7 +24,7 @@ pub fn down_left_test() {
 
 pub fn hit_wall_test() {
   let down_left = offset.in_direction(direction.UpRight, 8)
-  let assert Ok(pos) = position.new("a1")
+  let assert Ok(pos) = position.new("a8")
   let applied_result = position.apply_offset(pos, down_left)
   applied_result
   |> string.inspect

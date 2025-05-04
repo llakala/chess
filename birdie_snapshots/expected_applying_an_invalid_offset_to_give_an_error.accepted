@@ -4,4 +4,4 @@ title: Expected applying an invalid offset to give an error!
 file: ./test/position/apply_offset.gleam
 test_name: hit_wall_test
 ---
-Error("Invalid index `8` passed! Rank indices are only expected to be 0-7.")
+Error("Invalid index `-8` passed! Rank indices are only expected to be 0-7.")

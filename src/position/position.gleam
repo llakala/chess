@@ -9,8 +9,7 @@ import gleam/bool
 import gleam/result
 import gleam/string
 
-// Internal index is stored with 0 corresponding to the bottom left. This may
-// change in the future, but we're keeping it for now.
+// Internal index is stored with 0 corresponding to the top left.
 pub opaque type Position {
   Position(index: Int)
 }
@@ -42,18 +41,6 @@ pub fn from_indices(file file: Int, rank rank: Int) -> Result(Position, String) 
   Position(rank * constants.rank_len + file) |> Ok
 }
 
-pub fn apply_offset(pos: Position, offset: Offset) -> Result(Position, String) {
-  let file = file_index(pos)
-  // Changing the file moves you horizontally
-  let file_change = offset.horizontal
-
-  let rank = rank_index(pos)
-  // Changing the rank moves you vertically
-  let rank_change = offset.vertical
-
-  from_indices(file + file_change, rank + rank_change)
-}
-
 /// Take an existing position, a distance, and a direction, and return a new
 /// position. This will fail if the direction went off the board - it's recommended
 /// to use `move.obstructed_distance` to find the maximum distance for a given
@@ -67,11 +54,25 @@ pub fn in_direction(
   apply_offset(pos, offset)
 }
 
+pub fn apply_offset(pos: Position, offset: Offset) -> Result(Position, String) {
+  let file = file_index(pos)
+  // Changing the file moves you horizontally
+  let file_change = offset.horizontal
+
+  let rank = rank_index(pos)
+  // Changing the rank moves you vertically
+  let rank_change = offset.vertical
+
+  // Subtract for the rank change, because our internal index is based with 0 at
+  // the top
+  from_indices(file + file_change, rank - rank_change)
+}
+
 /// Takes a classical index (0 being the top left) and turn it into a
 /// Position.
 pub fn from_index(index index: Int) -> Result(Position, String) {
-  // Flip the row around, so it correctly starts in the bottom left
-  let rank = constants.num_ranks - 1 - { index / constants.num_ranks }
+  // TODO OPTIMIZE
+  let rank = index / constants.num_ranks
   let file = index % constants.num_files
 
   from_indices(file:, rank:)
@@ -79,7 +80,7 @@ pub fn from_index(index index: Int) -> Result(Position, String) {
 
 /// Get a data-oriented index, with 0 corresponding to the top left.
 pub fn to_index(position pos: Position) -> Int {
-  let rank = constants.num_ranks - 1 - rank_index(pos)
+  let rank = rank_index(pos)
   let file = file_index(pos)
 
   rank * constants.rank_len + file
@@ -98,8 +99,13 @@ pub fn to_indices(position pos: Position) -> #(Int, Int) {
   #(rank_index(pos), file_index(pos))
 }
 
+/// Returns the rank oriented for the data - with 0 corresponding to the top
 pub fn rank_index(position pos: Position) -> Int {
   pos.index / constants.num_ranks
+}
+
+pub fn friendly_rank_index(position pos: Position) -> Int {
+  constants.num_ranks - 1 - { pos.index / constants.num_ranks }
 }
 
 pub fn file_index(position pos: Position) -> Int {

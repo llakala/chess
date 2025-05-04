@@ -1,4 +1,4 @@
-import chess/constants.{num_rows}
+import chess/constants
 import gleam/int
 import gleam/result
 
@@ -9,16 +9,17 @@ pub fn parse(row_str: String) -> Result(Int, String) {
       "Expected numeric input, but got " <> row_str <> ".",
     ),
   )
-  case row >= 1 && row <= num_rows {
-    // We store it as 0-based internally
-    True -> row - 1 |> Ok
+  case row >= 1 && row <= constants.num_rows {
+    // We store it internally with 0 corresponding to the top left, not the
+    // bottom left.
+    True -> Ok(constants.num_rows - row)
 
     False ->
       Error(
         "Invalid algebraic notation rank `"
         <> row |> int.to_string
         <> "` passed! Ranks are only expected to be 1-"
-        <> num_rows |> int.to_string
+        <> constants.num_rows |> int.to_string
         <> ".",
       )
   }
@@ -26,7 +27,7 @@ pub fn parse(row_str: String) -> Result(Int, String) {
 
 /// Given some index, either return it unchanged, or error.
 pub fn validate(index: Int) -> Result(Int, String) {
-  case index >= 0 && index < num_rows {
+  case index >= 0 && index < constants.num_rows {
     // No need to subtract, it's 0-based inside
     True -> index |> Ok
 
@@ -35,7 +36,7 @@ pub fn validate(index: Int) -> Result(Int, String) {
         "Invalid index `"
         <> index |> int.to_string
         <> "` passed! Rank indices are only expected to be 0-"
-        <> num_rows - 1 |> int.to_string
+        <> constants.num_rows - 1 |> int.to_string
         <> ".",
       )
   }
@@ -43,5 +44,5 @@ pub fn validate(index: Int) -> Result(Int, String) {
 
 /// Returns a 1-based index representing the row, for working with algebraic notation
 pub fn to_string(value: Int) -> String {
-  value + 1 |> int.to_string
+  int.to_string(constants.num_ranks - value)
 }

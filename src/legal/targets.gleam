@@ -81,7 +81,7 @@ fn pawn_vertical_targets(
   let my_color = piece.color
 
   // A 0-based index, with 0 representing the bottom row
-  let row_index = pos |> position.rank_index
+  let row_index = pos |> position.friendly_rank_index
 
   let can_double_move = case piece.color, row_index {
     Black, 6 -> True
@@ -170,7 +170,7 @@ fn pawn_diagonal_targets(
   }
 
   // A 0-based index, with 0 representing the bottom row
-  let row = old_pos |> position.rank_index
+  let row = old_pos |> position.friendly_rank_index
 
   let can_promote = case piece.color, row {
     Black, rank -> rank - 1 == 0
@@ -230,8 +230,8 @@ fn pawn_diagonal_targets(
 /// Returns an Option, since there's only one possible en passant target at any given
 /// time.
 fn en_passant_target(game: Game, pos: Position, piece: Piece) -> Option(Target) {
-  // 0-based indices
-  let row = pos |> position.rank_index
+  // 0-based indices, with the 0th row being the bottom row
+  let row = pos |> position.friendly_rank_index
   let col = pos |> position.file_index
 
   let moved_three_spaces = case piece.color {
@@ -245,7 +245,7 @@ fn en_passant_target(game: Game, pos: Position, piece: Piece) -> Option(Target) 
   // on adjacent columns now.
   case game.passant, moved_three_spaces {
     option.Some(passant_pos), True -> {
-      let passant_row = passant_pos |> position.rank_index
+      let passant_row = passant_pos |> position.friendly_rank_index
 
       // absolute value lets us check that the difference between the two ranks
       // is 1 - note that we already checked that the rank was correct!
