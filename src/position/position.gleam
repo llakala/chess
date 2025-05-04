@@ -72,16 +72,17 @@ pub fn in_direction(
 /// Takes a classical index (0 being the top left) and turn it into a
 /// Position.
 pub fn from_data_index(index index: Int) -> Result(Position, String) {
-  // Flip the row around, so it correctly starts in the top left
+  // Flip the row around, so it correctly starts in the bottom left
   let row = constants.num_rows - 1 - { index / row_len }
   let col = index % row_len
 
   from_indices(row:, col:)
 }
 
-/// Get the index of a position, oriented so it's intuitive as white.
-/// This does NOT give you the index of a position in the data. instead, (0, 0) corresponds to the bottom left of the data here. This is for easy
-/// conversions between Position and index
+/// Get the index of a position, oriented so it's intuitive as white. This does
+/// NOT give you the index of a position in the data. instead, (0, 0) corresponds
+/// to the bottom left of the data here. This is for easy conversions between
+/// Position and index
 pub fn to_player_index(position pos: Position) -> Int {
   let row = pos.rank |> rank.to_index
   let col = pos.file |> file.to_index
@@ -89,6 +90,13 @@ pub fn to_player_index(position pos: Position) -> Int {
   let bottom_left = { row_len * col_len } - { 1 * row_len }
 
   bottom_left - { row * row_len } + col
+}
+
+pub fn to_data_index(position pos: Position) -> Int {
+  let row = constants.num_rows - 1 - { pos.rank |> rank.to_index }
+  let col = pos.file |> file.to_index
+
+  row * row_len + col
 }
 
 pub fn to_string(position pos: Position) -> String {

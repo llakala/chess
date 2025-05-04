@@ -25,3 +25,21 @@ pub fn from_index_test() {
   |> string.inspect
   |> birdie.snap(title: "Invalid row")
 }
+
+pub fn to_data_index_test() {
+  let assert Ok(pos) = position.new("a8")
+
+  pos
+  |> position.to_data_index
+  |> string.inspect
+  |> birdie.snap("Expected a8 to have data index 0!")
+}
+
+pub fn from_data_index_test() {
+  let assert Ok(pos) = position.new("a1")
+
+  pos
+  |> position.to_data_index
+  |> string.inspect
+  |> birdie.snap("Expected a1 to have player index 0!")
+}
