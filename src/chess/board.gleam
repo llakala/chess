@@ -7,7 +7,7 @@ import gleam/string
 import utils/text
 
 import chess/constants.{num_cols, num_rows}
-import piece/piece
+import piece/piece.{type Piece}
 import piece/square.{type Square}
 import position/position.{type Position}
 
@@ -37,6 +37,21 @@ pub fn initial() -> Board {
   let assert Ok(board) = new("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
 
   board
+}
+
+/// Search the board for some piece. Returns either the first position found
+/// containing the given piece, or an error if the piece wasn't found on the
+/// board at all.
+pub fn search(board: Board, piece: Piece) -> Result(Position, String) {
+  case iv.index_of(board.data, square.Some(piece)) {
+    Error(Nil) -> Error(piece.to_string(piece) <> " not found on board!")
+    Ok(index) -> {
+      // This would only fail if the board data was somehow malformed
+      let assert Ok(pos) = position.from_index(index)
+
+      pos |> Ok
+    }
+  }
 }
 
 /// Doesn't take the *entire* fen string: just the first part encoding the board

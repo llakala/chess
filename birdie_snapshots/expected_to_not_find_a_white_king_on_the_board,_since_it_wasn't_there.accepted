@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Expected to not find a white king on the board, since it wasn't there!
+file: ./test/board/search.gleam
+test_name: not_found_test
+---
+Error("White King not found on board!")
