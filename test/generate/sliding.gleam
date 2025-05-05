@@ -54,7 +54,7 @@ pub fn rook_test() {
   let assert Ok(new_pos) = position.new("d4")
   let change = Change(old_pos, new_pos)
   let h1_rook_to_d4 = move.Move(change, move.Basic)
-  let game = apply.move(game, h1_rook_to_d4)
+  let assert Ok(game) = apply.move(game, h1_rook_to_d4)
 
   // Applying a move flips the color, so unflip it!
   let game = game.Game(..game, color: color.White)

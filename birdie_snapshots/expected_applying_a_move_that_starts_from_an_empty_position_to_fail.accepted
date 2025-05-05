@@ -1,0 +1,7 @@
+---
+version: 1.2.6
+title: Expected applying a move that starts from an empty position to fail!
+file: ./test/move/apply.gleam
+test_name: failing_test
+---
+Error("The `from` part of the change was found to be empty!")

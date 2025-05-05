@@ -1,5 +1,7 @@
 import chess/board
 import chess/game.{type Game, Game}
+import gleam/bool
+import gleam/result
 import piece/color.{Black, White}
 import piece/square
 import position/move.{
@@ -13,7 +15,10 @@ import position/change.{type Change}
 import position/offset.{Offset}
 
 /// Apply some move to the current game, getting a new Game as the output.
-pub fn move(game: Game, move: Move) -> Game {
+/// Returns an error if the Change tried to start from a None position, or
+/// somehow took you off the board. Listen, I'm just trying to cut down on my
+/// `let assert` usage - don't judge me.
+pub fn move(game: Game, move: Move) -> Result(Game, String) {
   let change = move.change
 
   case move.kind {
@@ -38,8 +43,12 @@ pub fn move(game: Game, move: Move) -> Game {
 /// other position. We also flip the current color, and increase the number of
 /// moves. Note that this is currently not checked to ensure that `change.from`
 /// is non-empty - be careful!
-fn apply_generic(game: Game, change: Change) -> Game {
+fn apply_generic(game: Game, change: Change) -> Result(Game, String) {
   let square = board.get_pos(game.board, change.from)
+  use <- bool.guard(
+    square == square.None,
+    Error("The `from` part of the change was found to be empty!"),
+  )
 
   let new_board =
     game.board
@@ -62,35 +71,45 @@ fn apply_generic(game: Game, change: Change) -> Game {
     halfmoves: game.halfmoves + 1,
     fullmoves:,
   )
+  |> Ok
 }
 
-fn apply_king_castle(_game: Game, _change: Change) -> Game {
+fn apply_king_castle(_game: Game, _change: Change) -> Result(Game, String) {
   panic as "Unimplemented!"
 }
 
-fn apply_queen_castle(_game: Game, _change: Change) -> Game {
+fn apply_queen_castle(_game: Game, _change: Change) -> Result(Game, String) {
   panic as "Unimplemented!"
 }
 
-fn apply_passant(game: Game, change: Change) -> Game {
+fn apply_passant(game: Game, change: Change) -> Result(Game, String) {
   // The change between the two positions
   let offset = change |> change.to_offset
-  // Get the horizontal piece of the offsets - en passant moves you horizontally
-  // towards the enemy piece, so grabbing the horizontal part lets us get the
-  // position of the captured enemy.
-  let assert Ok(enemy_pos) =
-    Offset(0, offset.horizontal) |> position.apply_offset(change.from, _)
+  // en passant moves you horizontally towards the enemy piece, so grabbing the
+  // horizontal part of the offset lets us get the position of the captured enemy.
+  let horizontal_offset = Offset(vertical: 0, horizontal: offset.horizontal)
 
-  // Move our piece diagonally to the new position
-  let game = apply_generic(game, change)
+  case position.apply_offset(change.from, horizontal_offset) {
+    Error(_) ->
+      Error("Horizontal offset of the change somehow took you off the board!")
+    Ok(enemy_pos) -> {
+      // Move our piece diagonally to the new position - exit early if this fails
+      use game <- result.try(apply_generic(game, change))
 
-  // Remove the enemy, thereby capturing it.
-  Game(..game, board: board.set_pos(game.board, enemy_pos, square.None))
+      // Remove the enemy, thereby capturing it.
+      Game(..game, board: game.board |> board.set_pos(enemy_pos, square.None))
+      |> Ok
+    }
+  }
 }
 
-fn apply_promotion(game: Game, change: Change, piece: Piece) -> Game {
+fn apply_promotion(
+  game: Game,
+  change: Change,
+  piece: Piece,
+) -> Result(Game, String) {
   // Move the original piece to the new position
-  let game = apply_generic(game, change)
+  use game <- result.try(apply_generic(game, change))
 
   // Replace the moved piece with the piece it's promoting into
   let square = piece |> square.Some
@@ -98,4 +117,5 @@ fn apply_promotion(game: Game, change: Change, piece: Piece) -> Game {
 
   // Replace the existing board with our new board
   Game(..game, board:)
+  |> Ok
 }

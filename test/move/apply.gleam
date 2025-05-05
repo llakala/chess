@@ -1,6 +1,7 @@
 import birdie
 import chess/board
 import chess/game
+import gleam/string
 import legal/apply
 import piece/color.{Black}
 import piece/piece.{Piece, Queen}
@@ -13,7 +14,7 @@ pub fn move_forward_test() {
   let assert Ok(change) = change.new("e2", "e4")
   let move = Move(change, move.Basic)
 
-  let game = apply.move(game, move)
+  let assert Ok(game) = apply.move(game, move)
 
   game.board |> board.to_string |> birdie.snap(title: "Pawn from e2 to e4!")
 }
@@ -24,7 +25,7 @@ pub fn move_capture_test() {
   let assert Ok(change) = change.new("e2", "e7")
   let move = Move(change, move.Capture)
 
-  let game = apply.move(game, move)
+  let assert Ok(game) = apply.move(game, move)
 
   game.board
   |> board.to_string
@@ -40,7 +41,7 @@ pub fn en_passant_test() {
   let assert Ok(change) = change.new("e5", "d6")
   let move = Move(change, move.Passant)
 
-  let game = apply.move(game, move)
+  let assert Ok(game) = apply.move(game, move)
 
   game.board
   |> board.to_string
@@ -57,11 +58,24 @@ pub fn promotion_test() {
   let piece = Piece(Queen, Black)
   let move = Move(change, move.Promotion(piece))
 
-  let game = apply.move(game, move)
+  let assert Ok(game) = apply.move(game, move)
 
   game.board
   |> board.to_string
   |> birdie.snap(
     "After an a2 black pawn promoted to a queen, found only a black queen on a1!",
+  )
+}
+
+pub fn failing_test() {
+  let game = game.initial()
+
+  let assert Ok(change) = change.new("e3", "e5")
+  let move = Move(change, move.Basic)
+
+  apply.move(game, move)
+  |> string.inspect
+  |> birdie.snap(
+    "Expected applying a move that starts from an empty position to fail!",
   )
 }
