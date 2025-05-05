@@ -1,5 +1,7 @@
 import chess/board
 import chess/game.{type Game}
+import legal/apply
+import legal/check
 
 import legal/targets
 import position/change
@@ -24,9 +26,28 @@ pub fn legal_moves(game: Game) -> List(Move) {
     Error(_) ->
       panic as "One of the From positions contained None! Bad logic in getting the list of positions a player is at!"
 
-    Ok(nested_moves) ->
-      nested_moves
-      |> list.flatten
+    Ok(nested_moves) -> {
+      let pseudolegal_moves = nested_moves |> list.flatten
+      // Filter the moves for the ones that don't put us in check after the move
+      list.filter(pseudolegal_moves, is_move_legal(_, game))
+    }
+  }
+}
+
+fn is_move_legal(move: Move, game: Game) {
+  case apply.move(game, move) {
+    Error(_) -> False
+    Ok(new_game) ->
+      // If this gives us an error, there was no king of our color on the
+      // board. Crazy, I know - it happens in some tests, though.
+      case check.is_in_check(new_game) {
+        // Ignore the error and return True - meaning the move is safe.
+        Error(_) -> True
+        // Flip the result we get - we're using `list.filter`, which only
+        // keeps the values that were True. So, if we were in check after that
+        // move, return False, and filter out the move.
+        Ok(is_in_check) -> !is_in_check
+      }
   }
 }
 

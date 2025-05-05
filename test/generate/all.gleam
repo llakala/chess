@@ -58,3 +58,13 @@ pub fn no_white_moves_test() {
     "Expected no legal moves, since there are no white pieces on the board!",
   )
 }
+
+pub fn leave_check_test() {
+  let assert Ok(game) = game.new("3r4/8/8/8/3K4/7R/8/2k5 w - - 0 1")
+
+  generate.legal_moves(game)
+  |> generate.display(game)
+  |> birdie.snap(
+    "All the legal moves for a player that's currently in check should take them out of check!",
+  )
+}
