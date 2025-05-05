@@ -40,9 +40,8 @@ pub fn move(game: Game, move: Move) -> Result(Game, String) {
 }
 
 /// Apply some change to the board directly, moving the value at one position to some
-/// other position. We also flip the current color, and increase the number of
-/// moves. Note that this is currently not checked to ensure that `change.from`
-/// is non-empty - be careful!
+/// other position. We also  increase the number of moves. Note that this is currently
+/// not checked to ensure that `change.from` is non-empty - be careful!
 fn apply_generic(game: Game, change: Change) -> Result(Game, String) {
   let square = board.get_pos(game.board, change.from)
   use <- bool.guard(
@@ -62,15 +61,9 @@ fn apply_generic(game: Game, change: Change) -> Result(Game, String) {
     Black -> game.fullmoves + 1
   }
 
-  // Update the game with the new board, flip the color, and increment the
+  // Update the game with the new board, and increment the
   // halfmoves and fullmoves
-  Game(
-    ..game,
-    board: new_board,
-    color: game.color |> color.invert,
-    halfmoves: game.halfmoves + 1,
-    fullmoves:,
-  )
+  Game(..game, board: new_board, halfmoves: game.halfmoves + 1, fullmoves:)
   |> Ok
 }
 
