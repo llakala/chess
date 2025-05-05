@@ -1,5 +1,4 @@
 // My own helper functions for working with `iv` arrays
-import gleam/bool
 import gleam/int
 import gleam/list
 import gleam/result
@@ -167,30 +166,26 @@ fn from_fen_loop(
   col: Int,
   row: Int,
 ) -> Result(Board, String) {
-  let res = string.pop_grapheme(fen)
-
-  // If we pop the grapheme and get an error, the fen string is over
-  use <- bool.guard(res |> result.is_error, data |> Board |> Ok)
-
-  // Yeah yeah, I know `bool.guard` followed by an assertion means you should be
-  // using `case`, but let me have my antipatterns, okay?
-  let assert Ok(#(cur, rest)) = res
+  // If we pop the grapheme and get an error, the fen string is over - return
+  // all the data immediately
+  use #(current, rest) <- choose.cases(
+    fen |> string.pop_grapheme,
+    on_error: fn(_) { data |> Board |> Ok },
+  )
 
   // If we parse num and get Ok, it means we have to skip some of the rest
   // of the row. Handle it early and leave the rest of the code to handle
   // the Error case - where we actually have a piece to handle
-  use _ <- choose.cases(int.parse(cur), on_ok: fn(skippable) {
-    use <- bool.guard(
-      col + skippable > 8,
-      Error("Was told to skip more squares than there were left in the row!"),
-    )
-
-    // It's fine to just skip the empty spaces, since we initialize the
-    // list to be full of None
-    from_fen_loop(rest, data, col + skippable, row)
+  use _ <- choose.cases(int.parse(current), on_ok: fn(skippable) {
+    // As long as the amount to skip is sane, keep looping
+    case col + skippable > 8 {
+      True ->
+        Error("Was told to skip more squares than there were left in the row!")
+      False -> from_fen_loop(rest, data, col + skippable, row)
+    }
   })
 
-  let is_slash = cur == "/"
+  let is_slash = current == "/"
   let row_done = col > 7
 
   case is_slash, row_done {
@@ -204,7 +199,10 @@ fn from_fen_loop(
 
     // We can keep going in our current row
     False, False -> {
-      use piece <- result.try(piece.from_fen(cur))
+      // Will fail if the current character isn't a valid fen representation of
+      // a piece
+      use piece <- result.try(current |> piece.from_fen)
+
       let square = square.Some(piece)
 
       let index = row * constants.row_len + col
