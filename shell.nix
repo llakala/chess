@@ -6,6 +6,8 @@ let
   [
     erlang_27
     rebar3
+    elixir
+    beamPackages.hex
   ];
 
 in pkgs.mkShellNoCC
