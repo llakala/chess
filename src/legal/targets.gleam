@@ -52,6 +52,48 @@ pub fn from_pos(game: Game, origin: Position) -> Result(List(Target), String) {
   targets |> Ok
 }
 
+/// Given some position, return all the positions that contain a friendly piece,
+/// who might be protecting our current square.
+pub fn to_pos(game: Game, pos: Position) -> List(Position) {
+  // The enemy's color. To get the positions we want, we need to find targets
+  // that start from some friend, and end up at our current square. But, we're
+  // going backwards, from the destination. So we need to search from the
+  // enemy's perspective - to find origin positions that either contain a
+  // friend, or no square at all (we'll filter out the empty ones later).
+  let enemy_color = game.color |> color.invert
+
+  // TODO: do we need to also consider pawns?
+  let enemy_queen = sliding.Queen(enemy_color)
+  let enemy_knight = piece.Piece(piece.Knight, enemy_color)
+
+  let queen_targets = legal_sliding_targets(game, pos, enemy_queen)
+  let knight_targets = legal_knight_targets(game, pos, enemy_knight)
+
+  let queen_positions =
+    list.map(queen_targets, fn(target) { target.destination })
+  let knight_positions =
+    list.map(knight_targets, fn(target) { target.destination })
+
+  let positions = list.append(queen_positions, knight_positions)
+
+  positions
+  // TODO: rather than filtering like this, just use the Capture records with
+  // the targets, since we already wrote down whether things were captures, and
+  // those are the positions we want to return. They're not actually captures,
+  // remember - we're searching from the enemy's perspective, so when we see a
+  // Capture, it actually means it starts from a friendly piece.
+  |> list.filter(fn(pos) {
+    case board.get_pos(game.board, pos) {
+      square.None -> False
+
+      // The square contained an enemy. Gross!
+      square.Some(piece) if piece.color == enemy_color -> False
+
+      square.Some(_) -> True
+    }
+  })
+}
+
 fn legal_pawn_targets(game: Game, pos: Position, piece: Piece) -> List(Target) {
   let vertical_targets = pawn_vertical_targets(game, pos, piece)
   let diagonal_targets = pawn_diagonal_targets(game, pos, piece)
