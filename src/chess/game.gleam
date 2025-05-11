@@ -10,7 +10,6 @@ import piece/color
 import piece/square
 import position/direction.{type Direction}
 import position/position.{type Position}
-import utils/choose
 
 pub type Distance {
   NonCapture(distance: Int)
@@ -169,32 +168,30 @@ fn obstructed_distance_loop(
   // Distance next position in the direction. If from_offset returns an error, we've
   // gone too far and gone off the board edge -- return the accumulated distance
   // immediately, without a capture since we never hit one
-  use new_pos <- choose.cases(
-    position.in_direction(pos, 1, dir),
-    on_error: fn(_) { NonCapture(distance) },
-  )
+  case position.in_direction(pos, 1, dir) {
+    Error(_) -> NonCapture(distance)
 
-  let square = board.get_pos(board, new_pos)
+    Ok(new_pos) -> {
+      let next_square = board.get_pos(board, new_pos)
 
-  // Convert the square into a piece. If `to_piece` returns an error, the square
-  // must've been empty. In that case, simply keep the loop going, adding 1 to the
-  // accumulated distance
-  use piece <- choose.cases(square |> square.to_piece, on_error: fn(_) {
-    obstructed_distance_loop(game, new_pos, dir, distance + 1)
-  })
+      // Convert the square into a piece. If `to_piece` returns an error, the square
+      // must've been empty. In that case, simply keep the loop going, adding 1 to
+      // the accumulated distance
+      case square.to_piece(next_square) {
+        // Piece at the next square is a friend - can't capture it. Note that
+        // `distance` never gets modified, so this will be the distance to the
+        // current square, not the new square.
+        Ok(piece) if color == piece.color -> NonCapture(distance)
 
-  // Whether the color of the piece we started at equals the color of the current
-  // piece we found when traveling that direction
-  case color == piece.color {
-    // Other piece is an enemy and can be captured - return a Capture, which
-    // indicates that this is the distance to a capture, and you can subtract
-    // one to get the distance to a non-capture.
-    False -> Capture(distance + 1)
+        // Other piece is an enemy and can be captured - increase the distance by
+        // one, representing that we could capture the piece at the next square
+        Ok(_) -> Capture(distance + 1)
 
-    // Other piece is a friend - can't capture it. Note that `distance` never gets
-    // modified, so this will be the distance to the current square, not the new
-    // square.
-    True -> NonCapture(distance)
+        // to_piece returned an error - the square must've been empty. Keep the loop
+        // going.
+        Error(_) -> obstructed_distance_loop(game, new_pos, dir, distance + 1)
+      }
+    }
   }
 }
 
