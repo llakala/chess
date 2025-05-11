@@ -54,9 +54,11 @@ pub fn attacked_squares(game: Game) -> Array(Bool) {
 }
 
 /// Check whether the player is currently in check, by seeing if the enemy could
-/// attack the king's current square. Return an error if there wasn't a king of
-/// your color on the board - which happens in some tests.
-pub fn is_in_check(game: Game) -> Result(Bool, String) {
+/// attack the king's current square. Also returns the position of your king, if
+/// it's actually on the board, so you can use it for other stuff without
+/// searching again. Will return an error if there wasn't a king of your color
+/// on the board - which happens in some tests.
+pub fn is_in_check(game: Game) -> Result(#(Bool, position.Position), String) {
   let color = game.color
   let king = Piece(King, color)
 
@@ -78,7 +80,7 @@ pub fn is_in_check(game: Game) -> Result(Bool, String) {
 
   // Return whether our current square is being attacked
   case iv.get(attacked_squares, index) {
-    Ok(val) -> Ok(val)
+    Ok(val) -> Ok(#(val, king_position))
     // Thinking of this as a logic error for now
     _ ->
       panic as "Got bad data of the wrong length from the attacked_squares function!"

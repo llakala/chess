@@ -46,7 +46,7 @@ fn is_move_legal(move: Move, game: Game) {
         // Flip the result we get - we're using `list.filter`, which only
         // keeps the values that were True. So, if we were in check after that
         // move, return False, and filter out the move.
-        Ok(is_in_check) -> !is_in_check
+        Ok(#(is_in_check, _)) -> !is_in_check
       }
   }
 }

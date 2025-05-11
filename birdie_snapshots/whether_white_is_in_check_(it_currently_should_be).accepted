@@ -1,7 +1,7 @@
 ---
-version: 1.2.6
+version: 1.2.7
 title: Whether white is in check (it currently should be)
 file: ./test/generate/check/check.gleam
 test_name: check_test
 ---
-True
+#(True, Position(27))
