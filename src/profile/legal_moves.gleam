@@ -14,6 +14,12 @@ pub fn main() {
         fn() { generate.legal_moves(game) }
       }),
     ],
-    [benchmark.Data(label: "inital game", data: { game.initial() })],
+    [
+      benchmark.Data(label: "inital game", data: { game.initial() }),
+      benchmark.Data(label: "game currently in check", data: {
+        let assert Ok(game) = game.new("3r4/8/8/8/3K4/7R/8/2k5 w - - 0 1")
+        game
+      }),
+    ],
   )
 }
