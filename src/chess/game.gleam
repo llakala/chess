@@ -79,6 +79,10 @@ pub fn new(fen: String) -> Result(Game, String) {
   Game(board, color, castling, passant, halfmoves, fullmoves) |> Ok
 }
 
+pub fn flip(game: Game) {
+  Game(..game, color: game.color |> color.invert)
+}
+
 /// Does NOT turn it back into a fen string - simply displays for debugging
 pub fn to_string(fen: Game) -> String {
   let board_str = fen.board |> board.to_string
