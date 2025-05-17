@@ -1,0 +1,9 @@
+---
+version: 1.2.7
+title: Expected to see a black queen on rows 5-8, and a white queen on rows 1-7.
+file: ./test/board/piece_positions.gleam
+test_name: all_queens_test
+---
+dict.from_list([
+("Black Queen", ["a5", "a6", "a7", "a8", "b5", "b6", "b7", "b8", "c5", "c6", "c7", "c8", "d5", "d6", "d7", "d8", "e5", "e6", "e7", "e8", "f5", "f6", "f7", "f8", "g5", "g6", "g7", "g8", "h5", "h6", "h7", "h8"]), 
+("White Queen", ["a1", "a2", "a3", "a4", "b1", "b2", "b3", "b4", "c1", "c2", "c3", "c4", "d1", "d2", "d3", "d4", "e1", "e2", "e3", "e4", "f1", "f2", "f3", "f4", "g1", "g2", "g3", "g4", "h1", "h2", "h3", "h4"])])
