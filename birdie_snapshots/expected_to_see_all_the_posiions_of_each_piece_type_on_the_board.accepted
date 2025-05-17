@@ -1,0 +1,19 @@
+---
+version: 1.2.7
+title: Expected to see all the posiions of each piece type on the board!
+file: ./test/board/piece_positions.gleam
+test_name: initial_test
+---
+dict.from_list([
+("Black Bishop", ["c8", "f8"]), 
+("Black King", ["e8"]), 
+("Black Knight", ["b8", "g8"]), 
+("Black Pawn", ["a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7"]), 
+("Black Queen", ["d8"]), 
+("Black Rook", ["a8", "h8"]), 
+("White Bishop", ["c1", "f1"]), 
+("White King", ["e1"]), 
+("White Knight", ["b1", "g1"]), 
+("White Pawn", ["a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2"]), 
+("White Queen", ["d1"]), 
+("White Rook", ["a1", "h1"])])
