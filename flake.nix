@@ -36,7 +36,7 @@
 
     # This is really only meant for my usage, so I'm not designing it to
     # support other systems
-    supportedSystems = lib.singleton "x86_64-linux";
+    supportedSystems = [ "x86_64-linux" "aarch64-darwin" ];
 
     forAllSystems = function: lib.genAttrs
       supportedSystems
