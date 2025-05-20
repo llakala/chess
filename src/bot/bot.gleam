@@ -1,3 +1,4 @@
+import bot/mini
 import chess/game.{type Game}
 import gleam/int
 import iv
@@ -22,4 +23,9 @@ pub fn random(game: Game) -> Move {
     Ok(move) -> move
     Error(Nil) -> panic as "No moves to select!"
   }
+}
+
+pub fn minimax(game: Game) -> Move {
+  let depth = 2
+  mini.max(game, depth)
 }
