@@ -62,6 +62,12 @@ pub fn to_pos(game: Game, pos: Position) -> List(Position) {
   // friend, or no square at all (we'll filter out the empty ones later).
   let enemy_color = game.color |> color.invert
 
+  // Easy bug to miss here - for the targets to be correct, we need to
+  // see the game from the enemy's perspective, so that when we find the
+  // targets, it'll be able to "capture" friendly pieces, and their positions
+  // will be added as defenders
+  let game = game |> game.flip
+
   // TODO: do we need to also consider pawns?
   let enemy_queen = sliding.Queen(enemy_color)
   let enemy_knight = piece.Piece(piece.Knight, enemy_color)
