@@ -43,26 +43,35 @@ fn filter_pseudolegal_moves(
 
     // Currently in check - filter out the moves that would keep us in check
     Ok(#(True, king_pos)) -> {
-      // All the targets our king could go to - which also tells us the targets
-      // that start from a position that might be attacking our king. We can't
-      // use `targets.to_pos` here, since that finds friendly pieces that might
-      // be defending our current square, which isn't what we need.
-      let assert Ok(checkable_targets) = targets.from_pos(game, king_pos)
+      // All the pseudolegal moves the king could make from their current
+      // position.
+      let assert Ok(king_targets) = targets.from_pos(game, king_pos)
 
-      let checkable_origins =
-        checkable_targets
+      // This will basically be any position in the 1x1 ring around the king,
+      // that doesn't contain a friendly piece. We need to find these to see if
+      // the king can move directly out of check, or if some other piece can
+      // step into the line of fire for it.
+      let king_ring_positions =
+        king_targets
         |> list.map(fn(target) { target.destination })
 
-      // Most moves will be illegal - the only ones that might be legal are the
-      // ones that change one of the positions that might be attacking the king
-      let potentially_illegal_moves =
+      // Positions of enemies directly attacking the king. It might be possible
+      // that a friendly piece could take the assassin and stop the threat on
+      // the king.
+      let attacking_enemy_positions = targets.enemies_to_pos(game, king_pos)
+
+      // Most moves will be illegal, since we're in check. The only legal moves
+      // are the ones made by the king, the ones that step into the line of fire
+      // FOR the king, or the moves that kill the enemy attacking the king
+      let potentially_legal_moves =
         list.filter(pseudolegal_moves, fn(move: Move) {
-          list.contains(checkable_origins, move.change.to)
+          list.contains(king_ring_positions, move.change.to)
+          || list.contains(attacking_enemy_positions, move.change.to)
         })
 
       // Apply each of these moves to see if they put us into check. Expensive
       // - so we try to run this on as few moves as possible
-      list.filter(potentially_illegal_moves, is_move_legal(_, game))
+      list.filter(potentially_legal_moves, is_move_legal(_, game))
     }
 
     // Not currently in check - we need to filter out the moves that would put us
@@ -70,7 +79,7 @@ fn filter_pseudolegal_moves(
     Ok(#(False, king_pos)) -> {
       // The positions containing a friendly piece, that might be defending our
       // king
-      let checkable_origins = targets.to_pos(game, king_pos)
+      let checkable_origins = targets.friends_to_pos(game, king_pos)
       // Of course, the king might put itself in check
       let checkable_origins = [king_pos, ..checkable_origins]
 

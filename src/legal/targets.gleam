@@ -52,28 +52,20 @@ pub fn from_pos(game: Game, origin: Position) -> Result(List(Target), String) {
   targets |> Ok
 }
 
-/// Given some position, return all the positions that contain a friendly piece,
-/// who might be protecting our current square.
-pub fn to_pos(game: Game, pos: Position) -> List(Position) {
-  // The enemy's color. To get the positions we want, we need to find targets
-  // that start from some friend, and end up at our current square. But, we're
-  // going backwards, from the destination. So we need to search from the
-  // enemy's perspective - to find origin positions that either contain a
-  // friend, or no square at all (we'll filter out the empty ones later).
-  let enemy_color = game.color |> color.invert
+/// Given some position, return all the positions that contain an enemy piece,
+/// who might be attacking our current position.
+pub fn enemies_to_pos(game: Game, pos: Position) -> List(Position) {
+  let color = game.color
 
-  // Easy bug to miss here - for the targets to be correct, we need to
-  // see the game from the enemy's perspective, so that when we find the
-  // targets, it'll be able to "capture" friendly pieces, and their positions
-  // will be added as defenders
-  let game = game |> game.flip
+  // Combined, this will tell us every position that might be endangering us.
+  let queen = sliding.Queen(color)
+  let knight = piece.Piece(piece.Knight, color)
 
-  // TODO: do we need to also consider pawns?
-  let enemy_queen = sliding.Queen(enemy_color)
-  let enemy_knight = piece.Piece(piece.Knight, enemy_color)
-
-  let queen_targets = legal_sliding_targets(game, pos, enemy_queen)
-  let knight_targets = legal_knight_targets(game, pos, enemy_knight)
+  // We're going backwards - all the knight + queen targets from our position
+  // will tell us all the positions we could attack - and then we'll filter for
+  // the positions containing enemies
+  let queen_targets = legal_sliding_targets(game, pos, queen)
+  let knight_targets = legal_knight_targets(game, pos, knight)
 
   let queen_positions =
     list.map(queen_targets, fn(target) { target.destination })
@@ -85,19 +77,25 @@ pub fn to_pos(game: Game, pos: Position) -> List(Position) {
   positions
   // TODO: rather than filtering like this, just use the Capture records with
   // the targets, since we already wrote down whether things were captures, and
-  // those are the positions we want to return. They're not actually captures,
-  // remember - we're searching from the enemy's perspective, so when we see a
-  // Capture, it actually means it starts from a friendly piece.
+  // those are the positions we want to return.
   |> list.filter(fn(pos) {
     case board.get_pos(game.board, pos) {
       square.None -> False
 
-      // The square contained an enemy. Gross!
-      square.Some(piece) if piece.color == enemy_color -> False
+      // The square contained a friend - skip
+      square.Some(piece) if piece.color == color -> False
 
       square.Some(_) -> True
     }
   })
+}
+
+/// Given some position, return all the positions that contain a friendly piece,
+/// who might be protecting our current square.
+pub fn friends_to_pos(game: Game, pos: Position) -> List(Position) {
+  // I don't love this - flipping increases memory unnecessarily. However, it'll
+  // do for now.
+  enemies_to_pos(game |> game.flip, pos)
 }
 
 fn legal_pawn_targets(game: Game, pos: Position, piece: Piece) -> List(Target) {

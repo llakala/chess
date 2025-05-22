@@ -42,3 +42,14 @@ pub fn no_bad_knight_test() {
   |> list.contains(illegal_move)
   |> should.be_false
 }
+
+pub fn sneaky_pawn_gets_knight_test() {
+  // Yep, another game I found randomly
+  let assert Ok(game) =
+    game.new("r3kb1r/2p2ppp/1p2p3/p7/P1P3n1/4nPPP/PB1PP1K1/RN4NR w kq - 4 15")
+  let legal_moves = generate.legal_moves(game)
+
+  legal_moves
+  |> list.is_empty
+  |> should.be_false
+}
