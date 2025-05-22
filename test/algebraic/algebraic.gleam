@@ -1,6 +1,7 @@
 import birdie
 import chess/algebraic
 import chess/game
+import gleeunit/should
 import piece/color.{Black}
 import piece/piece.{Bishop, Piece, Queen}
 import position/change
@@ -39,4 +40,15 @@ pub fn promotion_capture_test() {
     "Black pawn on g2 capturing to h1 and promoting to a bishop is represented algebraically as `gxh1=B`!",
   )
 }
-// TODO: add castling tests
+
+pub fn passant_algebraic_test() {
+  let assert Ok(game) =
+    // Random game with a legal en passant
+    game.new("rnb2bn1/pp1p4/2p5/4k3/3p2Pp/5K2/P6N/8 b - g3 0 26")
+
+  let assert Ok(change) = change.new("h4", "g3")
+  let move = move.Move(change, move.Passant)
+
+  let assert Ok(alg) = move |> algebraic.notation(game)
+  alg |> should.equal("hxg3")
+}
