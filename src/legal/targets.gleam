@@ -276,13 +276,12 @@ fn pawn_diagonal_targets(
 /// Returns an Option, since there's only one possible en passant target at any given
 /// time.
 fn en_passant_target(game: Game, pos: Position, piece: Piece) -> Option(Target) {
-  // 0-based indices
-  let row = pos |> position.rank_index
-  let col = pos |> position.file_index
+  let row = position.rank_index_one_based(pos)
+  let col = position.file_index_one_based(pos)
 
   let moved_three_spaces = case piece.color {
-    White -> row == 4
-    Black -> row == 5
+    White -> row == 5
+    Black -> row == 4
   }
 
   // For en passant to happen, an enemy piece had to move two spaces in the previous
@@ -291,11 +290,12 @@ fn en_passant_target(game: Game, pos: Position, piece: Piece) -> Option(Target) 
   // on adjacent columns now.
   case game.passant, moved_three_spaces {
     option.Some(passant_pos), True -> {
-      let passant_row = passant_pos |> position.rank_index
+      let passant_file = position.file_index_one_based(passant_pos)
 
-      // absolute value lets us check that the difference between the two ranks
+      // absolute value lets us check that the difference between the two files
       // is 1 - note that we already checked that the rank was correct!
-      let on_adjacent_file = int.absolute_value(passant_row - col) == 1
+      let on_adjacent_file = int.absolute_value(passant_file - col) == 1
+
       use <- bool.guard(on_adjacent_file == False, option.None)
 
       // The cool thing about the fen representation of passant is that it stores

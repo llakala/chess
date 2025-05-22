@@ -1,7 +1,7 @@
 ---
-version: 1.2.6
+version: 1.3.0
 title: Expected to see white in checkmate with no legal moves around its king!
-file: ./test/check/temp.gleam
+file: ./test/generate/check/attacked.gleam
 test_name: enemy_queen_test
 ---
 [38;5;244m8[0m 0 0 0 0 0 [36m0[0m 0 0

@@ -106,6 +106,14 @@ pub fn file_index(position pos: Position) -> Int {
   pos.index % constants.num_files
 }
 
+pub fn rank_index_one_based(position pos: Position) -> Int {
+  rank_index(pos) + 1
+}
+
+pub fn file_index_one_based(position pos: Position) -> Int {
+  file_index(pos) + 1
+}
+
 /// Sorts two positions first based on the ranks, then falling back to the file.
 ///
 /// (a1, b1) -> Lt

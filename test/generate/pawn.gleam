@@ -1,7 +1,9 @@
 import birdie
 import chess/game
+import gleam/list
 import piece/color
 import piece/piece.{Pawn, Piece}
+import position/move.{Passant}
 
 import chess/board
 import piece/square
@@ -73,7 +75,7 @@ pub fn passant_test() {
   // Board encoding a white pawn and black pawn next to each other on the e rank --
   // with the black pawn just moving from d7 to d5, making en passant possible
   let assert Ok(game) =
-    game.new("rnbqkbnr/pppppppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq d6 0 1")
+    game.new("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1")
 
   // The position of the white pawn that can now perform en passant
   let assert Ok(pawn_pos) = position.new("e5")
@@ -124,4 +126,19 @@ pub fn promotion_capture_test() {
   |> birdie.snap(
     "White pawn on c7 can capture on d8, promoting into a rook, bishop, knight, or queen!",
   )
+}
+
+pub fn bad_f3_test() {
+  // Game I found while testing, where the wrong pawn was able to passant
+  let assert Ok(game) =
+    game.new(
+      "1r1qkb1Q/2pn3p/1pBp2p1/p4pn1/2P1pP2/1P2P3/P2PK2P/RNB3N1 b - f3 0 19",
+    )
+  let moves = generate.legal_moves(game)
+
+  // We should only find one passant move
+  moves
+  |> list.filter(fn(move) { move.kind == Passant })
+  |> generate.display(game)
+  |> birdie.snap("Expected to see an en passant move from e4 -> f3!")
 }
