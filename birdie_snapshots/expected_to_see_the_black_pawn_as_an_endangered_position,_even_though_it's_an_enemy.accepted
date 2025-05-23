@@ -1,0 +1,16 @@
+---
+version: 1.3.0
+title: Expected to see the black pawn as an endangered position, even though it's an enemy!
+file: ./test/generate/check/endangered.gleam
+test_name: endangered_test
+---
+["a8", "b8", "c8", "d8", "e4", "e5", "e5", "e6", "e7", "f8", "g7", "g8", "g8", "h7", "h8"]
+[38;5;244m8[0m [33m0[0m [33m0[0m [33m0[0m [33m0[0m ♜ [33m0[0m [33m0[0m [33m♚[0m
+[38;5;244m7[0m 0 0 0 0 [33m0[0m 0 [33m0[0m [33m0[0m
+[38;5;244m6[0m 0 0 0 0 [33m0[0m 0 0 0
+[38;5;244m5[0m 0 0 0 0 [33m0[0m 0 0 0
+[38;5;244m4[0m 0 0 0 0 [33m♟[0m 0 0 0
+[38;5;244m3[0m 0 0 0 ♔ 0 0 0 0
+[38;5;244m2[0m 0 0 0 0 0 0 0 0
+[38;5;244m1[0m 0 0 0 0 0 0 0 0
+  [38;5;244ma b c d e f g h[0m

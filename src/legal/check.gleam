@@ -71,6 +71,29 @@ pub fn attacked_positions(game: Game) -> List(Position) {
   })
 }
 
+/// Given some game, return all the positions that the enemy could attack - even
+/// if that position currently has another enemy on it!
+pub fn endangered_positions(game: Game) -> List(Position) {
+  // All the positions that have a piece belonging to the other player
+  let positions = game.enemy_positions(game)
+
+  // For each enemy position, potentially update the data
+  list.fold(positions, [], fn(accum, origin) {
+    let square = board.get_pos(game.board, origin)
+    let assert Ok(piece) = square.to_piece(square)
+
+    // We need to see what WE would do on that square, since flipping an enemy
+    // gives us a friend. This will let us see squares that currently hold an
+    // enemy, but would be dangerous if we moved onto them
+    let piece = piece |> piece.flip
+
+    let targets = targets.from_pos_as_piece(game, origin, piece)
+    let destinations = targets |> list.map(fn(target) { target.destination })
+
+    list.append(accum, destinations)
+  })
+}
+
 /// Check whether the player is currently in check, by seeing if the enemy could
 /// attack the king's current square. Also returns the position of your king, if
 /// it's actually on the board, so you can use it for other stuff without
