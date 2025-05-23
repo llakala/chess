@@ -102,7 +102,7 @@ pub fn to_string(board: Board) -> String {
 
 /// Highlight a list of positions on the board. If you want to display moves,
 /// not positions, you probably want `generate.display`.
-pub fn highlight(board: Board, positions: List(Position)) -> String {
+pub fn highlight(positions: List(Position), board: Board) -> String {
   let positions_output =
     positions
     |> list.sort(position.compare)

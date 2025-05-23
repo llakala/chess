@@ -9,7 +9,8 @@ pub fn initial_white_test() {
   // All the positions of the white pieces
   let positions = game |> game.player_positions
 
-  board.highlight(game.board, positions)
+  positions
+  |> board.highlight(game.board)
   |> birdie.snap("Expected all the white initial positions!")
 }
 
@@ -19,7 +20,8 @@ pub fn initial_black_test() {
   // All the positions of the black pieces
   let positions = game |> game.player_positions
 
-  board.highlight(game.board, positions)
+  positions
+  |> board.highlight(game.board)
   |> birdie.snap("Expected all the black initial positions!")
 }
 
@@ -35,7 +37,8 @@ pub fn weird_test() {
 
   let positions = game |> game.player_positions
 
-  board.highlight(game.board, positions)
+  positions
+  |> board.highlight(game.board)
   |> birdie.snap(
     "Expected the singular black knight's position to be selected, ignoring all the white bishops.",
   )

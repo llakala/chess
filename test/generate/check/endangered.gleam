@@ -9,7 +9,7 @@ pub fn endangered_test() {
   let endangered_positions = check.endangered_positions(game)
 
   endangered_positions
-  |> board.highlight(game.board, _)
+  |> board.highlight(game.board)
   |> birdie.snap(
     "Expected to see the black pawn as an endangered position, even though it's an enemy!",
   )
