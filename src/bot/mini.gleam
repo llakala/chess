@@ -4,12 +4,11 @@ import gleam/int
 import gleam/list
 import legal/apply
 import legal/generate
-import piece/color.{Black, White}
+import piece/color.{type Color, Black, White}
 import position/move.{type Move}
 import utils/utilist
 
-/// Run minimax on some game, to some specified depth. Currently has no
-/// alpha-beta pruning, so beware of high depths!
+/// Run minimax on some game, to some specified depth. With alpha beta pruining!
 pub fn max(game game: Game, depth depth: Int) -> Move {
   let moves = generate.legal_moves(game)
 
@@ -28,7 +27,11 @@ pub fn max(game game: Game, depth depth: Int) -> Move {
         |> game.flip
         // Get the score if the enemy makes the best move for them, and we make
         // the best move in response, so on recursively.
-        |> minimax_loop(depth)
+        |> minimax_loop(
+          depth:,
+          alpha: terrible_score(color.White),
+          beta: terrible_score(color.Black),
+        )
 
       // Uncomment if you need to test. This runs only on the top-level moves,
       // not all the recursive levels!
@@ -77,22 +80,27 @@ pub fn max(game game: Game, depth depth: Int) -> Move {
   }
 }
 
+type EvalStatus {
+  EvalStatus(alpha: Int, beta: Int, score: Int)
+}
+
 /// Get the evalyation score after recursing to some depth, always making the
 /// best move we can.
-fn minimax_loop(game game: Game, depth current_depth: Int) -> Int {
+fn minimax_loop(
+  game game: Game,
+  depth current_depth: Int,
+  alpha alpha: Int,
+  beta beta: Int,
+) -> Int {
   case current_depth {
-    // If we've reached 0 depth, stop recursing, and return whatever the current
-    // evaluation of the board is. This lets us decide whether the move we
-    // performed was actually good.
+    // If we've reached a depth of 0, stop recursing, and return whatever the
+    // current evaluation of the board is. This lets us decide whether the move
+    // we performed was actually good.
     0 -> eval.game_state(game)
 
     _ -> {
       let moves = generate.legal_moves(game)
-
-      let terrible_score = case game.color {
-        White -> -999_999
-        Black -> 999_999
-      }
+      let terrible_score = terrible_score(game.color)
 
       case moves {
         // If there's no legal moves, we're currently in checkmate! This is
@@ -100,35 +108,69 @@ fn minimax_loop(game game: Game, depth current_depth: Int) -> Int {
         // the other player.
         [] -> terrible_score
 
-        _ ->
-          // For each legal move, recurse one level deeper. Start out with a
-          // terrible score, so we can assume things we find will be better. We
-          // can't use `list.reduce`, since that forces you to keep the initial
-          // type, and we want to go from moves to scores.
-          list.fold(moves, terrible_score, fn(best_score, move) {
-            // The new game, after applying the current move
-            let assert Ok(game) = apply.move(game, move)
+        _ -> {
+          // We pass the current alpha, current beta, and the best score so far
+          // between each iteration, so we can update them as we go. We start
+          // out with a terrible score, so we things we find will be better.
+          let starting_status = EvalStatus(score: terrible_score, alpha:, beta:)
 
-            let score =
-              game
-              // See the game from the enemy's perspective, so that in the next
-              // level, the enemy can choose their response
-              |> game.flip
-              // Get the enemy's best response to the move we just made
-              |> minimax_loop(current_depth - 1)
+          let eval_status =
+            //  For each legal move, recurse one level deeper. We use
+            //  `fold_until` to simulate a `break` statement for alpha-beta
+            //  pruning
+            list.fold_until(moves, starting_status, fn(eval_status, move) {
+              let EvalStatus(score: best_score, alpha:, beta:) = eval_status
 
-            // White maximizes their score, Black minimizes it, since eval is
-            // positive if white is doing well, and vice versa for black.
-            let func = case game.color {
-              White -> int.max
-              Black -> int.min
-            }
+              // The new game, after applying the current move
+              let assert Ok(game) = apply.move(game, move)
 
-            // Only the best score will keep going onward and propagate to the
-            // top.
-            func(best_score, score)
-          })
+              let score =
+                game
+                // See the game from the enemy's perspective
+                |> game.flip
+                // Get the enemy's best response to the move we just made
+                |> minimax_loop(current_depth - 1, alpha, beta)
+
+              // White maximizes their score, Black minimizes it, since eval is
+              // positive if white is doing well, and vice versa for black.
+              let #(alpha, beta) = case game.color {
+                White -> {
+                  let alpha = int.max(alpha, score)
+                  #(alpha, beta)
+                }
+
+                Black -> {
+                  let beta = int.min(beta, score)
+                  #(alpha, beta)
+                }
+              }
+
+              let score = case game.color {
+                White -> int.max(best_score, score)
+                Black -> int.min(best_score, score)
+              }
+
+              let eval_status = EvalStatus(alpha, beta, score)
+
+              // If this is true, we get to exit early!
+              case beta <= alpha {
+                True -> list.Stop(eval_status)
+                False -> list.Continue(eval_status)
+              }
+            })
+
+          // While looping, we need access to the alpha and beta - but once
+          // we're done, we just need the score as our return value
+          eval_status.score
+        }
       }
     }
+  }
+}
+
+fn terrible_score(color: Color) {
+  case color {
+    White -> -999_999
+    Black -> 999_999
   }
 }
