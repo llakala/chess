@@ -68,6 +68,14 @@ pub fn to_icon(piece: Piece) -> String {
   }
 }
 
+/// Given some piece, return a piece of the same kind, but of the opposite
+/// color.
+pub fn flip(piece: Piece) -> Piece {
+  let Piece(kind, color) = piece
+
+  Piece(kind, color |> color.invert)
+}
+
 /// Get the algebraic notation for a piece (a knight would get `N`, for example).
 /// Returns an error if it recieves a pawn, since pawns need their own logic for
 /// algebraic notation generation.
