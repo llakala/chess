@@ -73,30 +73,42 @@ fn filter_pseudolegal_moves(
     // Not currently in check - we need to filter out the moves that would put us
     // into check
     Ok(#(False, king_pos)) -> {
-      // The positions containing a friendly piece, that might be defending our
-      // king. Does NOT contain the king's position itself.
-      let checkable_origins = targets.friends_to_pos(game, king_pos)
+      // A position being attacked by the enemy. This includes positions that
+      // currently contain an enemy! Ideally, this would only contain positions
+      // in the same row, column, or diagonal as the king - something to look
+      // into
+      let attacked_positions = check.endangered_positions(game)
 
-      // A position being attacked by the enemy. Ideally, this would only
-      // contain positions in the same row, column, or diagonal as the king -
-      // something to look into
-      let attacked_positions = check.attacked_positions(game |> game.flip)
+      // We can instantly filter out any move where the king moves directly into
+      // the line of fire
+      let pseudolegal_moves =
+        list.filter(pseudolegal_moves, fn(move) {
+          let illegal_king =
+            move.change.from == king_pos
+            && list.contains(attacked_positions, move.change.to)
 
-      // Most moves won't be by a piece that could actually move us into check.
-      // We only need to do extra logic on the moves that could actually take us
-      // into check.
-      let #(potentially_illegal_moves, legal_moves) =
-        list.partition(pseudolegal_moves, fn(move) {
-          // A friendly piece to the king, that's currently defending an
-          // attacked position, moving to some other position.
-          let interfering_friend =
-            list.contains(checkable_origins, move.change.from)
-            && list.contains(attacked_positions, move.change.from)
-
-          move.change.from == king_pos || interfering_friend
+          // The only moves that get to keep going are ones where this isn't
+          // true
+          !illegal_king
         })
 
-      // legal_moves |> display(game) |> io.println_error
+      // We've already handled illegal king moves. We know most moves are now
+      // legal - the only ones that we're going to apply and make sure are ones
+      // by a defending friendly piece.
+      let #(potentially_illegal_moves, legal_moves) =
+        list.partition(pseudolegal_moves, fn(move) {
+          // The positions containing a friendly piece, that might be defending our
+          // king. Does NOT contain the king's position itself.
+          let checkable_origins = targets.friends_to_pos(game, king_pos)
+
+          // A move might be illegal if it's by a friendly piece to the king,
+          // that's currently defending an attacked position, moving to some
+          // other position.
+          list.contains(checkable_origins, move.change.from)
+          && list.contains(attacked_positions, move.change.from)
+        })
+
+      // potentially_illegal_moves |> display(game) |> io.println_error
 
       // Apply each of these moves to see if they put us into check. Expensive
       // - so we try to run this on as few moves as possible
