@@ -52,9 +52,10 @@ pub fn from_pos(game: Game, origin: Position) -> Result(List(Target), String) {
   targets |> Ok
 }
 
-/// Given some position, return all the positions that contain an enemy piece,
-/// who might be attacking our current position.
-pub fn enemies_to_pos(game: Game, pos: Position) -> List(Position) {
+/// Internal function for finding all the enemies and empty squares that can be
+/// reached from some passed position. We wrap this with different functions,
+/// depending on the type of position we'd like to access.
+fn positions_to_pos(game: Game, pos: Position) -> List(Position) {
   let color = game.color
 
   // Combined, this will tell us every position that might be endangering us.
@@ -62,8 +63,7 @@ pub fn enemies_to_pos(game: Game, pos: Position) -> List(Position) {
   let knight = piece.Piece(piece.Knight, color)
 
   // We're going backwards - all the knight + queen targets from our position
-  // will tell us all the positions we could attack - and then we'll filter for
-  // the positions containing enemies
+  // will tell us all the positions we could attack - which then tells us
   let queen_targets = legal_sliding_targets(game, pos, queen)
   let knight_targets = legal_knight_targets(game, pos, knight)
 
@@ -72,18 +72,22 @@ pub fn enemies_to_pos(game: Game, pos: Position) -> List(Position) {
   let knight_positions =
     list.map(knight_targets, fn(target) { target.destination })
 
-  let positions = list.append(queen_positions, knight_positions)
+  list.append(queen_positions, knight_positions)
+}
+
+/// Given some position, return all the positions that contain an enemy piece,
+/// who might be attacking our current position.
+pub fn enemies_to_pos(game: Game, pos: Position) -> List(Position) {
+  let positions = positions_to_pos(game, pos)
 
   positions
-  // TODO: rather than filtering like this, just use the Capture records with
-  // the targets, since we already wrote down whether things were captures, and
-  // those are the positions we want to return.
   |> list.filter(fn(pos) {
-    case board.get_pos(game.board, pos) {
+    let square = board.get_pos(game.board, pos)
+    case square {
       square.None -> False
 
       // The square contained a friend - skip
-      square.Some(piece) if piece.color == color -> False
+      square.Some(piece) if piece.color == game.color -> False
 
       square.Some(_) -> True
     }
@@ -93,9 +97,38 @@ pub fn enemies_to_pos(game: Game, pos: Position) -> List(Position) {
 /// Given some position, return all the positions that contain a friendly piece,
 /// who might be protecting our current square.
 pub fn friends_to_pos(game: Game, pos: Position) -> List(Position) {
-  // I don't love this - flipping increases memory unnecessarily. However, it'll
-  // do for now.
-  enemies_to_pos(game |> game.flip, pos)
+  // We need to flip the color, since there are some deep function dependencies
+  // of `positions_to_pos` that use the game's color, rather than some passed
+  // color - and refactoring all of those isn't feasible at this time.
+  let positions = positions_to_pos(game |> game.flip, pos)
+
+  positions
+  |> list.filter(fn(pos) {
+    let square = board.get_pos(game.board, pos)
+    case square {
+      square.None -> False
+
+      // The square contained an enemy - skip
+      square.Some(piece) if piece.color != game.color -> False
+
+      square.Some(_) -> True
+    }
+  })
+}
+
+/// Given some position, return all the positions that have a direct "line of
+/// sight" to that position.
+pub fn empty_to_pos(game: Game, pos: Position) -> List(Position) {
+  let positions = positions_to_pos(game, pos)
+
+  positions
+  |> list.filter(fn(pos) {
+    let square = board.get_pos(game.board, pos)
+    case square {
+      square.Some(_) -> False
+      square.None -> True
+    }
+  })
 }
 
 fn legal_pawn_targets(game: Game, pos: Position, piece: Piece) -> List(Target) {

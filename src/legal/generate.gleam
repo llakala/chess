@@ -43,17 +43,11 @@ fn filter_pseudolegal_moves(
 
     // Currently in check - filter out the moves that would keep us in check
     Ok(#(True, king_pos)) -> {
-      // All the pseudolegal moves the king could make from their current
-      // position.
-      let assert Ok(king_targets) = targets.from_pos(game, king_pos)
-
-      // This will basically be any position in the 1x1 ring around the king,
-      // that doesn't contain a friendly piece. We need to find these to see if
-      // the king can move directly out of check, or if some other piece can
-      // step into the line of fire for it.
-      let king_ring_positions =
-        king_targets
-        |> list.map(fn(target) { target.destination })
+      // This will basically be any square that has a direct line of sight to
+      // the king. We need to find these to see if the king can move directly
+      // out of check, or if some other piece can step into the line of fire for
+      // it.
+      let line_of_fire_positions = targets.empty_to_pos(game, king_pos)
 
       // Positions of enemies directly attacking the king. It might be possible
       // that a friendly piece could take the assassin and stop the threat on
@@ -65,7 +59,7 @@ fn filter_pseudolegal_moves(
       // FOR the king, or the moves that kill the enemy attacking the king
       let potentially_legal_moves =
         list.filter(pseudolegal_moves, fn(move: Move) {
-          list.contains(king_ring_positions, move.change.to)
+          list.contains(line_of_fire_positions, move.change.to)
           || list.contains(attacking_enemy_positions, move.change.to)
         })
 
@@ -101,7 +95,7 @@ fn filter_pseudolegal_moves(
   }
 }
 
-fn is_move_legal(move: Move, game: Game) -> Bool {
+pub fn is_move_legal(move: Move, game: Game) -> Bool {
   case apply.move(game, move) {
     Error(_) -> False
     Ok(new_game) ->
