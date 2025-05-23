@@ -21,13 +21,16 @@ pub fn legal_moves(game: Game) -> List(Move) {
   // All the positions containing one of our pieces
   let origins = game.player_positions(game)
 
-  // Get all the moves for each position. If we got an error, panic!
-  case list.try_map(origins, moves_from(game, _)) {
+  // Get all the moves for each position. If we got an error, panic! We use the
+  // internal `pseudolegal_moves_from` function, since we want to filter all
+  // illegal moves in one step, not multiple.
+  case list.try_map(origins, pseudolegal_moves_from(game, _)) {
     Error(_) ->
       panic as "One of the From positions contained None! Bad logic in getting the list of positions a player is at!"
 
-    // We've already filtered the moves in `moves_from`, so we're good!
-    Ok(nested_moves) -> nested_moves |> list.flatten
+    // Filter the moves for the ones that don't put us in check after the move
+    Ok(nested_moves) ->
+      filter_pseudolegal_moves(game, nested_moves |> list.flatten)
   }
 }
 
@@ -129,6 +132,17 @@ pub fn is_move_legal(move: Move, game: Game) -> Bool {
 /// positions. If you want better packed data, use `target.from_pos` - this
 /// just wraps its functionality anyways.
 pub fn moves_from(game: Game, origin: Position) -> Result(List(Move), String) {
+  pseudolegal_moves_from(game, origin)
+  |> result.map(filter_pseudolegal_moves(game, _))
+}
+
+/// This is the internal function that doesn't filter pseudolegal moves further.
+/// This lets us filter all illegal moves in one step within `legal_moves`,
+/// rather than having it done in multiple steps.
+fn pseudolegal_moves_from(
+  game: Game,
+  origin: Position,
+) -> Result(List(Move), String) {
   targets.from_pos(game, origin)
   // Map the result if we got an Ok value
   |> result.map(fn(targets) {
@@ -138,7 +152,6 @@ pub fn moves_from(game: Game, origin: Position) -> Result(List(Move), String) {
       let change = change.Change(origin, target.destination)
       move.Move(change, target.kind)
     })
-    |> filter_pseudolegal_moves(game, _)
   })
 }
 
