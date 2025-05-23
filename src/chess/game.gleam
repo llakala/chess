@@ -137,6 +137,34 @@ pub fn player_positions(game: Game) -> List(Position) {
   })
 }
 
+pub fn enemy_positions(game: Game) -> List(Position) {
+  // An array of squares.
+  let data = game.board |> board.get_data
+
+  let my_color = game.color
+
+  // For each square on the board, choose whether to add its position to the
+  // list of enemy positions.
+  iv.index_fold(data, [], fn(positions, square, index) {
+    case square {
+      // Empty square - skip and keep iterating
+      square.None -> positions
+
+      // Square holds a friendly piece - skip
+      square.Some(piece) if piece.color == my_color -> positions
+
+      // Squares that hold an enemy piece :o
+      square.Some(_) -> {
+        // This only fails if the index is out of bounds, which it should never
+        // be with a board unless I have a logic error.
+        let assert Ok(pos) = position.from_index(index)
+
+        [pos, ..positions]
+      }
+    }
+  })
+}
+
 /// Return the number of squares in a direction until you either bump into a wall
 /// or hit another piece. Useful for determining the number of valid moves for
 /// a piece in a direction. Returns a custom type Distance, so you can tell if there
