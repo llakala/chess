@@ -7,6 +7,7 @@ import legal/check
 import legal/generate
 import position/change
 import position/move
+import position/position
 
 pub fn initial_test() {
   let game = game.initial()
@@ -58,15 +59,15 @@ pub fn bad_king_test() {
   let assert Ok(game) =
     game.new("r3kbQ1/pq2pp2/2pp3p/8/p4N2/2PPPn2/1P2KP1P/1NB4b w q - 0 21")
 
-  // let assert Ok(pos) = position.new("e2")
-  // let assert Ok(legal_moves) = generate.moves_from(game, pos)
+  let assert Ok(pos) = position.new("e2")
+  let assert Ok(legal_moves) = generate.moves_from(game, pos)
 
   // TODO: see why this is still failing
-  // legal_moves
-  // |> generate.display(game)
-  // |> birdie.snap(
-  //   "Expected to not be able to move from e2 -> f3, since it's illegal!",
-  // )
+  legal_moves
+  |> generate.display(game)
+  |> birdie.snap(
+    "Expected to not be able to move from e2 -> f3, since it's illegal!",
+  )
 
   let assert Ok(change) = change.new("e2", "f3")
   let move = move.Move(change, move.Capture)

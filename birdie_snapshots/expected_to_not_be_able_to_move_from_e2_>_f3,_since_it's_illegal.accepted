@@ -1,0 +1,17 @@
+---
+version: 1.3.0
+title: Expected to not be able to move from e2 -> f3, since it's illegal!
+file: ./test/generate/check/check.gleam
+test_name: bad_king_test
+---
+["e2 -> d1", "e2 -> f1"]
+Board:
+[38;5;244m8[0m ♜ 0 0 0 ♚ ♝ ♕ 0
+[38;5;244m7[0m ♟ ♛ 0 0 ♟ ♟ 0 0
+[38;5;244m6[0m 0 0 ♟ ♟ 0 0 0 ♟
+[38;5;244m5[0m 0 0 0 0 0 0 0 0
+[38;5;244m4[0m ♟ 0 0 0 0 ♘ 0 0
+[38;5;244m3[0m 0 0 ♙ ♙ ♙ ♞ 0 0
+[38;5;244m2[0m 0 ♙ 0 0 [36m♔[0m ♙ 0 ♙
+[38;5;244m1[0m 0 ♘ ♗ [33m0[0m 0 [33m0[0m 0 ♝
+  [38;5;244ma b c d e f g h[0m

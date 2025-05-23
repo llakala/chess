@@ -26,9 +26,8 @@ pub fn legal_moves(game: Game) -> List(Move) {
     Error(_) ->
       panic as "One of the From positions contained None! Bad logic in getting the list of positions a player is at!"
 
-    // Filter the moves for the ones that don't put us in check after the move
-    Ok(nested_moves) ->
-      filter_pseudolegal_moves(game, nested_moves |> list.flatten)
+    // We've already filtered the moves in `moves_from`, so we're good!
+    Ok(nested_moves) -> nested_moves |> list.flatten
   }
 }
 
@@ -139,6 +138,7 @@ pub fn moves_from(game: Game, origin: Position) -> Result(List(Move), String) {
       let change = change.Change(origin, target.destination)
       move.Move(change, target.kind)
     })
+    |> filter_pseudolegal_moves(game, _)
   })
 }
 
