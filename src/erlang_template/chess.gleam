@@ -19,7 +19,7 @@ pub fn move(
   _failed_moves: List(String),
 ) -> Result(String, String) {
   let assert Ok(game) = game.new(fen)
-  let move = bot.first(game)
+  let move = bot.minimax(game)
   let assert Ok(move_output) = move |> algebraic.notation(game)
 
   Ok(move_output)
