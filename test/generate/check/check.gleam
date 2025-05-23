@@ -53,3 +53,24 @@ pub fn sneaky_pawn_gets_knight_test() {
   |> list.is_empty
   |> should.be_false
 }
+
+pub fn bad_king_test() {
+  let assert Ok(game) =
+    game.new("r3kbQ1/pq2pp2/2pp3p/8/p4N2/2PPPn2/1P2KP1P/1NB4b w q - 0 21")
+
+  // let assert Ok(pos) = position.new("e2")
+  // let assert Ok(legal_moves) = generate.moves_from(game, pos)
+
+  // TODO: see why this is still failing
+  // legal_moves
+  // |> generate.display(game)
+  // |> birdie.snap(
+  //   "Expected to not be able to move from e2 -> f3, since it's illegal!",
+  // )
+
+  let assert Ok(change) = change.new("e2", "f3")
+  let move = move.Move(change, move.Capture)
+
+  generate.is_move_legal(move, game)
+  |> should.be_false
+}

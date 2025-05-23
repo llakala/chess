@@ -9,7 +9,7 @@ import legal/targets
 import piece/color
 import piece/piece.{King, Piece}
 import piece/square
-import position/position
+import position/position.{type Position}
 import utils/text
 
 /// Given some game, return all the squares the current player could attack. We
@@ -53,12 +53,30 @@ pub fn attacked_squares(game: Game) -> Array(Bool) {
   })
 }
 
+/// Given some game, return all the positions that the current player can
+/// attack.
+pub fn attacked_positions(game: Game) -> List(Position) {
+  // All the positions that have a piece belonging to the current player
+  let positions = game.player_positions(game)
+
+  // For each position that could attack, potentially update the data
+  list.fold(positions, [], fn(accum, origin) {
+    // all the targets this position is attacking
+    let assert Ok(targets) = targets.from_pos(game, origin)
+
+    // All the positions we can attack, disregarding the move types
+    let destinations = targets |> list.map(fn(target) { target.destination })
+
+    list.append(accum, destinations)
+  })
+}
+
 /// Check whether the player is currently in check, by seeing if the enemy could
 /// attack the king's current square. Also returns the position of your king, if
 /// it's actually on the board, so you can use it for other stuff without
 /// searching again. Will return an error if there wasn't a king of your color
 /// on the board - which happens in some tests.
-pub fn is_in_check(game: Game) -> Result(#(Bool, position.Position), String) {
+pub fn is_in_check(game: Game) -> Result(#(Bool, Position), String) {
   let color = game.color
   let king = Piece(King, color)
 
