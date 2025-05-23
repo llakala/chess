@@ -62,7 +62,6 @@ pub fn bad_king_test() {
   let assert Ok(pos) = position.new("e2")
   let assert Ok(legal_moves) = generate.moves_from(game, pos)
 
-  // TODO: see why this is still failing
   legal_moves
   |> generate.display(game)
   |> birdie.snap(
@@ -74,4 +73,14 @@ pub fn bad_king_test() {
 
   generate.is_move_legal(move, game)
   |> should.be_false
+}
+
+pub fn stop_misbehaving_test() {
+  let assert Ok(game) = game.new("8/2p1k3/2p5/4K3/3pP3/8/4n3/8 w - - 14 39")
+
+  let legal_moves = generate.legal_moves(game)
+
+  legal_moves
+  |> generate.display(game)
+  |> birdie.snap("Expected the only legal move to be e5 -> f5!")
 }
