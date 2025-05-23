@@ -52,6 +52,26 @@ pub fn from_pos(game: Game, origin: Position) -> Result(List(Target), String) {
   targets |> Ok
 }
 
+/// Alternative to `from_pos`, for when you're playing make believe, and want
+/// to see what squares a piece could attack if it was hypothetically at the
+/// given position.
+pub fn from_pos_as_piece(
+  game: Game,
+  origin: Position,
+  piece: Piece,
+) -> List(Target) {
+  case piece.kind {
+    Pawn -> legal_pawn_targets(game, origin, piece)
+    Knight -> legal_knight_targets(game, origin, piece)
+    _ -> {
+      // If this gets an error, there's a logic failure!
+      let assert Ok(sliding_piece) = piece |> sliding.new
+
+      legal_sliding_targets(game, origin, sliding_piece)
+    }
+  }
+}
+
 /// Internal function for finding all the enemies and empty squares that can be
 /// reached from some passed position. We wrap this with different functions,
 /// depending on the type of position we'd like to access.
