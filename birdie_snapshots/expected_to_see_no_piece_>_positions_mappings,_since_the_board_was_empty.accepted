@@ -1,0 +1,7 @@
+---
+version: 1.2.7
+title: Expected to see no piece -> positions mappings, since the board was empty!
+file: ./test/board/piece_positions.gleam
+test_name: no_pieces_test
+---
+dict.from_list([])

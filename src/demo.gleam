@@ -25,8 +25,7 @@ pub fn main() {
     // We're recreating the logic of `chess.move` here to actually display the
     // move and board for testing
     let assert Ok(game) = game.new(fen)
-    let moves = game |> generate.legal_moves
-    let move = bot.first(game, moves)
+    let move = bot.first(game)
     generate.display([move], game) |> io.println
   })
 }

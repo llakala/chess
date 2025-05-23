@@ -1,0 +1,7 @@
+---
+version: 1.2.7
+title: Expected a game with our queen missing to have a negative evaluation score!
+file: ./test/bot/evaluation.gleam
+test_name: losing_test
+---
+-9

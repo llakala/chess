@@ -1,4 +1,5 @@
 // My own helper functions for working with `iv` arrays
+import gleam/dict.{type Dict}
 import gleam/int
 import gleam/list
 import gleam/result
@@ -52,6 +53,36 @@ pub fn search(board: Board, piece: Piece) -> Result(Position, String) {
       pos |> Ok
     }
   }
+}
+
+/// Given some board, return a dictionary, mapping some piece to its position(s)
+/// on the board. Great for working with a lot of positions without constantly
+/// searching!
+pub fn piece_positions(board: Board) -> Dict(Piece, List(Position)) {
+  let dict = dict.new()
+
+  iv.index_fold(board.data, dict, fn(dict, square, index) {
+    let assert Ok(pos) = position.from_index(index)
+
+    case square {
+      // Current square is empty - don't add anything to the dict
+      square.None -> dict
+
+      square.Some(piece:) -> {
+        // The current value for the piece key. Returns a result if the key is
+        // currently unset
+        case dict.get(dict, piece) {
+          // There's no positions currently stored for the piece - create a new
+          // value
+          Error(_) -> dict |> dict.insert(piece, [pos])
+
+          // The piece already has some other position set - add the new pos to
+          // the list!
+          Ok(positions) -> dict |> dict.insert(piece, [pos, ..positions])
+        }
+      }
+    }
+  })
 }
 
 /// Doesn't take the *entire* fen string: just the first part encoding the board

@@ -1,0 +1,7 @@
+---
+version: 1.2.7
+title: Expected the initial game to have an evaluation score of 0!
+file: ./test/bot/evaluation.gleam
+test_name: initial_test
+---
+0

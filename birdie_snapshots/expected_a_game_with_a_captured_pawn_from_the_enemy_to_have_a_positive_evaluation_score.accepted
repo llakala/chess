@@ -1,0 +1,7 @@
+---
+version: 1.2.7
+title: Expected a game with a captured pawn from the enemy to have a positive evaluation score!
+file: ./test/bot/evaluation.gleam
+test_name: winning_test
+---
+1

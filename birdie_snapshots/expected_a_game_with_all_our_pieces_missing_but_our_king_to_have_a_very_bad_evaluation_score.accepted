@@ -1,0 +1,7 @@
+---
+version: 1.2.7
+title: Expected a game with all our pieces missing but our king to have a very bad evaluation score!
+file: ./test/bot/evaluation.gleam
+test_name: losing_horribly_test
+---
+-30
