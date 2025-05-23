@@ -72,43 +72,43 @@ pub fn from_pos_as_piece(
   }
 }
 
-/// Internal function for finding all the enemies and empty squares that can be
-/// reached from some passed position. We wrap this with different functions,
-/// depending on the type of position we'd like to access.
-fn positions_to_pos(game: Game, pos: Position) -> List(Position) {
+/// Given some position, return all the positions a queen could move to. This
+/// includes empty squares and enemy positions.
+fn queen_viewable_positions(game: Game, pos: Position) -> List(Position) {
   let color = game.color
 
-  // Combined, this will tell us every position that might be endangering us.
+  // Tells us the direct lines of sight
   let queen = sliding.Queen(color)
-  let knight = piece.Piece(piece.Knight, color)
 
-  // We're going backwards - all the knight + queen targets from our position
+  // We're going backwards - all the queen targets from our position
   // will tell us all the positions we could attack - which then tells us
   let queen_targets = legal_sliding_targets(game, pos, queen)
+
+  list.map(queen_targets, fn(target) { target.destination })
+}
+
+/// Given a position, return all the positions a knight could go from there.
+fn knight_viewable_positions(game: Game, pos: Position) -> List(Position) {
+  let color = game.color
+  let knight = piece.Piece(piece.Knight, color)
   let knight_targets = legal_knight_targets(game, pos, knight)
 
-  let queen_positions =
-    list.map(queen_targets, fn(target) { target.destination })
-  let knight_positions =
-    list.map(knight_targets, fn(target) { target.destination })
-
-  list.append(queen_positions, knight_positions)
+  list.map(knight_targets, fn(target) { target.destination })
 }
 
 /// Given some position, return all the positions that contain an enemy piece,
 /// who might be attacking our current position.
 pub fn enemies_to_pos(game: Game, pos: Position) -> List(Position) {
-  let positions = positions_to_pos(game, pos)
+  let queen_positions = queen_viewable_positions(game, pos)
+  let knight_positions = knight_viewable_positions(game, pos)
+  let positions = list.append(knight_positions, queen_positions)
 
   positions
+  // Filter out empty squares
   |> list.filter(fn(pos) {
     let square = board.get_pos(game.board, pos)
     case square {
       square.None -> False
-
-      // The square contained a friend - skip
-      square.Some(piece) if piece.color == game.color -> False
-
       square.Some(_) -> True
     }
   })
@@ -118,9 +118,10 @@ pub fn enemies_to_pos(game: Game, pos: Position) -> List(Position) {
 /// who might be protecting our current square.
 pub fn friends_to_pos(game: Game, pos: Position) -> List(Position) {
   // We need to flip the color, since there are some deep function dependencies
-  // of `positions_to_pos` that use the game's color, rather than some passed
-  // color - and refactoring all of those isn't feasible at this time.
-  let positions = positions_to_pos(game |> game.flip, pos)
+  // of `queen_viewable_positions` that use the game's color - and refactoring
+  // all of those isn't feasible at this time. We don't get knight positions,
+  // since a knight couldn't defend us - only direct lines can.
+  let positions = queen_viewable_positions(game |> game.flip, pos)
 
   positions
   |> list.filter(fn(pos) {
@@ -128,18 +129,17 @@ pub fn friends_to_pos(game: Game, pos: Position) -> List(Position) {
     case square {
       square.None -> False
 
-      // The square contained an enemy - skip
-      square.Some(piece) if piece.color != game.color -> False
-
       square.Some(_) -> True
     }
   })
 }
 
-/// Given some position, return all the positions that have a direct "line of
-/// sight" to that position.
+/// Given some position, return all the positions that we can "see" - the ones
+/// that could be a line of fire for an attack.
 pub fn empty_to_pos(game: Game, pos: Position) -> List(Position) {
-  let positions = positions_to_pos(game, pos)
+  // I don't *THINK* a knight position can be a line of fire. I might be wrong,
+  // though!
+  let positions = queen_viewable_positions(game, pos)
 
   positions
   |> list.filter(fn(pos) {
