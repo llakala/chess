@@ -97,7 +97,7 @@ fn filter_pseudolegal_moves(
           // attacked position, moving to some other position.
           let interfering_friend =
             list.contains(checkable_origins, move.change.from)
-            && list.contains(attacked_positions, move.change.from)
+            && set.contains(attacked_positions, move.change.from)
 
           move.change.from == king_pos || interfering_friend
         })
