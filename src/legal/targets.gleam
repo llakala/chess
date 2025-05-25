@@ -83,7 +83,7 @@ pub fn get_destinations(targets: List(Target)) -> Set(Position) {
 
 /// Given some position, return all the positions a queen could move to. This
 /// includes empty squares and enemy positions.
-fn queen_viewable_positions(game: Game, pos: Position) -> List(Position) {
+fn queen_viewable_positions(game: Game, pos: Position) -> Set(Position) {
   let color = game.color
 
   // Tells us the direct lines of sight
@@ -93,28 +93,28 @@ fn queen_viewable_positions(game: Game, pos: Position) -> List(Position) {
   // will tell us all the positions we could attack - which then tells us
   let queen_targets = legal_sliding_targets(game, pos, queen)
 
-  list.map(queen_targets, fn(target) { target.destination })
+  queen_targets |> get_destinations
 }
 
 /// Given a position, return all the positions a knight could go from there.
-fn knight_viewable_positions(game: Game, pos: Position) -> List(Position) {
+fn knight_viewable_positions(game: Game, pos: Position) -> Set(Position) {
   let color = game.color
   let knight = piece.Piece(piece.Knight, color)
   let knight_targets = legal_knight_targets(game, pos, knight)
 
-  list.map(knight_targets, fn(target) { target.destination })
+  knight_targets |> get_destinations
 }
 
 /// Given some position, return all the positions that contain an enemy piece,
 /// who might be attacking our current position.
-pub fn enemies_to_pos(game: Game, pos: Position) -> List(Position) {
+pub fn enemies_to_pos(game: Game, pos: Position) -> Set(Position) {
   let queen_positions = queen_viewable_positions(game, pos)
   let knight_positions = knight_viewable_positions(game, pos)
-  let positions = list.append(knight_positions, queen_positions)
+  let positions = set.union(knight_positions, queen_positions)
 
   positions
   // Filter out empty squares
-  |> list.filter(fn(pos) {
+  |> set.filter(fn(pos) {
     let square = board.get_pos(game.board, pos)
     case square {
       square.None -> False
@@ -125,7 +125,7 @@ pub fn enemies_to_pos(game: Game, pos: Position) -> List(Position) {
 
 /// Given some position, return all the positions that contain a friendly piece,
 /// who might be protecting our current square.
-pub fn friends_to_pos(game: Game, pos: Position) -> List(Position) {
+pub fn friends_to_pos(game: Game, pos: Position) -> Set(Position) {
   // We need to flip the color, since there are some deep function dependencies
   // of `queen_viewable_positions` that use the game's color - and refactoring
   // all of those isn't feasible at this time. We don't get knight positions,
@@ -133,7 +133,7 @@ pub fn friends_to_pos(game: Game, pos: Position) -> List(Position) {
   let positions = queen_viewable_positions(game |> game.flip, pos)
 
   positions
-  |> list.filter(fn(pos) {
+  |> set.filter(fn(pos) {
     let square = board.get_pos(game.board, pos)
     case square {
       square.None -> False
@@ -145,13 +145,13 @@ pub fn friends_to_pos(game: Game, pos: Position) -> List(Position) {
 
 /// Given some position, return all the positions that we can "see" - the ones
 /// that could be a line of fire for an attack.
-pub fn empty_to_pos(game: Game, pos: Position) -> List(Position) {
+pub fn empty_to_pos(game: Game, pos: Position) -> Set(Position) {
   // I don't *THINK* a knight position can be a line of fire. I might be wrong,
   // though!
   let positions = queen_viewable_positions(game, pos)
 
   positions
-  |> list.filter(fn(pos) {
+  |> set.filter(fn(pos) {
     let square = board.get_pos(game.board, pos)
     case square {
       square.Some(_) -> False
