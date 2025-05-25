@@ -34,13 +34,10 @@ pub fn attacked_squares(game: Game) -> Array(Bool) {
     |> iv.map(fn(_) { False })
 
   // All the positions that have a piece belonging to the current player
-  let positions =
-    game.player_positions(game)
-    // TODO: be set-native
-    |> set.to_list
+  let positions = game.player_positions(game)
 
   // For each position that could attack, potentially update the data
-  list.fold(positions, pos_is_attacked, fn(data, origin) {
+  set.fold(positions, pos_is_attacked, fn(data, origin) {
     // all the targets this position is attacking
     let assert Ok(targets) = targets.from_pos(game, origin)
 
@@ -82,13 +79,10 @@ pub fn attacked_positions(game: Game) -> List(Position) {
 /// if that position currently has another enemy on it!
 pub fn endangered_positions(game: Game) -> List(Position) {
   // All the positions that have a piece belonging to the other player
-  let positions =
-    game.enemy_positions(game)
-    // TODO: be set-native
-    |> set.to_list
+  let positions = game.enemy_positions(game)
 
   // For each enemy position, potentially update the data
-  list.fold(positions, [], fn(accum, origin) {
+  set.fold(positions, [], fn(accum, origin) {
     let square = board.get_pos(game.board, origin)
     let assert Ok(piece) = square.to_piece(square)
 
