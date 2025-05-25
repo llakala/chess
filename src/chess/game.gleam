@@ -117,7 +117,7 @@ pub fn player_positions(game: Game) -> Set(Position) {
   let my_color = game.color
 
   // For each square on the board, choose whether to add its position to the
-  // list of friendly positions.
+  // set of friendly positions.
   iv.index_fold(data, set.new(), fn(positions, square, index) {
     case square {
       // Empty square - skip and keep iterating
@@ -138,15 +138,15 @@ pub fn player_positions(game: Game) -> Set(Position) {
   })
 }
 
-pub fn enemy_positions(game: Game) -> List(Position) {
+pub fn enemy_positions(game: Game) -> Set(Position) {
   // An array of squares.
   let data = game.board |> board.get_data
 
   let my_color = game.color
 
   // For each square on the board, choose whether to add its position to the
-  // list of enemy positions.
-  iv.index_fold(data, [], fn(positions, square, index) {
+  // set of enemy positions.
+  iv.index_fold(data, set.new(), fn(positions, square, index) {
     case square {
       // Empty square - skip and keep iterating
       square.None -> positions
@@ -160,7 +160,7 @@ pub fn enemy_positions(game: Game) -> List(Position) {
         // be with a board unless I have a logic error.
         let assert Ok(pos) = position.from_index(index)
 
-        [pos, ..positions]
+        set.insert(positions, pos)
       }
     }
   })
