@@ -1,5 +1,6 @@
 import chess/board
 import chess/game.{type Game}
+import gleam/set
 import legal/apply
 import legal/check
 
@@ -19,7 +20,12 @@ import gleam/string
 /// Generates all the legal moves for the current player based on a game state.
 pub fn legal_moves(game: Game) -> List(Move) {
   // All the positions containing one of our pieces
-  let origins = game.player_positions(game)
+  let origins =
+    game.player_positions(game)
+    // I'd like to stick with sets here, but I don't think it's really
+    // necessary, and I can't find a good way to emulate `list.try_map` without
+    // converting to a list.
+    |> set.to_list
 
   // Get all the moves for each position. If we got an error, panic! We use the
   // internal `pseudolegal_moves_from` function, since we want to filter all
