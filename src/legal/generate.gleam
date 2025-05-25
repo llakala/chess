@@ -1,5 +1,6 @@
 import chess/board
 import chess/game.{type Game}
+import gleam/io
 import gleam/set
 import legal/apply
 import legal/check
@@ -71,6 +72,8 @@ fn filter_pseudolegal_moves(
           || set.contains(attacking_enemy_positions, move.change.to)
         })
 
+      // potentially_illegal_moves |> display(game) |> io.println_error
+
       // Apply each of these moves to see if they put us into check. Expensive
       // - so we try to run this on as few moves as possible
       list.filter(potentially_legal_moves, is_move_legal(_, game))
@@ -83,10 +86,11 @@ fn filter_pseudolegal_moves(
       // king. Does NOT contain the king's position itself.
       let checkable_origins = targets.friends_to_pos(game, king_pos)
 
-      // A position being attacked by the enemy. Ideally, this would only
+      // All positions that could be attacked by the enemy - even if it
+      // currently contains a friend. Ideally, this would only
       // contain positions in the same row, column, or diagonal as the king -
       // something to look into
-      let attacked_positions = check.attacked_positions(game |> game.flip)
+      let attacked_positions = check.endangered_positions(game)
 
       // Most moves won't be by a piece that could actually move us into check.
       // We only need to do extra logic on the moves that could actually take us
@@ -99,10 +103,14 @@ fn filter_pseudolegal_moves(
             set.contains(checkable_origins, move.change.from)
             && set.contains(attacked_positions, move.change.from)
 
-          move.change.from == king_pos || interfering_friend
+          let dangerous_king =
+            move.change.from == king_pos
+            && set.contains(attacked_positions, move.change.to)
+
+          dangerous_king || interfering_friend
         })
 
-      // legal_moves |> display(game) |> io.println_error
+      // potentially_illegal_moves |> display(game) |> io.println_error
 
       // Apply each of these moves to see if they put us into check. Expensive
       // - so we try to run this on as few moves as possible
