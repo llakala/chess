@@ -7,7 +7,7 @@ import gleam/result
 import gleam/set.{type Set}
 import gleam/string
 import iv
-import piece/color
+import piece/color.{type Color}
 import piece/square
 import position/direction.{type Direction}
 import position/position.{type Position}
@@ -169,13 +169,15 @@ pub fn enemy_positions(game: Game) -> Set(Position) {
 /// Return the number of squares in a direction until you either bump into a wall
 /// or hit another piece. Useful for determining the number of valid moves for
 /// a piece in a direction. Returns a custom type Distance, so you can tell if there
-/// was a capture in that direction
+/// was a capture in that direction. Note that we take Color rather than reusing
+/// the game color, so we can "fib" about the color of a piece if necessary.
 pub fn obstructed_distance(
   game game: Game,
   position position: Position,
   direction direction: Direction,
+  color color: Color,
 ) -> Distance {
-  obstructed_distance_loop(game, position, direction, 0)
+  obstructed_distance_loop(game, position, direction, color, 0)
 }
 
 /// We represent passant as an optional position, since sometimes a pawn hasn't
@@ -193,10 +195,10 @@ fn obstructed_distance_loop(
   game: Game,
   pos: Position,
   dir: Direction,
+  color: Color,
   distance: Int,
 ) -> Distance {
   let board = game.board
-  let color = game.color
 
   // Distance next position in the direction. If from_offset returns an error, we've
   // gone too far and gone off the board edge -- return the accumulated distance
@@ -222,7 +224,8 @@ fn obstructed_distance_loop(
 
         // to_piece returned an error - the square must've been empty. Keep the loop
         // going.
-        Error(_) -> obstructed_distance_loop(game, new_pos, dir, distance + 1)
+        Error(_) ->
+          obstructed_distance_loop(game, new_pos, dir, color, distance + 1)
       }
     }
   }

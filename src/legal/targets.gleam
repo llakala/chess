@@ -415,7 +415,8 @@ fn legal_sliding_targets(
   // Store the distance until another piece is found, or we hit a wall. Custom type
   // that can either be a Capture or a NonCapture, so we can mark the target as
   // a capture if needed.
-  let obstructed = game.obstructed_distance(game, current_pos, dir)
+  let obstructed =
+    game.obstructed_distance(game, current_pos, dir, sliding_piece.color)
 
   // Max distance that our piece can go without obstructions
   let max_distance = int.min(piece_distance, obstructed.distance)
