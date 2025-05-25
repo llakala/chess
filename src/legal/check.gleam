@@ -82,7 +82,10 @@ pub fn attacked_positions(game: Game) -> List(Position) {
 /// if that position currently has another enemy on it!
 pub fn endangered_positions(game: Game) -> List(Position) {
   // All the positions that have a piece belonging to the other player
-  let positions = game.enemy_positions(game)
+  let positions =
+    game.enemy_positions(game)
+    // TODO: be set-native
+    |> set.to_list
 
   // For each enemy position, potentially update the data
   list.fold(positions, [], fn(accum, origin) {
