@@ -3,7 +3,7 @@ import chess/constants
 import chess/game.{type Game}
 import gleam/list
 import gleam/result
-import gleam/set
+import gleam/set.{type Set}
 import gleam/string
 import iv.{type Array}
 import legal/targets
@@ -56,22 +56,21 @@ pub fn attacked_squares(game: Game) -> Array(Bool) {
 
 /// Given some game, return all the positions that the current player can
 /// attack.
-pub fn attacked_positions(game: Game) -> List(Position) {
+pub fn attacked_positions(game: Game) -> Set(Position) {
   // All the positions that have a piece belonging to the current player
-  let positions =
-    game.player_positions(game)
-    // TODO: be set-native
-    |> set.to_list
+  let positions = game.player_positions(game)
 
   // For each position that could attack, potentially update the data
-  list.fold(positions, [], fn(accum, origin) {
+  set.fold(positions, set.new(), fn(accum, origin) {
     // all the targets this position is attacking
     let assert Ok(targets) = targets.from_pos(game, origin)
 
     // All the positions we can attack, disregarding the move types
-    let destinations = targets |> list.map(fn(target) { target.destination })
+    let destinations =
+      targets
+      |> targets.get_destinations
 
-    list.append(accum, destinations)
+    set.union(accum, destinations)
   })
 }
 
