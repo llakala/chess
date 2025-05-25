@@ -3,6 +3,7 @@ import gleam/dict.{type Dict}
 import gleam/int
 import gleam/list
 import gleam/result
+import gleam/set.{type Set}
 import gleam/string
 
 import utils/text
@@ -131,11 +132,13 @@ pub fn to_string(board: Board) -> String {
   format(board, square.to_string)
 }
 
-/// Highlight a list of positions on the board. If you want to display moves,
+/// Highlight a set of positions on the board. If you want to display moves,
 /// not positions, you probably want `generate.display`.
-pub fn highlight(positions: List(Position), board: Board) -> String {
+pub fn highlight(positions: Set(Position), board: Board) -> String {
   let positions_output =
     positions
+    // Yeah, it's linear, but this is for debugging, calm down.
+    |> set.to_list
     |> list.sort(position.compare)
     |> list.map(fn(pos) { pos |> position.to_string })
     |> string.inspect
@@ -145,7 +148,7 @@ pub fn highlight(positions: List(Position), board: Board) -> String {
       let assert Ok(pos) = index |> position.from_index
       let square_str = square |> square.to_string
 
-      case list.contains(positions, pos) {
+      case set.contains(positions, pos) {
         False -> square_str
         True -> square_str |> text.color(text.Yellow)
       }

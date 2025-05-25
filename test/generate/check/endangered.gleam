@@ -1,7 +1,6 @@
 import birdie
 import chess/board
 import chess/game
-import gleam/set
 import legal/check
 
 pub fn endangered_test() {
@@ -10,7 +9,6 @@ pub fn endangered_test() {
   let endangered_positions = check.endangered_positions(game)
 
   endangered_positions
-  |> set.to_list
   |> board.highlight(game.board)
   |> birdie.snap(
     "Expected to see the black pawn as an endangered position, even though it's an enemy!",

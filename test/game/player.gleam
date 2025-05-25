@@ -1,14 +1,13 @@
 import birdie
 import chess/board
 import chess/game
-import gleam/set
 import piece/color.{Black, White}
 
 pub fn initial_white_test() {
   let game = game.Game(..game.initial(), color: White)
 
   // All the positions of the white pieces
-  let positions = game |> game.player_positions |> set.to_list
+  let positions = game |> game.player_positions
 
   positions
   |> board.highlight(game.board)
@@ -19,7 +18,7 @@ pub fn initial_black_test() {
   let game = game.Game(..game.initial(), color: Black)
 
   // All the positions of the black pieces
-  let positions = game |> game.player_positions |> set.to_list
+  let positions = game |> game.player_positions
 
   positions
   |> board.highlight(game.board)
@@ -36,7 +35,7 @@ pub fn weird_test() {
 
   let game = game.Game(..game.initial(), board: my_board, color: Black)
 
-  let positions = game |> game.player_positions |> set.to_list
+  let positions = game |> game.player_positions
 
   positions
   |> board.highlight(game.board)
