@@ -1,5 +1,5 @@
 import chess/game
-import gleam/list
+import gleam/set
 import glychee/benchmark
 import glychee/configuration
 import position/direction
@@ -15,7 +15,7 @@ pub fn main() {
         fn() {
           let positions = game.player_positions(game)
 
-          list.map(positions, fn(pos) {
+          set.map(positions, fn(pos) {
             game.obstructed_distance(game, pos, direction.Up)
           })
         }

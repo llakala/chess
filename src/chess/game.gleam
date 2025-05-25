@@ -4,6 +4,7 @@ import gleam/bool
 import gleam/int
 import gleam/option.{type Option, None, Some}
 import gleam/result
+import gleam/set.{type Set}
 import gleam/string
 import iv
 import piece/color
@@ -109,7 +110,7 @@ pub fn to_string(fen: Game) -> String {
 /// Get all the positions that store a piece of the current player's color. A
 /// game has a color as one of its values, since it's representative of whose
 /// turn it is, so we use that to choose which color's pieces get returned.
-pub fn player_positions(game: Game) -> List(Position) {
+pub fn player_positions(game: Game) -> Set(Position) {
   // An array of squares.
   let data = game.board |> board.get_data
 
@@ -117,7 +118,7 @@ pub fn player_positions(game: Game) -> List(Position) {
 
   // For each square on the board, choose whether to add its position to the
   // list of friendly positions.
-  iv.index_fold(data, [], fn(positions, square, index) {
+  iv.index_fold(data, set.new(), fn(positions, square, index) {
     case square {
       // Empty square - skip and keep iterating
       square.None -> positions
@@ -131,7 +132,7 @@ pub fn player_positions(game: Game) -> List(Position) {
         // be with a board unless I have a logic error.
         let assert Ok(pos) = position.from_index(index)
 
-        [pos, ..positions]
+        set.insert(positions, pos)
       }
     }
   })

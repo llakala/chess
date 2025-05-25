@@ -3,6 +3,7 @@ import chess/constants
 import chess/game.{type Game}
 import gleam/list
 import gleam/result
+import gleam/set
 import gleam/string
 import iv.{type Array}
 import legal/targets
@@ -33,7 +34,10 @@ pub fn attacked_squares(game: Game) -> Array(Bool) {
     |> iv.map(fn(_) { False })
 
   // All the positions that have a piece belonging to the current player
-  let positions = game.player_positions(game)
+  let positions =
+    game.player_positions(game)
+    // TODO: be set-native
+    |> set.to_list
 
   // For each position that could attack, potentially update the data
   list.fold(positions, pos_is_attacked, fn(data, origin) {
@@ -57,7 +61,10 @@ pub fn attacked_squares(game: Game) -> Array(Bool) {
 /// attack.
 pub fn attacked_positions(game: Game) -> List(Position) {
   // All the positions that have a piece belonging to the current player
-  let positions = game.player_positions(game)
+  let positions =
+    game.player_positions(game)
+    // TODO: be set-native
+    |> set.to_list
 
   // For each position that could attack, potentially update the data
   list.fold(positions, [], fn(accum, origin) {

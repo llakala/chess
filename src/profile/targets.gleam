@@ -1,5 +1,5 @@
 import chess/game
-import gleam/list
+import gleam/set
 import glychee/benchmark
 import glychee/configuration
 import legal/targets
@@ -15,7 +15,7 @@ pub fn main() {
         fn() {
           let positions = game.player_positions(game)
 
-          list.map(positions, fn(pos) { targets.from_pos(game, pos) })
+          set.map(positions, fn(pos) { targets.from_pos(game, pos) })
         }
       }),
     ],
