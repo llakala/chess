@@ -1,5 +1,6 @@
 import chess/board
 import chess/game.{type Game}
+import gleam/set.{type Set}
 import piece/color.{Black, White}
 import piece/piece.{
   type Piece, type PieceKind, Bishop, Knight, Pawn, Piece, Queen, Rook,
@@ -70,6 +71,14 @@ pub fn from_pos_as_piece(
       legal_sliding_targets(game, origin, sliding_piece)
     }
   }
+}
+
+/// Given some list of targets, return the set of positions that can be reached
+/// via those targets.
+pub fn get_destinations(targets: List(Target)) -> Set(Position) {
+  targets
+  |> set.from_list
+  |> set.map(fn(target) { target.destination })
 }
 
 /// Given some position, return all the positions a queen could move to. This
