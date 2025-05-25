@@ -71,7 +71,7 @@ pub fn bad_king_test() {
   let assert Ok(change) = change.new("e2", "f3")
   let move = move.Move(change, move.Capture)
 
-  generate.is_move_legal(move, game)
+  check.is_move_legal(move, game)
   |> should.be_false
 }
 
