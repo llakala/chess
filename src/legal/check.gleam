@@ -76,12 +76,12 @@ pub fn attacked_positions(game: Game) -> Set(Position) {
 
 /// Given some game, return all the positions that the enemy could attack - even
 /// if that position currently has another enemy on it!
-pub fn endangered_positions(game: Game) -> List(Position) {
+pub fn endangered_positions(game: Game) -> Set(Position) {
   // All the positions that have a piece belonging to the other player
   let positions = game.enemy_positions(game)
 
   // For each enemy position, potentially update the data
-  set.fold(positions, [], fn(accum, origin) {
+  set.fold(positions, set.new(), fn(accum, origin) {
     let square = board.get_pos(game.board, origin)
     let assert Ok(piece) = square.to_piece(square)
 
@@ -91,9 +91,9 @@ pub fn endangered_positions(game: Game) -> List(Position) {
     let piece = piece |> piece.flip
 
     let targets = targets.from_pos_as_piece(game, origin, piece)
-    let destinations = targets |> list.map(fn(target) { target.destination })
+    let destinations = targets |> targets.get_destinations
 
-    list.append(accum, destinations)
+    set.union(accum, destinations)
   })
 }
 
