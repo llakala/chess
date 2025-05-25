@@ -67,8 +67,8 @@ fn filter_pseudolegal_moves(
       // FOR the king, or the moves that kill the enemy attacking the king
       let potentially_legal_moves =
         list.filter(pseudolegal_moves, fn(move: Move) {
-          list.contains(line_of_fire_positions, move.change.to)
-          || list.contains(attacking_enemy_positions, move.change.to)
+          set.contains(line_of_fire_positions, move.change.to)
+          || set.contains(attacking_enemy_positions, move.change.to)
         })
 
       // Apply each of these moves to see if they put us into check. Expensive
@@ -96,7 +96,7 @@ fn filter_pseudolegal_moves(
           // A friendly piece to the king, that's currently defending an
           // attacked position, moving to some other position.
           let interfering_friend =
-            list.contains(checkable_origins, move.change.from)
+            set.contains(checkable_origins, move.change.from)
             && set.contains(attacked_positions, move.change.from)
 
           move.change.from == king_pos || interfering_friend
