@@ -1,5 +1,6 @@
 import chess/board
 import chess/game.{type Game}
+import gleam/order.{type Order}
 import gleam/set.{type Set}
 import piece/color.{Black, White}
 import piece/piece.{
@@ -79,6 +80,16 @@ pub fn get_destinations(targets: List(Target)) -> Set(Position) {
   targets
   |> set.from_list
   |> set.map(fn(target) { target.destination })
+}
+
+/// Compares based on the target destination!
+pub fn compare(first: Target, second: Target) -> Order {
+  position.compare(first.destination, second.destination)
+}
+
+/// String representation for a given target!
+pub fn to_string(target: Target) {
+  move.kind_to_string(target.kind) <> position.to_string(target.destination)
 }
 
 /// Given some position, return all the positions a queen could move to. This
