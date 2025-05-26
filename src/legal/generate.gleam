@@ -20,17 +20,7 @@ import gleam/string
 /// Generates all the legal moves for the current player based on a game state.
 pub fn legal_moves(game: Game) -> List(Move) {
   let tarmaps = legal_tarmaps(game)
-  let pseudolegal_moves =
-    list.flat_map(tarmaps, fn(tarmap) {
-      let origin = tarmap.origin
-
-      list.fold(tarmap.targets, [], fn(accum, target) {
-        let change = change.Change(origin, target.destination)
-        let move = move.Move(change, target.kind)
-
-        [move, ..accum]
-      })
-    })
+  let pseudolegal_moves = list.flat_map(tarmaps, tarmap.to_move)
 
   check.filter_pseudolegal_moves(pseudolegal_moves, game)
 }
