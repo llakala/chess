@@ -22,8 +22,11 @@ pub fn compare(first: Move, second: Move) -> Order {
 }
 
 pub fn to_string(move: Move) -> String {
-  let change_str = move.change |> change.to_string
-  let kind_str = case move.kind {
+  kind_to_string(move.kind) <> change.to_string(move.change)
+}
+
+pub fn kind_to_string(kind: MoveKind) {
+  case kind {
     Basic -> ""
     Capture -> "Capture "
     Passant -> "En Passant "
@@ -38,6 +41,4 @@ pub fn to_string(move: Move) -> String {
       piece_name <> " Promotion & Capture "
     }
   }
-
-  kind_str <> change_str
 }
