@@ -83,3 +83,57 @@ pub fn display(tarmaps: List(Tarmap), game: game.Game) {
 
   tarmaps_output <> "\nBoard:\n" <> board_output
 }
+
+/// Partition some list of tarmaps, based on a function taking an origin and a
+/// target. This is more intelligent than `list.partition(tarmaps)` - it
+/// lets you partition based on origins AND targets, so you can have all
+/// the targets from some tarmap partioned into one side, or mix and match, with
+/// some going to A, and some going to B.
+pub fn partition(
+  tarmaps: List(Tarmap),
+  func: fn(Position, Target) -> Bool,
+) -> #(List(Tarmap), List(Tarmap)) {
+  tarmaps
+  // This will transform us into a List(#(Tarmap, Tarmap)). But, we want a tuple
+  // of lists!
+  |> list.map(split_singular(_, func))
+  // We fold around two lists - the first list, and the second list. This lets
+  // us move each element into the correct partition as we go!
+  |> list.fold(#([], []), fn(accums, elems) {
+    let #(first_tarmap, second_tarmap) = elems
+
+    let #(first_accum, second_accum) = accums
+
+    // We don't want to bring a tarmap to the given accum if it has no
+    // destinations after splitting, or we'll have a ton of junk origins
+    // pointing to no destinations.
+    let first_accum = case list.is_empty(first_tarmap.targets) {
+      True -> first_accum
+      False -> [first_tarmap, ..first_accum]
+    }
+
+    // See above!
+    let second_accum = case list.is_empty(second_tarmap.targets) {
+      True -> second_accum
+      False -> [second_tarmap, ..second_accum]
+    }
+
+    #(first_accum, second_accum)
+  })
+}
+
+/// Given some tarmap, split it into two separate tarmaps, based on some
+/// function that acts on the given destination, and returns a Bool to decide
+/// which tarmap the destination goes to.
+fn split_singular(
+  tarmap: Tarmap,
+  func: fn(Position, Target) -> Bool,
+) -> #(Tarmap, Tarmap) {
+  let #(first_targets, second_targets) =
+    list.partition(tarmap.targets, func(tarmap.origin, _))
+
+  let first = Tarmap(tarmap.origin, first_targets)
+  let second = Tarmap(tarmap.origin, second_targets)
+
+  #(first, second)
+}
