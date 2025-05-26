@@ -1,4 +1,5 @@
 import gleam/list
+import gleam/string
 import legal/targets.{type Target}
 import position/change
 import position/move.{type Move}
@@ -18,4 +19,18 @@ pub fn to_move(tarmap: Tarmap) -> List(Move) {
 
     [move, ..accum]
   })
+}
+
+pub fn to_string(tarmap: Tarmap) -> String {
+  let origin_str = tarmap.origin |> position.to_string
+
+  let targets_str =
+    tarmap.targets |> list.map(targets.to_string) |> string.join(", ")
+
+  origin_str <> " -> (" <> targets_str <> ")"
+}
+
+/// Compare two Tarmaps by their origin.
+pub fn compare(first: Tarmap, second: Tarmap) {
+  position.compare(first.origin, second.origin)
 }
