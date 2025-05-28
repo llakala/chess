@@ -2,6 +2,7 @@ import chess/board
 import chess/game.{type Game}
 import gleam/set
 import legal/check
+import legal/tarmap.{type Tarmap, Tarmap}
 
 import legal/targets
 import position/change
@@ -18,21 +19,47 @@ import gleam/string
 
 /// Generates all the legal moves for the current player based on a game state.
 pub fn legal_moves(game: Game) -> List(Move) {
-  // All the positions containing one of our pieces
+  let tarmaps = legal_tarmaps(game)
+  let pseudolegal_moves =
+    list.flat_map(tarmaps, fn(tarmap) {
+      let origin = tarmap.origin
+
+      list.fold(tarmap.targets, [], fn(accum, target) {
+        let change = change.Change(origin, target.destination)
+        let move = move.Move(change, target.kind)
+
+        [move, ..accum]
+      })
+    })
+
+  check.filter_pseudolegal_moves(pseudolegal_moves, game)
+}
+
+/// Given some game state, return all the (pseudo)legal tarmaps for that game. A
+/// tarmap maps one position to multiple targets, which is a more efficient
+/// packing than having individual Moves from one pos to another pos!
+pub fn legal_tarmaps(game: Game) -> List(Tarmap) {
+  // I'd like to stick with sets here, but I don't think it's really
+  // necessary, and I can't find a good way to emulate `list.try_map` without
+  // converting to a list.
   let origins =
     game.player_positions(game)
     |> set.to_list
 
-  // Get all the moves for each position. If we got an error, panic! We use the
-  // internal `pseudolegal_moves_from` function, since we want to filter all
-  // illegal moves in one step, not multiple.
-  case list.try_map(origins, pseudolegal_moves_from(game, _)) {
+  let tarmaps =
+    // `from_pos` will fail if it starts from None. We use `list.try_map` so we
+    // get an error if any of them fail, and only get an `Ok` if every single
+    // call turned out okay.
+    list.try_map(origins, fn(origin) {
+      use destinations <- result.try(targets.from_pos(game, origin))
+
+      Tarmap(origin, destinations) |> Ok
+    })
+
+  case tarmaps {
     Error(_) ->
       panic as "One of the From positions contained None! Bad logic in getting the list of positions a player is at!"
-
-    // Filter the moves for the ones that don't put us in check after the move
-    Ok(nested_moves) ->
-      nested_moves |> list.flatten |> check.filter_pseudolegal_moves(game)
+    Ok(tarmaps) -> tarmaps
   }
 }
 
@@ -43,26 +70,17 @@ pub fn legal_moves(game: Game) -> List(Move) {
 /// positions. If you want better packed data, use `target.from_pos` - this
 /// just wraps its functionality anyways.
 pub fn moves_from(game: Game, origin: Position) -> Result(List(Move), String) {
-  pseudolegal_moves_from(game, origin)
-  |> result.map(check.filter_pseudolegal_moves(_, game))
-}
-
-/// This is the internal function that doesn't filter pseudolegal moves further.
-/// This lets us filter all illegal moves in one step within `legal_moves`,
-/// rather than having it done in multiple steps.
-fn pseudolegal_moves_from(
-  game: Game,
-  origin: Position,
-) -> Result(List(Move), String) {
   targets.from_pos(game, origin)
   // Map the result if we got an Ok value
   |> result.map(fn(targets) {
     // Map each target to a move from the origin to the destination, persisting
     // the MoveKind.
-    list.map(targets, fn(target) {
+    targets
+    |> list.map(fn(target) {
       let change = change.Change(origin, target.destination)
       move.Move(change, target.kind)
     })
+    |> check.filter_pseudolegal_moves(game)
   })
 }
 
