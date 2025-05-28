@@ -84,6 +84,35 @@ pub fn display(tarmaps: List(Tarmap), game: game.Game) {
   tarmaps_output <> "\nBoard:\n" <> board_output
 }
 
+/// Given some list of tarmaps, filter for the targets that satisfy some
+/// condition. Works better than `list.filter`, since it lets you filter based
+/// on individual origins and targets, and will remove tarmaps that end up
+/// having no targets after filtering.
+pub fn filter(
+  tarmaps: List(Tarmap),
+  func: fn(Position, Target) -> Bool,
+) -> List(Tarmap) {
+  tarmaps
+  // For each tarmap, turn it into a tarmap only containing the Targets that
+  // returned True. We fold instead of map, so it's easier to not include a
+  // tarmap if it suddenly has no destinations.
+  |> list.fold([], fn(accum, tarmap) {
+    let Tarmap(origin:, targets:) = tarmap
+    let targets = list.filter(targets, fn(target) { func(origin, target) })
+
+    case list.is_empty(targets) {
+      // If filtering for True made one of the tarmaps point to no destinations,
+      // don't include it
+      True -> accum
+
+      False -> {
+        let tarmap = Tarmap(tarmap.origin, targets)
+        [tarmap, ..accum]
+      }
+    }
+  })
+}
+
 /// Partition some list of tarmaps, based on a function taking an origin and a
 /// target. This is more intelligent than `list.partition(tarmaps)` - it
 /// lets you partition based on origins AND targets, so you can have all
