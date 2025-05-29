@@ -1,8 +1,9 @@
 import chess/board
 import chess/game.{type Game}
+import gleam/dict
 import gleam/set
 import legal/check
-import legal/tarmap.{type Tarmap, Tarmap}
+import legal/tarmap.{type TarmapCollection}
 
 import legal/targets
 import position/change
@@ -20,7 +21,7 @@ import gleam/string
 /// Generates all the legal moves for the current player based on a game state.
 pub fn legal_moves(game: Game) -> List(Move) {
   let tarmaps = legal_tarmaps(game)
-  let pseudolegal_moves = list.flat_map(tarmaps, tarmap.to_move)
+  let pseudolegal_moves = tarmap.collection_to_moves(tarmaps)
 
   check.filter_pseudolegal_moves(pseudolegal_moves, game)
 }
@@ -28,29 +29,14 @@ pub fn legal_moves(game: Game) -> List(Move) {
 /// Given some game state, return all the (pseudo)legal tarmaps for that game. A
 /// tarmap maps one position to multiple targets, which is a more efficient
 /// packing than having individual Moves from one pos to another pos!
-pub fn legal_tarmaps(game: Game) -> List(Tarmap) {
-  // I'd like to stick with sets here, but I don't think it's really
-  // necessary, and I can't find a good way to emulate `list.try_map` without
-  // converting to a list.
-  let origins =
-    game.player_positions(game)
-    |> set.to_list
+pub fn legal_tarmaps(game: Game) -> TarmapCollection {
+  let origins = game.player_positions(game)
 
-  let tarmaps =
-    // `from_pos` will fail if it starts from None. We use `list.try_map` so we
-    // get an error if any of them fail, and only get an `Ok` if every single
-    // call turned out okay.
-    list.try_map(origins, fn(origin) {
-      use destinations <- result.try(targets.from_pos(game, origin))
+  set.fold(origins, dict.new(), fn(accum, origin) {
+    let assert Ok(targets) = targets.from_pos(game, origin)
 
-      Tarmap(origin, destinations) |> Ok
-    })
-
-  case tarmaps {
-    Error(_) ->
-      panic as "One of the From positions contained None! Bad logic in getting the list of positions a player is at!"
-    Ok(tarmaps) -> tarmaps
-  }
+    dict.insert(accum, origin, targets)
+  })
 }
 
 /// Given a game and a position, get all the legal moves that the piece at that
