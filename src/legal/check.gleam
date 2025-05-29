@@ -14,6 +14,7 @@ import legal/tarmap
 import piece/color
 import piece/piece.{King, Piece}
 import piece/square
+import position/change
 import position/move.{type Move}
 import position/position.{type Position}
 import utils/text
@@ -97,7 +98,7 @@ fn filter_in_check(
 
   // This is easy to compute without application, since it's only legal if it
   // takes us to a square that's not being attacked!
-  let legal_king_moves =
+  let legal_king_tarmaps =
     pseudolegal_tarmaps
     |> tarmap.filter(fn(origin, target) {
       let Target(destination, _) = target
@@ -113,7 +114,7 @@ fn filter_in_check(
   // Most moves by a friend will be illegal. We want to filter for the ones that
   // MIGHT be legal, either by getting in the way of a checking enemy, or
   // killing the checking enemy.
-  let unapplied_friend_moves =
+  let unapplied_friend_tarmaps =
     pseudolegal_tarmaps
     |> tarmap.filter(fn(origin, target) {
       let Target(destination, _) = target
@@ -130,13 +131,21 @@ fn filter_in_check(
       }
     })
 
-  // potentially_illegal_tarmaps |> display(game) |> io.println_error
-
-  // Apply every target of to see which ones take us out of check. Expensive -
+  // Apply every target to see which ones take us out of check. Expensive -
   // so we try to run this on as few tarmaps as possible.
-  let legal_friend_moves = tarmap.filter(unapplied_friend_moves, todo)
+  let legal_friend_tarmaps =
+    tarmap.filter(unapplied_friend_tarmaps, fn(origin, target) {
+      let Target(destination, kind) = target
 
-  tarmap.merge(legal_king_moves, legal_friend_moves)
+      let change = change.Change(origin, destination)
+      let move = move.Move(change, kind)
+
+      let assert Ok(game) = apply.move(game, move)
+
+      is_move_legal(move, game)
+    })
+
+  tarmap.merge(legal_king_tarmaps, legal_friend_tarmaps)
 }
 
 fn filter_not_in_check(
@@ -161,10 +170,10 @@ fn filter_not_in_check(
     tarmap.filter(pseudolegal_tarmaps, fn(origin, target) {
       let Target(destination, _) = target
 
-      let bad_king =
-        origin == king_pos && set.contains(attacked_positions, destination)
+      let good_king =
+        origin == king_pos && !set.contains(attacked_positions, destination)
 
-      !bad_king
+      origin != king_pos || good_king
     })
 
   let #(potentially_illegal, legal) =
@@ -202,11 +211,19 @@ fn filter_not_in_check(
       }
     })
 
-  // potentially_illegal |> display(game) |> io.println_error
-
   // Apply every target of each of these tarmaps to see which ones don't put us
   // in check. Expensive - so we try to run this on as few tarmaps as possible
-  let filtered = tarmap.filter(potentially_illegal, todo)
+  let filtered =
+    tarmap.filter(potentially_illegal, fn(origin, target) {
+      let Target(destination, kind) = target
+
+      let change = change.Change(origin, destination)
+      let move = move.Move(change, kind)
+
+      let assert Ok(game) = apply.move(game, move)
+
+      is_move_legal(move, game)
+    })
 
   tarmap.merge(legal, filtered)
 }
