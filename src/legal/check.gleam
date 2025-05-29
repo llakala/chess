@@ -1,15 +1,21 @@
 import chess/board
 import chess/constants
 import chess/game.{type Game}
+import gleam/bool
 import gleam/list
 import gleam/result
-import gleam/set.{type Set}
+import gleam/set
 import gleam/string
 import iv.{type Array}
-import legal/targets
+import legal/apply
+import legal/query
+import legal/targets.{Target}
+import legal/tarmap
 import piece/color
 import piece/piece.{King, Piece}
 import piece/square
+import position/change
+import position/move.{type Move}
 import position/position.{type Position}
 import utils/text
 
@@ -54,62 +60,189 @@ pub fn attacked_squares(game: Game) -> Array(Bool) {
   })
 }
 
-/// Given some game, return all the positions that the current player can
-/// attack.
-pub fn attacked_positions(game: Game) -> Set(Position) {
-  // All the positions that have a piece belonging to the current player
-  let positions = game.player_positions(game)
+pub fn filter_tarmaps(
+  pseudolegal_tarmaps: tarmap.TarmapCollection,
+  game: Game,
+) -> tarmap.TarmapCollection {
+  case is_in_check(game) {
+    // There's no king of our color on the board - no need to filter at all
+    // for tarmaps putting us in check!
+    Error(_) -> pseudolegal_tarmaps
 
-  // For each position that could attack, potentially update the data
-  set.fold(positions, set.new(), fn(accum, origin) {
-    // all the targets this position is attacking
-    let assert Ok(targets) = targets.from_pos(game, origin)
+    // Currently in check - filter out the tarmaps that would keep us in check
+    Ok(#(True, king_pos)) ->
+      filter_in_check(pseudolegal_tarmaps, game, king_pos)
 
-    // All the positions we can attack, disregarding the move types
-    let destinations =
-      targets
-      |> targets.get_destinations
-
-    set.union(accum, destinations)
-  })
+    // Not currently in check - we need to filter out the moves that would put us
+    // into check
+    Ok(#(False, king_pos)) ->
+      filter_not_in_check(pseudolegal_tarmaps, game, king_pos)
+  }
 }
 
-/// Given some game, return all the positions that the enemy could attack - even
-/// if that position currently has another enemy on it!
-pub fn endangered_positions(game: Game) -> Set(Position) {
-  // All the positions that have a piece belonging to the enemy
-  let positions = game.enemy_positions(game)
+fn filter_in_check(
+  pseudolegal_tarmaps: tarmap.TarmapCollection,
+  game: Game,
+  king_pos: Position,
+) -> tarmap.TarmapCollection {
+  // This will basically be any square that has a direct line of sight to
+  // the king. We need to find these to see if the king can move directly
+  // out of check, or if some other piece can step into the line of fire for
+  // it.
+  let line_of_fire_positions = targets.empty_to_pos(game, king_pos)
 
-  // For each enemy position, potentially update the data
-  set.fold(positions, set.new(), fn(accum, origin) {
-    let square = board.get_pos(game.board, origin)
-    let assert Ok(enemy_piece) = square.to_piece(square)
+  // Positions of enemies directly attacking the king. It might be possible
+  // that a friendly piece could take the assassin and stop the threat on
+  // the king.
+  let enemy_positions = targets.enemies_to_pos(game, king_pos)
 
-    // We're going through enemies, but sometimes, an enemy square is in danger,
-    // as it's being attacked by another enemy - so we couln't move there. To
-    // gather these positions, we need to see what targets a FRIENDLY piece at
-    // the enemy square would see - so we simulate twice, once as an enemy, and
-    // once as a friend
-    let friendly_piece = enemy_piece |> piece.flip
+  // This is easy to compute without application, since it's only legal if it
+  // takes us to a square that's not being attacked!
+  let legal_king_tarmaps =
+    pseudolegal_tarmaps
+    |> tarmap.filter(fn(origin, target) {
+      let Target(destination, _) = target
 
-    // enemy targets correspond to the targets that an enemy sees - which will
-    // be empty squares and friendly squares. Likewise, friendly targets
-    // correspond to the targets that a friend sees - which will be empty
-    // squares and enemy targets.
-    let enemy_targets = targets.from_pos_as_piece(game, origin, enemy_piece)
-    let friendly_targets =
-      targets.from_pos_as_piece(game, origin, friendly_piece)
+      // Positions being attacked by the enemy
+      let attacked_positions = query.endangered_positions(game)
 
-    let friendly_destinations = friendly_targets |> targets.get_destinations
-    let enemy_destinations = enemy_targets |> targets.get_destinations
+      let dangerous_destination = set.contains(attacked_positions, destination)
 
-    // We'll have duplicates between the two, because both will see empty
-    // squares - thankfully, sets only have unique elements, so it's not a
-    // problem!
-    let destinations = set.union(friendly_destinations, enemy_destinations)
+      origin == king_pos && !dangerous_destination
+    })
 
-    set.union(accum, destinations)
-  })
+  // Most moves by a friend will be illegal. We want to filter for the ones that
+  // MIGHT be legal, either by getting in the way of a checking enemy, or
+  // killing the checking enemy.
+  let unapplied_friend_tarmaps =
+    pseudolegal_tarmaps
+    |> tarmap.filter(fn(origin, target) {
+      let Target(destination, _) = target
+
+      // Filter the target destinations for each tarmap
+      case king_pos == origin {
+        True -> False
+        False -> {
+          // A move that gets in the way of a checking enemy.
+          set.contains(line_of_fire_positions, destination)
+          // A move that kills a checking enemy
+          || set.contains(enemy_positions, destination)
+        }
+      }
+    })
+
+  // Apply every target to see which ones take us out of check. Expensive -
+  // so we try to run this on as few tarmaps as possible.
+  let legal_friend_tarmaps =
+    tarmap.filter(unapplied_friend_tarmaps, fn(origin, target) {
+      let Target(destination, kind) = target
+
+      let change = change.Change(origin, destination)
+      let move = move.Move(change, kind)
+
+      let assert Ok(game) = apply.move(game, move)
+
+      is_move_legal(move, game)
+    })
+
+  tarmap.merge(legal_king_tarmaps, legal_friend_tarmaps)
+}
+
+fn filter_not_in_check(
+  pseudolegal_tarmaps: tarmap.TarmapCollection,
+  game: Game,
+  king_pos: Position,
+) -> tarmap.TarmapCollection {
+  // The positions containing a friendly piece, that the king has a direct line
+  // of sight to. This is important to find, since these might be defending the
+  // king from check.
+  // from check.
+  let checkable_origins = targets.friends_to_pos(game, king_pos)
+
+  // All the positions that could be attacked by the enemy - even if it
+  // currently contains a friend. Ideally, this would only contain positions in
+  // the same row, column, or diagonal as the king - something to look into.
+  let attacked_positions = query.endangered_positions(game)
+
+  // Filter out any king moves that move us into danger, since those are
+  // obviously illegal. Any other king move is necessarily legal!
+  let legal =
+    tarmap.filter(pseudolegal_tarmaps, fn(origin, target) {
+      let Target(destination, _) = target
+
+      let good_king =
+        origin == king_pos && !set.contains(attacked_positions, destination)
+
+      origin != king_pos || good_king
+    })
+
+  let #(potentially_illegal, legal) =
+    // Any value that returns True needs to be checked further. Anything
+    // returning False is definitely legal
+    tarmap.partition(legal, fn(origin, _) {
+      // A friendly piece to the king, that's currently being attacked, moving
+      // to some other position.
+      let defender =
+        set.contains(attacked_positions, origin)
+        && set.contains(checkable_origins, origin)
+
+      // If a move isn't by a piece with line of sight to the king, we know it's
+      // legal - exit early.
+      use <- bool.guard(!defender, False)
+
+      // See what the board would look like if this defending piece wasn't
+      // there. We do this here rather than in the application step, since
+      // application is per-target, and we might be able to declare the whole
+      // tarmap as legal in one step.
+      let modified_board = board.set_pos(game.board, origin, square.None)
+      let modified_game = game.Game(..game, board: modified_board)
+
+      case is_in_check(modified_game) {
+        Error(_) -> panic as "Move was from an empty pos somehow!"
+
+        // We're not in check after removing the tarmap - therefore all the
+        // targets are necessarily legal, and don't need further checking.
+        Ok(#(False, _)) -> False
+
+        // We're in check after removing the defender - some of the targets
+        // might take us out of check, but not all. Need to apply each of
+        // them to make sure.
+        Ok(#(True, _)) -> True
+      }
+    })
+
+  // Apply every target of each of these tarmaps to see which ones don't put us
+  // in check. Expensive - so we try to run this on as few tarmaps as possible
+  let filtered =
+    tarmap.filter(potentially_illegal, fn(origin, target) {
+      let Target(destination, kind) = target
+
+      let change = change.Change(origin, destination)
+      let move = move.Move(change, kind)
+
+      let assert Ok(game) = apply.move(game, move)
+
+      is_move_legal(move, game)
+    })
+
+  tarmap.merge(legal, filtered)
+}
+
+pub fn is_move_legal(move: Move, game: Game) -> Bool {
+  case apply.move(game, move) {
+    Error(_) -> False
+    Ok(new_game) ->
+      // If this gives us an error, there was no king of our color on the
+      // board. Crazy, I know - it happens in some tests, though.
+      case is_in_check(new_game) {
+        // Ignore the error and return True - meaning the move is safe.
+        Error(_) -> True
+        // Flip the result we get - we're using `list.filter`, which only
+        // keeps the values that were True. So, if we were in check after that
+        // move, return False, and filter out the move.
+        Ok(#(is_in_check, _)) -> !is_in_check
+      }
+  }
 }
 
 /// Check whether the player is currently in check, by seeing if the enemy could
