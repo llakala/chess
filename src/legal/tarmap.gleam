@@ -194,3 +194,12 @@ pub fn partition(
     #(first_accum, second_accum)
   })
 }
+
+pub fn merge(
+  first: TarmapCollection,
+  second: TarmapCollection,
+) -> TarmapCollection {
+  dict.combine(first, second, fn(first_targets, second_targets) {
+    list.append(first_targets, second_targets) |> list.unique
+  })
+}
