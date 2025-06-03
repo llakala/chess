@@ -118,44 +118,7 @@ fn minimax_loop(
             //  `fold_until` to simulate a `break` statement for alpha-beta
             //  pruning
             list.fold_until(moves, starting_status, fn(eval_status, move) {
-              let EvalStatus(score: best_score, alpha:, beta:) = eval_status
-
-              // The new game, after applying the current move
-              let assert Ok(game) = apply.move(game, move)
-
-              let score =
-                game
-                // See the game from the enemy's perspective
-                |> game.flip
-                // Get the enemy's best response to the move we just made
-                |> minimax_loop(current_depth - 1, alpha, beta)
-
-              // White maximizes their score, Black minimizes it, since eval is
-              // positive if white is doing well, and vice versa for black.
-              let #(alpha, beta) = case game.color {
-                White -> {
-                  let alpha = int.max(alpha, score)
-                  #(alpha, beta)
-                }
-
-                Black -> {
-                  let beta = int.min(beta, score)
-                  #(alpha, beta)
-                }
-              }
-
-              let score = case game.color {
-                White -> int.max(best_score, score)
-                Black -> int.min(best_score, score)
-              }
-
-              let eval_status = EvalStatus(alpha, beta, score)
-
-              // If this is true, we get to exit early!
-              case beta <= alpha {
-                True -> list.Stop(eval_status)
-                False -> list.Continue(eval_status)
-              }
+              move_logic(move, eval_status, game, current_depth)
             })
 
           // While looping, we need access to the alpha and beta - but once
@@ -164,6 +127,47 @@ fn minimax_loop(
         }
       }
     }
+  }
+}
+
+fn move_logic(move, eval_status, game, current_depth) {
+  let EvalStatus(score: best_score, alpha:, beta:) = eval_status
+
+  // The new game, after applying the current move
+  let assert Ok(game) = apply.move(game, move)
+
+  let score =
+    game
+    // See the game from the enemy's perspective
+    |> game.flip
+    // Get the enemy's best response to the move we just made
+    |> minimax_loop(current_depth - 1, alpha, beta)
+
+  // White maximizes their score, Black minimizes it, since eval is
+  // positive if white is doing well, and vice versa for black.
+  let #(alpha, beta) = case game.color {
+    White -> {
+      let alpha = int.max(alpha, score)
+      #(alpha, beta)
+    }
+
+    Black -> {
+      let beta = int.min(beta, score)
+      #(alpha, beta)
+    }
+  }
+
+  let score = case game.color {
+    White -> int.max(best_score, score)
+    Black -> int.min(best_score, score)
+  }
+
+  let eval_status = EvalStatus(alpha, beta, score)
+
+  // If this is true, we get to exit early!
+  case beta <= alpha {
+    True -> list.Stop(eval_status)
+    False -> list.Continue(eval_status)
   }
 }
 
