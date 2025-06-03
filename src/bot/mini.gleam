@@ -10,14 +10,13 @@ import utils/utilist
 
 /// Run minimax on some game, to some specified depth. With alpha beta pruining!
 pub fn max(game game: Game, depth depth: Int) -> Move {
-  let moves = generate.legal_moves(game)
-
   let evaled_moves =
+    generate.legal_moves(game)
     // Map each move to an EvaluatedMove, so we can select the move with the
     // best score. We have this separate from the underlying algorithm, since
     // that algorithm just selects scores, and totally ignores moves - so we
     // need this top-level to actually pick a move
-    list.map(moves, fn(move) {
+    |> list.map(fn(move) {
       // Apply each legal move from the current game to the board
       let assert Ok(game) = apply.move(game, move)
 
