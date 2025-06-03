@@ -61,9 +61,15 @@ fn apply_generic(game: Game, change: Change) -> Result(Game, String) {
     Black -> game.fullmoves + 1
   }
 
-  // Update the game with the new board, and increment the
+  // Update the game with the new board, flip the color, and increment the
   // halfmoves and fullmoves
-  Game(..game, board: new_board, halfmoves: game.halfmoves + 1, fullmoves:)
+  Game(
+    ..game,
+    color: game.color |> color.invert,
+    board: new_board,
+    halfmoves: game.halfmoves + 1,
+    fullmoves:,
+  )
   |> Ok
 }
 

@@ -9,7 +9,7 @@ import iv.{type Array}
 import legal/apply
 import legal/query
 import legal/targets
-import piece/color
+import piece/color.{type Color}
 import piece/piece.{King, Piece}
 import piece/square
 import position/move.{type Move}
@@ -61,7 +61,7 @@ pub fn filter_pseudolegal_moves(
   pseudolegal_moves: List(Move),
   game: Game,
 ) -> List(Move) {
-  case is_in_check(game) {
+  case is_in_check(game, game.color) {
     // There's no king of our color on the board - no need to filter at all
     // for moves putting us in check!
     Error(_) -> pseudolegal_moves
@@ -152,12 +152,14 @@ fn filter_not_in_check(
 }
 
 pub fn is_move_legal(move: Move, game: Game) -> Bool {
+  let color = game.color
   case apply.move(game, move) {
     Error(_) -> False
     Ok(new_game) ->
       // If this gives us an error, there was no king of our color on the
-      // board. Crazy, I know - it happens in some tests, though.
-      case is_in_check(new_game) {
+      // board. Crazy, I know - it happens in some tests, though. We use the old
+      // color because `apply.move` flips it for you!
+      case is_in_check(new_game, color) {
         // Ignore the error and return True - meaning the move is safe.
         Error(_) -> True
         // Flip the result we get - we're using `list.filter`, which only
@@ -168,13 +170,15 @@ pub fn is_move_legal(move: Move, game: Game) -> Bool {
   }
 }
 
-/// Check whether the player is currently in check, by seeing if the enemy could
-/// attack the king's current square. Also returns the position of your king, if
-/// it's actually on the board, so you can use it for other stuff without
-/// searching again. Will return an error if there wasn't a king of your color
-/// on the board - which happens in some tests.
-pub fn is_in_check(game: Game) -> Result(#(Bool, Position), String) {
-  let color = game.color
+/// Check whether a given player is currently in check, by seeing if the enemy
+/// could attack the king's current square. Also returns the position of the
+/// king, if it's actually on the board, so you can use it for other stuff
+/// without searching again. Will return an error if there wasn't a king of the
+/// given color on the board - which happens in some tests.
+pub fn is_in_check(
+  game: Game,
+  color: Color,
+) -> Result(#(Bool, Position), String) {
   let king = Piece(King, color)
 
   let enemy_game = game.Game(..game, color: color |> color.invert)

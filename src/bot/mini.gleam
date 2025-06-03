@@ -22,8 +22,6 @@ pub fn max(game game: Game, depth depth: Int) -> Move {
 
       let score =
         game
-        // See the game from the enemy's perspective
-        |> game.flip
         // Get the score if the enemy makes the best move for them, and we make
         // the best move in response, so on recursively.
         |> minimax_loop(
@@ -130,7 +128,12 @@ fn minimax_loop(
   }
 }
 
-fn move_logic(move, eval_status, game, current_depth) {
+fn move_logic(
+  move: Move,
+  eval_status: EvalStatus,
+  game: Game,
+  current_depth: Int,
+) -> list.ContinueOrStop(EvalStatus) {
   let EvalStatus(score: best_score, alpha:, beta:) = eval_status
 
   // The new game, after applying the current move
@@ -138,8 +141,6 @@ fn move_logic(move, eval_status, game, current_depth) {
 
   let score =
     game
-    // See the game from the enemy's perspective
-    |> game.flip
     // Get the enemy's best response to the move we just made
     |> minimax_loop(current_depth - 1, alpha, beta)
 
