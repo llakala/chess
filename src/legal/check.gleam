@@ -1,6 +1,7 @@
 import chess/board
 import chess/constants
 import chess/game.{type Game}
+import gleam/bool
 import gleam/list
 import gleam/result
 import gleam/set
@@ -95,21 +96,45 @@ fn filter_in_check(
   // the king.
   let enemy_positions = targets.enemies_to_pos(game, king_pos)
 
-  // Most moves will be illegal, since we're in check. The only legal moves
-  // are the ones made by the king, the ones that step into the line of fire
-  // FOR the king, or the moves that kill the enemy attacking the king
-  let potentially_legal_tarmaps =
+  // This is easy to compute without application, since it's only legal if it
+  // takes us to a square that's not being attacked!
+  let legal_king_tarmaps =
     pseudolegal_tarmaps
-    |> tarmap.filter(fn(_, target) {
+    |> tarmap.filter(fn(origin, target) {
       let Target(destination, _) = target
-      set.contains(line_of_fire_positions, destination)
-      || set.contains(enemy_positions, destination)
+
+      // Positions being attacked by the enemy
+      let attacked_positions = query.endangered_positions(game)
+
+      let dangerous_destination = set.contains(attacked_positions, destination)
+
+      origin == king_pos && !dangerous_destination
+    })
+
+  // Most moves by a friend will be illegal. We want to filter for the ones that
+  // MIGHT be legal, either by getting in the way of a checking enemy, or
+  // killing the checking enemy.
+  let unapplied_friend_tarmaps =
+    pseudolegal_tarmaps
+    |> tarmap.filter(fn(origin, target) {
+      let Target(destination, _) = target
+
+      // Filter the target destinations for each tarmap
+      case king_pos == origin {
+        True -> False
+        False -> {
+          // A move that gets in the way of a checking enemy.
+          set.contains(line_of_fire_positions, destination)
+          // A move that kills a checking enemy
+          || set.contains(enemy_positions, destination)
+        }
+      }
     })
 
   // Apply every target to see which ones take us out of check. Expensive -
   // so we try to run this on as few tarmaps as possible.
-  let legal_tarmaps =
-    tarmap.filter(potentially_legal_tarmaps, fn(origin, target) {
+  let legal_friend_tarmaps =
+    tarmap.filter(unapplied_friend_tarmaps, fn(origin, target) {
       let Target(destination, kind) = target
 
       let change = change.Change(origin, destination)
@@ -118,7 +143,7 @@ fn filter_in_check(
       is_move_legal(move, game)
     })
 
-  legal_tarmaps
+  tarmap.merge(legal_king_tarmaps, legal_friend_tarmaps)
 }
 
 fn filter_not_in_check(
@@ -137,20 +162,51 @@ fn filter_not_in_check(
   // the same row, column, or diagonal as the king - something to look into.
   let attacked_positions = query.endangered_positions(game)
 
+  // Filter out any king moves that move us into danger, since those are
+  // obviously illegal. Any other king move is necessarily legal!
+  let legal =
+    tarmap.filter(pseudolegal_tarmaps, fn(origin, target) {
+      let Target(destination, _) = target
+
+      let good_king =
+        origin == king_pos && !set.contains(attacked_positions, destination)
+
+      origin != king_pos || good_king
+    })
+
   let #(potentially_illegal, legal) =
     // Any value that returns True needs to be checked further. Anything
     // returning False is definitely legal
-    tarmap.partition(pseudolegal_tarmaps, fn(origin, target) {
-      let Target(destination, _) = target
+    tarmap.partition(legal, fn(origin, _) {
+      // A friendly piece to the king, that's currently being attacked, moving
+      // to some other position.
+      let defender =
+        set.contains(attacked_positions, origin)
+        && set.contains(checkable_origins, origin)
 
-      let interfering_friend =
-        set.contains(checkable_origins, origin)
-        && set.contains(attacked_positions, origin)
+      // If a move isn't by a piece with line of sight to the king, we know it's
+      // legal - exit early.
+      use <- bool.guard(!defender, False)
 
-      let dangerous_king =
-        origin == king_pos && set.contains(attacked_positions, destination)
+      // See what the board would look like if this defending piece wasn't
+      // there. We do this here rather than in the application step, since
+      // application is per-target, and we might be able to declare the whole
+      // tarmap as legal in one step.
+      let modified_board = board.set_pos(game.board, origin, square.None)
+      let modified_game = game.Game(..game, board: modified_board)
 
-      dangerous_king || interfering_friend
+      case is_in_check(modified_game) {
+        Error(_) -> panic as "Move was from an empty pos somehow!"
+
+        // We're not in check after removing the tarmap - therefore all the
+        // targets are necessarily legal, and don't need further checking.
+        Ok(#(False, _)) -> False
+
+        // We're in check after removing the defender - some of the targets
+        // might take us out of check, but not all. Need to apply each of
+        // them to make sure.
+        Ok(#(True, _)) -> True
+      }
     })
 
   // Apply every target of each of these tarmaps to see which ones don't put us
