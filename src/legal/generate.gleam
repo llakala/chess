@@ -1,29 +1,22 @@
 import chess/board
 import chess/game.{type Game}
 import gleam/dict
-import gleam/set
-import legal/check
-import legal/tarmap.{type TarmapCollection}
-
-import legal/targets
-import position/change
-import position/move.{type Move}
-import position/position.{type Position}
-
-import piece/square
-
-import utils/text
-
 import gleam/list
 import gleam/result
+import gleam/set
 import gleam/string
+import legal/check
+import legal/targets
+import legal/tarmap.{type TarmapCollection}
+import piece/square
+import position/move.{type Move}
+import position/position.{type Position}
+import utils/text
 
 /// Generates all the legal moves for the current player based on a game state.
 pub fn legal_moves(game: Game) -> List(Move) {
   let tarmaps = legal_tarmaps(game)
-  let pseudolegal_moves = tarmap.collection_to_moves(tarmaps)
-
-  check.filter_pseudolegal_moves(pseudolegal_moves, game)
+  tarmap.collection_to_moves(tarmaps)
 }
 
 /// Given some game state, return all the (pseudo)legal tarmaps for that game. A
@@ -32,32 +25,31 @@ pub fn legal_moves(game: Game) -> List(Move) {
 pub fn legal_tarmaps(game: Game) -> TarmapCollection {
   let origins = game.player_positions(game)
 
-  set.fold(origins, dict.new(), fn(accum, origin) {
-    let assert Ok(targets) = targets.from_pos(game, origin)
+  let pseudolegal_tarmaps =
+    set.fold(origins, dict.new(), fn(accum, origin) {
+      let assert Ok(targets) = targets.from_pos(game, origin)
 
-    dict.insert(accum, origin, targets)
-  })
+      dict.insert(accum, origin, targets)
+    })
+
+  check.filter_tarmaps(pseudolegal_tarmaps, game)
 }
 
 /// Given a game and a position, get all the legal moves that the piece at that
 /// position can make. A move wraps a Change, so we can differentiate things like
 /// en passant. Returns an error if the position contained None. The data this
 /// returns is pretty inefficient, since it stores a bunch of duplicate origin
-/// positions. If you want better packed data, use `target.from_pos` - this
+/// positions. If you want better packed data, use `targets.from_pos` - this
 /// just wraps its functionality anyways.
 pub fn moves_from(game: Game, origin: Position) -> Result(List(Move), String) {
-  targets.from_pos(game, origin)
-  // Map the result if we got an Ok value
-  |> result.map(fn(targets) {
-    // Map each target to a move from the origin to the destination, persisting
-    // the MoveKind.
-    targets
-    |> list.map(fn(target) {
-      let change = change.Change(origin, target.destination)
-      move.Move(change, target.kind)
-    })
-    |> check.filter_pseudolegal_moves(game)
-  })
+  use targets <- result.try(targets.from_pos(game, origin))
+
+  // This will only contain a single tarmap
+  let tarmaps = dict.insert(dict.new(), origin, targets)
+
+  check.filter_tarmaps(tarmaps, game)
+  |> tarmap.collection_to_moves
+  |> Ok
 }
 
 /// Given a list of moves, format/sort the list, and show the origins and
