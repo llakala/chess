@@ -8,10 +8,12 @@ import gleam/string
 import iv.{type Array}
 import legal/apply
 import legal/query
-import legal/targets
+import legal/targets.{Target}
+import legal/tarmap
 import piece/color
 import piece/piece.{King, Piece}
 import piece/square
+import position/change
 import position/move.{type Move}
 import position/position.{type Position}
 import utils/text
@@ -57,30 +59,31 @@ pub fn attacked_squares(game: Game) -> Array(Bool) {
   })
 }
 
-pub fn filter_pseudolegal_moves(
-  pseudolegal_moves: List(Move),
+pub fn filter_tarmaps(
+  pseudolegal_tarmaps: tarmap.TarmapCollection,
   game: Game,
-) -> List(Move) {
+) -> tarmap.TarmapCollection {
   case is_in_check(game) {
     // There's no king of our color on the board - no need to filter at all
-    // for moves putting us in check!
-    Error(_) -> pseudolegal_moves
+    // for tarmaps putting us in check!
+    Error(_) -> pseudolegal_tarmaps
 
-    // Currently in check - filter out the moves that would keep us in check
-    Ok(#(True, king_pos)) -> filter_in_check(pseudolegal_moves, game, king_pos)
+    // Currently in check - filter out the tarmaps that would keep us in check
+    Ok(#(True, king_pos)) ->
+      filter_in_check(pseudolegal_tarmaps, game, king_pos)
 
     // Not currently in check - we need to filter out the moves that would put us
     // into check
     Ok(#(False, king_pos)) ->
-      filter_not_in_check(pseudolegal_moves, game, king_pos)
+      filter_not_in_check(pseudolegal_tarmaps, game, king_pos)
   }
 }
 
 fn filter_in_check(
-  pseudolegal_moves: List(Move),
+  pseudolegal_tarmaps: tarmap.TarmapCollection,
   game: Game,
   king_pos: Position,
-) {
+) -> tarmap.TarmapCollection {
   // This will basically be any square that has a direct line of sight to
   // the king. We need to find these to see if the king can move directly
   // out of check, or if some other piece can step into the line of fire for
@@ -90,65 +93,79 @@ fn filter_in_check(
   // Positions of enemies directly attacking the king. It might be possible
   // that a friendly piece could take the assassin and stop the threat on
   // the king.
-  let attacking_enemy_positions = targets.enemies_to_pos(game, king_pos)
+  let enemy_positions = targets.enemies_to_pos(game, king_pos)
 
   // Most moves will be illegal, since we're in check. The only legal moves
   // are the ones made by the king, the ones that step into the line of fire
   // FOR the king, or the moves that kill the enemy attacking the king
-  let potentially_legal_moves =
-    list.filter(pseudolegal_moves, fn(move: Move) {
-      set.contains(line_of_fire_positions, move.change.to)
-      || set.contains(attacking_enemy_positions, move.change.to)
+  let potentially_legal_tarmaps =
+    pseudolegal_tarmaps
+    |> tarmap.filter(fn(_, target) {
+      let Target(destination, _) = target
+      set.contains(line_of_fire_positions, destination)
+      || set.contains(enemy_positions, destination)
     })
 
-  // potentially_illegal_moves |> display(game) |> io.println_error
+  // Apply every target to see which ones take us out of check. Expensive -
+  // so we try to run this on as few tarmaps as possible.
+  let legal_tarmaps =
+    tarmap.filter(potentially_legal_tarmaps, fn(origin, target) {
+      let Target(destination, kind) = target
 
-  // Apply each of these moves to see if they put us into check. Expensive
-  // - so we try to run this on as few moves as possible
-  list.filter(potentially_legal_moves, is_move_legal(_, game))
+      let change = change.Change(origin, destination)
+      let move = move.Move(change, kind)
+
+      is_move_legal(move, game)
+    })
+
+  legal_tarmaps
 }
 
 fn filter_not_in_check(
-  pseudolegal_moves: List(Move),
+  pseudolegal_tarmaps: tarmap.TarmapCollection,
   game: Game,
   king_pos: Position,
-) {
-  // The positions containing a friendly piece, that might be defending our
-  // king. Does NOT contain the king's position itself.
+) -> tarmap.TarmapCollection {
+  // The positions containing a friendly piece, that the king has a direct line
+  // of sight to. This is important to find, since these might be defending the
+  // king from check.
+  // from check.
   let checkable_origins = targets.friends_to_pos(game, king_pos)
 
-  // All positions that could be attacked by the enemy - even if it
-  // currently contains a friend. Ideally, this would only
-  // contain positions in the same row, column, or diagonal as the king -
-  // something to look into
+  // All the positions that could be attacked by the enemy - even if it
+  // currently contains a friend. Ideally, this would only contain positions in
+  // the same row, column, or diagonal as the king - something to look into.
   let attacked_positions = query.endangered_positions(game)
 
-  // Most moves won't be by a piece that could actually move us into check.
-  // We only need to do extra logic on the moves that could actually take us
-  // into check.
-  let #(potentially_illegal_moves, legal_moves) =
-    list.partition(pseudolegal_moves, fn(move) {
-      // A friendly piece to the king, that's currently defending an
-      // attacked position, moving to some other position.
+  let #(potentially_illegal, legal) =
+    // Any value that returns True needs to be checked further. Anything
+    // returning False is definitely legal
+    tarmap.partition(pseudolegal_tarmaps, fn(origin, target) {
+      let Target(destination, _) = target
+
       let interfering_friend =
-        set.contains(checkable_origins, move.change.from)
-        && set.contains(attacked_positions, move.change.from)
+        set.contains(checkable_origins, origin)
+        && set.contains(attacked_positions, origin)
 
       let dangerous_king =
-        move.change.from == king_pos
-        && set.contains(attacked_positions, move.change.to)
+        origin == king_pos && set.contains(attacked_positions, destination)
 
       dangerous_king || interfering_friend
     })
 
-  // potentially_illegal_moves |> display(game) |> io.println_error
+  // Apply every target of each of these tarmaps to see which ones don't put us
+  // in check. Expensive - so we try to run this on as few tarmaps as possible
+  let filtered =
+    tarmap.filter(potentially_illegal, fn(origin, target) {
+      let Target(destination, kind) = target
 
-  // Apply each of these moves to see if they put us into check. Expensive
-  // - so we try to run this on as few moves as possible
-  let filtered_moves =
-    list.filter(potentially_illegal_moves, is_move_legal(_, game))
+      let change = change.Change(origin, destination)
+      let move = move.Move(change, kind)
 
-  list.append(filtered_moves, legal_moves)
+      is_move_legal(move, game)
+    })
+
+  tarmap.merge(legal, filtered)
 }
 
 pub fn is_move_legal(move: Move, game: Game) -> Bool {
