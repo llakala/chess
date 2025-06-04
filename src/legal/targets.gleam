@@ -41,13 +41,13 @@ pub fn from_pos(game: Game, origin: Position) -> Result(List(Target), String) {
   use piece <- result.try(square |> square.to_piece)
 
   let targets = case piece.kind {
-    Pawn -> legal_pawn_targets(game, origin, piece)
-    Knight -> legal_knight_targets(game, origin, piece)
+    Pawn -> legal_pawn_targets(game, origin, piece, True)
+    Knight -> legal_knight_targets(game, origin, piece, True)
     _ -> {
       // If this gets an error, there's a logic failure!
       let assert Ok(sliding_piece) = piece |> sliding.new
 
-      legal_sliding_targets(game, origin, sliding_piece)
+      legal_sliding_targets(game, origin, sliding_piece, True)
     }
   }
 
@@ -57,19 +57,19 @@ pub fn from_pos(game: Game, origin: Position) -> Result(List(Target), String) {
 /// Alternative to `from_pos`, for when you're playing make believe, and want
 /// to see what squares a piece could attack if it was hypothetically at the
 /// given position.
-pub fn from_pos_as_piece(
+pub fn endangered_from_pos(
   game: Game,
   origin: Position,
   piece: Piece,
 ) -> List(Target) {
   case piece.kind {
-    Pawn -> legal_pawn_targets(game, origin, piece)
-    Knight -> legal_knight_targets(game, origin, piece)
+    Pawn -> legal_pawn_targets(game, origin, piece, False)
+    Knight -> legal_knight_targets(game, origin, piece, False)
     _ -> {
       // If this gets an error, there's a logic failure!
       let assert Ok(sliding_piece) = piece |> sliding.new
 
-      legal_sliding_targets(game, origin, sliding_piece)
+      legal_sliding_targets(game, origin, sliding_piece, False)
     }
   }
 }
@@ -102,7 +102,7 @@ fn queen_viewable_positions(game: Game, pos: Position) -> Set(Position) {
 
   // We're going backwards - all the queen targets from our position
   // will tell us all the positions we could attack - which then tells us
-  let queen_targets = legal_sliding_targets(game, pos, queen)
+  let queen_targets = legal_sliding_targets(game, pos, queen, True)
 
   queen_targets |> get_destinations
 }
@@ -111,7 +111,7 @@ fn queen_viewable_positions(game: Game, pos: Position) -> Set(Position) {
 fn knight_viewable_positions(game: Game, pos: Position) -> Set(Position) {
   let color = game.color
   let knight = piece.Piece(piece.Knight, color)
-  let knight_targets = legal_knight_targets(game, pos, knight)
+  let knight_targets = legal_knight_targets(game, pos, knight, True)
 
   knight_targets |> get_destinations
 }
@@ -171,9 +171,15 @@ pub fn empty_to_pos(game: Game, pos: Position) -> Set(Position) {
   })
 }
 
-fn legal_pawn_targets(game: Game, pos: Position, piece: Piece) -> List(Target) {
+fn legal_pawn_targets(
+  game: Game,
+  pos: Position,
+  piece: Piece,
+  real_captures_only: Bool,
+) -> List(Target) {
   let vertical_targets = pawn_vertical_targets(game, pos, piece)
-  let diagonal_targets = pawn_diagonal_targets(game, pos, piece)
+  let diagonal_targets =
+    pawn_diagonal_targets(game, pos, piece, real_captures_only)
 
   let targets = list.append(vertical_targets, diagonal_targets)
 
@@ -280,6 +286,7 @@ fn pawn_diagonal_targets(
   game: Game,
   old_pos: Position,
   piece: Piece,
+  real_captures_only: Bool,
 ) -> List(Target) {
   let board = game.board
 
@@ -310,30 +317,33 @@ fn pawn_diagonal_targets(
 
   let square = board.get_pos(board, new_pos)
 
-  let is_enemy = case square {
-    square.None -> False
-    square.Some(other) -> piece.color != other.color
+  let is_enemy = case real_captures_only, square {
+    // If we don't care about real captures, and inside want to see what a pawn
+    // COULD capture if there was a diagonal enemy, we'll make this always true
+    // - representing that empty and friendly diagonals will be counted too.
+    False, _ -> True
+
+    True, square.None -> False
+    True, square.Some(other) -> piece.color != other.color
   }
 
   // Based on the piece found in the direction, and whether that piece is an enemy,
   // decide whether the target is legal. `can_promote` dictates the type of
   // target(s) to be returned.
-  case square, is_enemy, can_promote {
-    // No piece to capture - move into the next direction
-    square.None, _, _ -> []
-
-    // Piece found is of same color, so can't capture. Move on.
-    square.Some(_), False, _ -> []
+  case is_enemy, can_promote {
+    // Piece found is of same color, or no piece at desired square, so can't
+    // capture. Move on.
+    False, _ -> []
 
     // There's a piece in that direction, and it's an enemy (but we can't promote).
     // Use the Capture type, so we can give this target higher priority in
     // evaluation.
-    square.Some(_), True, False -> {
+    True, False -> {
       Target(new_pos, move.Capture) |> list.wrap
     }
 
     // Promotion!
-    square.Some(_), True, True -> {
+    True, True -> {
       let my_color = piece.color
       // Create a target for each piece we could promote into (bishop, rook, queen, or
       // Knight). This is why we use `flat_map` for each direction - some directions
@@ -386,6 +396,7 @@ fn legal_knight_targets(
   game: Game,
   current_pos: Position,
   piece: Piece,
+  real_captures_only: Bool,
 ) -> List(Target) {
   let board = game.board
   let my_color = piece.color
@@ -397,16 +408,22 @@ fn legal_knight_targets(
 
   // Filter out the invalid positions, and turn the valid positions into Targets
   list.filter_map(potential_positions, fn(new_pos) {
-    case board.get_pos(board, new_pos) {
+    case real_captures_only, board.get_pos(board, new_pos) {
+      // If we don't care about real captures, and want to see the squares this
+      // knight COULD attack, we mark any position the knight can see as a
+      // capture. The MoveKind will be wrong here sometimes, but we'll only be
+      // using this for hypotheticals, so it doesn't really matter.
+      False, _ -> Target(new_pos, move.Basic) |> Ok
+
       // If the square we want to move to is empty, it's a basic target! Exit early.
-      square.None -> Target(new_pos, move.Basic) |> Ok
+      True, square.None -> Target(new_pos, move.Basic) |> Ok
 
       // It's an enemy that we can capture!
-      square.Some(other_piece) if other_piece.color != my_color ->
+      True, square.Some(other_piece) if other_piece.color != my_color ->
         Target(new_pos, move.Capture) |> Ok
 
       // It's a friend - can't go there.
-      _ -> Error(Nil)
+      True, _ -> Error(Nil)
     }
   })
 }
@@ -416,6 +433,7 @@ fn legal_sliding_targets(
   game: Game,
   current_pos: Position,
   sliding_piece: SlidingPiece,
+  real_captures_only: Bool,
 ) -> List(Target) {
   // For each legal direction that our piece can go. Use `flat_map` so a direction
   // can return multiple different targets in that direction
@@ -427,7 +445,13 @@ fn legal_sliding_targets(
   // that can either be a Capture or a NonCapture, so we can mark the target as
   // a capture if needed.
   let obstructed =
-    game.obstructed_distance(game, current_pos, dir, sliding_piece.color)
+    game.obstructed_distance(
+      game,
+      current_pos,
+      dir,
+      sliding_piece.color,
+      real_captures_only,
+    )
 
   // Max distance that our piece can go without obstructions
   let max_distance = int.min(piece_distance, obstructed.distance)
