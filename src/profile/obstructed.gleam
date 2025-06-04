@@ -16,7 +16,7 @@ pub fn main() {
           let positions = game.player_positions(game)
 
           set.map(positions, fn(pos) {
-            game.obstructed_distance(game, pos, direction.Up, game.color)
+            game.obstructed_distance(game, pos, direction.Up, game.color, True)
           })
         }
       }),
