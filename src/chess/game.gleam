@@ -176,8 +176,9 @@ pub fn obstructed_distance(
   position position: Position,
   direction direction: Direction,
   color color: Color,
+  captures_only captures_only: Bool,
 ) -> Distance {
-  obstructed_distance_loop(game, position, direction, color, 0)
+  obstructed_distance_loop(game, position, direction, color, captures_only, 0)
 }
 
 /// We represent passant as an optional position, since sometimes a pawn hasn't
@@ -196,6 +197,7 @@ fn obstructed_distance_loop(
   pos: Position,
   dir: Direction,
   color: Color,
+  go_past_obstructions: Bool,
   distance: Int,
 ) -> Distance {
   let board = game.board
@@ -212,20 +214,33 @@ fn obstructed_distance_loop(
       // Convert the square into a piece. If `to_piece` returns an error, the square
       // must've been empty. In that case, simply keep the loop going, adding 1 to
       // the accumulated distance
-      case square.to_piece(next_square) {
+      case go_past_obstructions, square.to_piece(next_square) {
         // Piece at the next square is a friend - can't capture it. Note that
         // `distance` never gets modified, so this will be the distance to the
         // current square, not the new square.
-        Ok(piece) if color == piece.color -> NonCapture(distance)
+        False, Ok(piece) if color == piece.color -> NonCapture(distance)
 
         // Other piece is an enemy and can be captured - increase the distance by
         // one, representing that we could capture the piece at the next square
-        Ok(_) -> Capture(distance + 1)
+        False, Ok(_) -> Capture(distance + 1)
 
-        // to_piece returned an error - the square must've been empty. Keep the loop
-        // going.
-        Error(_) ->
-          obstructed_distance_loop(game, new_pos, dir, color, distance + 1)
+        // If we see a friend, we still stop - but include the friend as a
+        // potential move. This represents that the friend is still "in danger"
+        // - if an enemy moved to its position to capture it, they would now be
+        // in danger.
+        True, Ok(piece) if color == piece.color -> NonCapture(distance + 1)
+
+        // Either to_piece returned an error and the square is empty, or we
+        // only care about captures and can skip this square if it's an enemy.
+        _, _ ->
+          obstructed_distance_loop(
+            game,
+            new_pos,
+            dir,
+            color,
+            go_past_obstructions,
+            distance + 1,
+          )
       }
     }
   }

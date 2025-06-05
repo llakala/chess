@@ -117,11 +117,13 @@ fn filter_not_in_check(
   // king. Does NOT contain the king's position itself.
   let checkable_origins = targets.friends_to_pos(game, king_pos)
 
-  // All positions that could be attacked by the enemy - even if it
-  // currently contains a friend. Ideally, this would only
-  // contain positions in the same row, column, or diagonal as the king -
-  // something to look into
-  let attacked_positions = query.endangered_positions(game)
+  // All the positions that the enemy could attack if we had a piece there.
+  // The square could have another enemy right now, or be an empty pawn diagonal
+  // - but if we DID move there, it would certainly be illegal.
+  let dangerous_destinations = query.dangerous_destinations(game)
+
+  // The positions that the enemy is actually attacking right now
+  let attacked_destinations = query.attacked_positions(game)
 
   // Most moves won't be by a piece that could actually move us into check.
   // We only need to do extra logic on the moves that could actually take us
@@ -132,11 +134,13 @@ fn filter_not_in_check(
       // attacked position, moving to some other position.
       let interfering_friend =
         set.contains(checkable_origins, move.change.from)
-        && set.contains(attacked_positions, move.change.from)
+        // We use `attacked_destinations`, since the position should ACTUALLY be
+        // attacked right now.
+        && set.contains(attacked_destinations, move.change.from)
 
       let dangerous_king =
         move.change.from == king_pos
-        && set.contains(attacked_positions, move.change.to)
+        && set.contains(dangerous_destinations, move.change.to)
 
       dangerous_king || interfering_friend
     })

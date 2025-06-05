@@ -13,7 +13,7 @@ pub fn until_enemy_test() {
   let assert Ok(pos) = position.new("e2")
   let dir = direction.Up
 
-  let dist = game.obstructed_distance(game, pos, dir, game.color)
+  let dist = game.obstructed_distance(game, pos, dir, game.color, False)
 
   dist
   |> string.inspect
@@ -28,7 +28,7 @@ pub fn until_friend_test() {
   let assert Ok(pos) = position.new("e2")
   let dir = direction.Up
 
-  let dist = game.obstructed_distance(game, pos, dir, game.color)
+  let dist = game.obstructed_distance(game, pos, dir, game.color, False)
   dist
   |> string.inspect
   |> birdie.snap("Distance up from e2 should be 4 without a capture!")
@@ -41,7 +41,7 @@ pub fn hit_wall_test() {
   let assert Ok(pos) = position.new("e1")
   let dir = direction.Down
 
-  let dist = game.obstructed_distance(game, pos, dir, game.color)
+  let dist = game.obstructed_distance(game, pos, dir, game.color, False)
   dist
   |> string.inspect
   |> birdie.snap(
