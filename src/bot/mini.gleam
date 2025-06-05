@@ -1,8 +1,9 @@
 import bot/eval.{EvaluatedMove}
 import bot/score
 import chess/game.{type Game}
+import gleam/bool
 import gleam/int
-import gleam/list
+import gleam/list.{type ContinueOrStop}
 import legal/apply
 import legal/generate
 import piece/color.{type Color, Black, White}
@@ -51,8 +52,8 @@ pub fn max(game game: Game, depth depth: Int) -> Move {
   // White maximizes their score, black minimizes it. We shuffle to add some
   // randomness - feel free to remove it if you're testing!
   let best_move_result = case game.color {
-    White -> list.max(evaled_moves |> list.shuffle, eval.compare)
-    Black -> utilist.min(evaled_moves |> list.shuffle, eval.compare)
+    White -> evaled_moves |> list.shuffle |> list.max(eval.compare)
+    Black -> evaled_moves |> list.shuffle |> utilist.min(eval.compare)
   }
 
   // `list.reduce` gives an error if the move was empty. I wish I had a good
@@ -93,78 +94,95 @@ fn minimax_loop(
   alpha alpha: Int,
   beta beta: Int,
 ) -> Int {
-  case current_depth {
-    // If we've reached a depth of 0, stop recursing, and return whatever the
-    // current evaluation of the board is. This lets us decide whether the move
-    // we performed was actually good.
-    0 -> eval.game_state(game)
+  // If we've reached a depth of 0, stop recursing, and return whatever the
+  // current evaluation of the board is. This lets us decide whether the move
+  // we performed was actually good.
+  use <- bool.guard(current_depth == 0, eval.game_state(game))
+
+  let moves = generate.legal_moves(game)
+  let terrible_score = terrible_score(game.color)
+
+  case moves {
+    // If there's no legal moves, we're currently in checkmate! This is
+    // bad for whatever color we're currently searching as - but great for
+    // the other player.
+    [] -> terrible_score
 
     _ -> {
-      let moves = generate.legal_moves(game)
-      let terrible_score = terrible_score(game.color)
+      // We pass the current alpha, current beta, and the best score so far
+      // between each iteration, so we can update them as we go. We start
+      // out with a terrible score, so we things we find will be better.
+      let status = EvalStatus(score: terrible_score, alpha:, beta:)
 
-      case moves {
-        // If there's no legal moves, we're currently in checkmate! This is
-        // bad for whatever color we're currently searching as - but great for
-        // the other player.
-        [] -> terrible_score
+      // While looping, we need access to the alpha and beta - but once
+      // we're done, we just need the score as our return value
+      let EvalStatus(score: best_score, ..) =
+        get_best_score(game, moves, status, current_depth)
 
-        _ -> {
-          // We pass the current alpha, current beta, and the best score so far
-          // between each iteration, so we can update them as we go. We start
-          // out with a terrible score, so we things we find will be better.
-          let starting_status = EvalStatus(score: terrible_score, alpha:, beta:)
-
-          let eval_status =
-            //  For each legal move, recurse one level deeper. We use
-            //  `fold_until` to simulate a `break` statement for alpha-beta
-            //  pruning
-            list.fold_until(moves, starting_status, fn(eval_status, move) {
-              move_logic(move, eval_status, game, current_depth)
-            })
-
-          // While looping, we need access to the alpha and beta - but once
-          // we're done, we just need the score as our return value
-          eval_status.score
-        }
-      }
+      best_score
     }
   }
 }
 
-fn move_logic(move, eval_status, game, current_depth) {
-  let EvalStatus(score: best_score, alpha:, beta:) = eval_status
+fn get_best_score(
+  game: Game,
+  moves: List(Move),
+  status: EvalStatus,
+  depth: Int,
+) -> EvalStatus {
+  //  For each legal move, recurse one level deeper. We use
+  //  `fold_until` to simulate a `break` statement for alpha-beta
+  //  pruning
+  list.fold_until(moves, status, fn(status, move) {
+    // The new game, after applying the current move
+    let assert Ok(game) = apply.move(game, move)
 
-  // The new game, after applying the current move
-  let assert Ok(game) = apply.move(game, move)
+    let score =
+      game
+      // See the game from the enemy's perspective
+      |> game.flip
+      // Get the enemy's best response to the move we just made
+      |> minimax_loop(depth - 1, status.alpha, status.beta)
 
-  let score =
-    game
-    // See the game from the enemy's perspective
-    |> game.flip
-    // Get the enemy's best response to the move we just made
-    |> minimax_loop(current_depth - 1, alpha, beta)
-
-  // White maximizes their score, Black minimizes it, since eval is
-  // positive if white is doing well, and vice versa for black.
-  let #(alpha, beta) = case game.color {
-    White -> {
-      let alpha = int.max(alpha, score)
-      #(alpha, beta)
+    case game.color {
+      White -> white_logic(status, score)
+      Black -> black_logic(status, score)
     }
+  })
+}
 
-    Black -> {
-      let beta = int.min(beta, score)
-      #(alpha, beta)
-    }
+fn white_logic(
+  status: EvalStatus,
+  current_score: Int,
+) -> ContinueOrStop(EvalStatus) {
+  let EvalStatus(score: best_score, alpha:, beta:) = status
+
+  let best_score = int.max(best_score, current_score)
+
+  let alpha = int.max(alpha, best_score)
+
+  // Pass the best score onwards
+  let eval_status = EvalStatus(alpha:, beta:, score: best_score)
+
+  // If this is true, we get to exit early!
+  case beta <= alpha {
+    True -> list.Stop(eval_status)
+    False -> list.Continue(eval_status)
   }
+}
 
-  let score = case game.color {
-    White -> int.max(best_score, score)
-    Black -> int.min(best_score, score)
-  }
+fn black_logic(
+  status: EvalStatus,
+  current_score: Int,
+) -> ContinueOrStop(EvalStatus) {
+  let EvalStatus(score: best_score, alpha:, beta:) = status
 
-  let eval_status = EvalStatus(alpha, beta, score)
+  let best_score = int.min(best_score, current_score)
+
+  let beta = int.min(beta, best_score)
+
+  // Pass the best score onwards
+  let eval_status = EvalStatus(alpha:, beta:, score: best_score)
 
   // If this is true, we get to exit early!
   case beta <= alpha {
