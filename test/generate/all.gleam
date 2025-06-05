@@ -3,6 +3,7 @@ import chess/board
 import chess/game
 import legal/generate
 import piece/color
+import position/move
 
 pub fn white_pawns_test() {
   // Empty board, other than rank 2 being full of white pawns
@@ -11,7 +12,7 @@ pub fn white_pawns_test() {
 
   let moves = game |> generate.legal_moves
 
-  generate.display(moves, game)
+  move.display(moves, game)
   |> birdie.snap(
     "Expected all the pawns on rank 2 to be able to move forward to ranks 3 and 4!",
   )
@@ -23,7 +24,7 @@ pub fn black_knights_test() {
 
   let moves = game |> generate.legal_moves
 
-  generate.display(moves, game)
+  move.display(moves, game)
   |> birdie.snap(
     "Expected both the knights to be able to move to 2 positions, with the h1 knight able to capture!",
   )
@@ -39,7 +40,7 @@ pub fn all_queens_test() {
 
   let moves = game |> generate.legal_moves
 
-  generate.display(moves, game)
+  move.display(moves, game)
   |> birdie.snap(
     "Expected no valid moves, since the queens would all bump into each other!",
   )
@@ -53,7 +54,7 @@ pub fn no_white_moves_test() {
 
   let moves = game |> generate.legal_moves
 
-  generate.display(moves, game)
+  move.display(moves, game)
   |> birdie.snap(
     "Expected no legal moves, since there are no white pieces on the board!",
   )
@@ -63,7 +64,7 @@ pub fn leave_check_test() {
   let assert Ok(game) = game.new("3r4/8/8/8/3K4/7R/8/2k5 w - - 0 1")
 
   generate.legal_moves(game)
-  |> generate.display(game)
+  |> move.display(game)
   |> birdie.snap(
     "All the legal moves for a player that's currently in check should take them out of check!",
   )

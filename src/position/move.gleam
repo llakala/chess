@@ -1,7 +1,13 @@
+import chess/board
+import chess/game.{type Game}
+import gleam/list
 import gleam/order.{type Order}
 import gleam/string
 import piece/piece
+import piece/square
 import position/change.{type Change}
+import position/position
+import utils/text
 
 pub type Move {
   Move(change: Change, kind: MoveKind)
@@ -40,4 +46,41 @@ pub fn to_string(move: Move) -> String {
   }
 
   kind_str <> change_str
+}
+
+/// Given a list of moves, format/sort the list, and show the origins and
+/// destinations of the moves on the board.
+pub fn display(moves: List(Move), game: Game) -> String {
+  let origins = moves |> list.map(fn(move) { move.change.from })
+  let destinations = moves |> list.map(fn(move) { move.change.to })
+
+  // Takes a square and an index, and colors in the origins and destinations of
+  // the moves.
+  let colorize_square = fn(square, index) {
+    let assert Ok(pos) = index |> position.from_index
+    let square_str = square |> square.to_string
+
+    case list.contains(origins, pos), list.contains(destinations, pos) {
+      // Neither an origin or a destination
+      False, False -> square_str
+
+      // Origin, not a destination
+      True, False -> square_str |> text.color(text.Cyan)
+
+      // Destination, not an origin
+      False, True -> square_str |> text.color(text.Yellow)
+
+      // Both an origin and a destination
+      True, True -> square_str |> text.color(text.Red)
+    }
+  }
+  let moves_output =
+    moves
+    |> list.sort(compare)
+    |> list.map(fn(move) { move |> to_string })
+    |> string.inspect
+
+  let board_output = board.index_format(game.board, colorize_square)
+
+  moves_output <> "\nBoard:\n" <> board_output
 }

@@ -5,6 +5,7 @@ import legal/generate
 import piece/color.{White}
 import piece/piece.{Piece, Queen}
 import piece/square
+import position/move
 import position/position
 
 pub fn all_options_test() {
@@ -16,7 +17,7 @@ pub fn all_options_test() {
 
   let assert Ok(moves) = generate.moves_from(game, pos)
 
-  generate.display(moves, game)
+  move.display(moves, game)
   |> birdie.snap(
     "Expected all the valid knight moves on an empty board - b3, b5, c2, c6, e2, e6, f3, and f5!",
   )
@@ -29,7 +30,7 @@ pub fn initial_test() {
 
   let assert Ok(moves) = generate.moves_from(game, pos)
 
-  generate.display(moves, game)
+  move.display(moves, game)
   |> birdie.snap(
     "Expected b1 knight on initial board to be able to move to a3 and c3!",
   )
@@ -49,7 +50,7 @@ pub fn capturing_test() {
 
   let assert Ok(moves) = generate.moves_from(game, pos)
 
-  generate.display(moves, game)
+  move.display(moves, game)
   |> birdie.snap(
     "Given the initial board, but with a white queen on d7, expected the b8 knight to be able to move to a6, c6, and capture on d7!",
   )

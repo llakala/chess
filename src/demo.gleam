@@ -2,7 +2,7 @@ import bot/bot
 import chess/game
 import gleam/io
 import gleam/list
-import legal/generate
+import position/move
 
 // Most of these are here because they fail with the existing logic (probably
 // because of check)
@@ -26,6 +26,6 @@ pub fn main() {
     // move and board for testing
     let assert Ok(game) = game.new(fen)
     let move = bot.first(game)
-    generate.display([move], game) |> io.println
+    move.display([move], game) |> io.println
   })
 }
