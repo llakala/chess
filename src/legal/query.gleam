@@ -6,18 +6,18 @@ import piece/piece
 import piece/square
 import position/position.{type Position}
 
-/// Given some game, return all the positions that the current player can
+/// Given some game, return all the positions that the enemy can
 /// attack.
 pub fn attacked_positions(game: Game) -> Set(Position) {
-  // All the positions that have a piece belonging to the current player
-  let positions = game.player_positions(game)
+  // All the positions that have a piece belonging to the enemy
+  let positions = game.enemy_positions(game)
 
-  // For each position that could attack, potentially update the data
+  // For each enemy position, potentially update the data
   set.fold(positions, set.new(), fn(accum, origin) {
     // all the targets this position is attacking
     let assert Ok(targets) = targets.from_pos(game, origin)
 
-    // All the positions we can attack, disregarding the move types
+    // All the positions the enemy can attack, disregarding the move types
     let destinations =
       targets
       |> targets.get_destinations
