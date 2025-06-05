@@ -89,7 +89,7 @@ pub fn display(moves: List(Move), game: Game) -> String {
       False, True -> square_str |> text.color(text.Yellow)
 
       // Both an origin and a destination
-      True, True -> square_str |> text.color(text.RGB)
+      True, True -> square_str |> text.color(text.Red)
     }
   }
   let moves_output =
