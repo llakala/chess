@@ -1,10 +1,14 @@
+import chess/board
+import chess/game.{type Game}
 import gleam/int
 import gleam/order.{type Order}
 import piece/color
 import piece/piece.{type Piece}
+import piece/square
+import position/change.{type Change, Change}
 import position/move.{
-  type Move, type MoveKind, Basic, Capture, KingCastle, Passant, Promotion,
-  PromotionCapture, QueenCastle,
+  type Move, Basic, Capture, KingCastle, Passant, Promotion, PromotionCapture,
+  QueenCastle,
 }
 
 /// Returns the value of some piece. Value is positive for white pieces, and
@@ -37,21 +41,38 @@ fn piece_value(piece: Piece) -> Int {
 }
 
 /// Compare two moves based on their kind, to figure out how good they might be.
-pub fn compare_moves(first: Move, second: Move) -> Order {
-  let first_value = move(first.kind)
-  let second_value = move(second.kind)
+pub fn compare_moves(game: Game, first: Move, second: Move) -> Order {
+  let first_value = move(first, game)
+  let second_value = move(second, game)
 
   // We compare backwards, so moves with high scores end up first
   int.compare(second_value, first_value)
 }
 
 /// Given some kind of move, return its value.
-pub fn move(kind: MoveKind) {
-  case kind {
+pub fn move(move: Move, game: Game) {
+  case move.kind {
     Basic -> 0
     QueenCastle | KingCastle -> 5
-    Capture | Passant -> 10
+    Passant -> 10
+
+    // Captures include the value of the captured piece. If we had the time, we
+    // would make the capture constructor hold the type of captured piece, but
+    // that's not in scope right now, so this'll do.
+    Capture -> 10 + captured_value(move.change, game)
+
     Promotion(piece) -> 20 + piece_value(piece)
     PromotionCapture(piece) -> 30 + piece_value(piece)
+  }
+}
+
+fn captured_value(change: Change, game: Game) -> Int {
+  let Change(to: destination, ..) = change
+  let target_piece = board.get_pos(game.board, destination)
+  case target_piece {
+    // In case the capture somehow went to an empty square.
+    square.None -> 0
+
+    square.Some(piece:) -> piece_value(piece)
   }
 }

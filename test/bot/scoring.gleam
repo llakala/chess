@@ -20,7 +20,7 @@ pub fn score_test() {
 
   let second_part =
     moves
-    |> list.sort(score.compare_moves)
+    |> list.sort(fn(first, second) { score.compare_moves(game, first, second) })
     |> list.map(move.to_string)
     |> string.inspect
 

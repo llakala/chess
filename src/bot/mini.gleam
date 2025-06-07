@@ -13,7 +13,7 @@ import utils/utilist
 pub fn max(game game: Game, depth depth: Int) -> Move {
   let evaled_moves =
     generate.legal_moves(game)
-    |> list.sort(score.compare_moves)
+    |> list.sort(fn(first, second) { score.compare_moves(game, first, second) })
     // Map each move to an EvaluatedMove, so we can select the move with the
     // best score. We have this separate from the underlying algorithm, since
     // that algorithm just selects scores, and totally ignores moves - so we
