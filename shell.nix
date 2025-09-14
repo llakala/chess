@@ -1,4 +1,4 @@
-{ gleam, pkgs, localPackages ? [] }:
+{ pkgs, localPackages ? [] }:
 
 let
   # From nixpkgs
@@ -8,10 +8,10 @@ let
     rebar3
     elixir
     beamPackages.hex
+    gleam
   ];
 
 in pkgs.mkShellNoCC
 {
-  # Use the passed version of Gleam: since I build it from unstable
-  packages = [ gleam ] ++ localPackages ++ upstreamPackages;
+  packages = localPackages ++ upstreamPackages;
 }

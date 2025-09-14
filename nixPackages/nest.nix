@@ -1,4 +1,4 @@
-{ llakaLib, gleamPackages }:
+{ llakaLib, gleam }:
 
 llakaLib.writeFishApplication
 {
@@ -8,7 +8,7 @@ llakaLib.writeFishApplication
 
   # Rely on the unstable version of Gleam. I'd like to eventually have Gleam stuff
   # packaged in Nix, but I don't think the ecosystem is there yet
-  runtimeInputs = with gleamPackages;
+  runtimeInputs =
   [
     gleam
   ];

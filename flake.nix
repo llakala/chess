@@ -21,13 +21,6 @@
       url = "github:llakala/llakaLib";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # There may be some flake.lock duplication from duplicate versions of nixpkgs -
-    # but this has a cachix, so its inputs need to be the same.
-    gleam-nix =
-    {
-      url = "github:vic/gleam-nix";
-    };
   };
 
   outputs = { self, nixpkgs, ... } @ inputs:
@@ -53,11 +46,10 @@
         inherit pkgs;
         directory = ./nixPackages;
 
-        # Lets the packages rely on custom functions and newest gleam version
+        # Lets the packages rely on custom functions
         extras =
         {
           inherit llakaLib;
-          gleamPackages = inputs.gleam-nix.packages.${pkgs.system};
         };
       }
     );
@@ -69,9 +61,6 @@
         default = import ./shell.nix
         {
           inherit pkgs;
-
-          # Gleam version built from source - but not actually, thanks to Cachix
-          gleam = inputs.gleam-nix.packages.${pkgs.system}.gleam;
 
           # attrValues turns a list into an attrset
           localPackages = builtins.attrValues self.legacyPackages.${pkgs.system};
