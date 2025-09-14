@@ -16,7 +16,7 @@ pub fn main() {
     |> mist.new
     |> mist.bind("0.0.0.0")
     |> mist.port(8000)
-    |> mist.start_http
+    |> mist.start
 
   process.sleep_forever()
 }
@@ -39,7 +39,7 @@ fn handle_move(request: Request) -> Response {
   use body <- wisp.require_string_body(request)
   let decode_result = json.parse(body, move_decoder())
   case decode_result {
-    Error(_) -> wisp.bad_request()
+    Error(_) -> wisp.bad_request("Unable to decode request")
     Ok(move) -> {
       let move_result = chess.move(move.0, move.1, move.2)
       case move_result {
