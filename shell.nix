@@ -2,8 +2,7 @@
 
 let
   # From nixpkgs
-  upstreamPackages = with pkgs;
-  [
+  upstreamPackages = with pkgs; [
     erlang_27
     rebar3
     elixir
@@ -11,7 +10,6 @@ let
     gleam
   ];
 
-in pkgs.mkShellNoCC
-{
+in pkgs.mkShellNoCC {
   packages = localPackages ++ upstreamPackages;
 }
