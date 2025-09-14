@@ -1,5 +1,9 @@
 import chess/board
 import chess/castling.{type Castling}
+import chess/color.{type Color}
+import chess/direction.{type Direction}
+import chess/position.{type Position}
+import chess/square
 import gleam/bool
 import gleam/int
 import gleam/option.{type Option, None, Some}
@@ -7,10 +11,6 @@ import gleam/result
 import gleam/set.{type Set}
 import gleam/string
 import iv
-import piece/color.{type Color}
-import piece/square
-import position/direction.{type Direction}
-import position/position.{type Position}
 
 pub type Distance {
   NonCapture(distance: Int)

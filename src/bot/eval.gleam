@@ -1,11 +1,11 @@
 import bot/score
 import chess/board
 import chess/game.{type Game}
+import chess/move.{type Move}
 import gleam/dict
 import gleam/int
 import gleam/list
 import gleam/order.{type Order}
-import position/move.{type Move}
 
 /// This type isn't used much within the `eval` module - instead, you should
 /// apply the moves yourself, and see what score they result in.

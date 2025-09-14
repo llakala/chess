@@ -1,12 +1,12 @@
 import bot/eval.{EvaluatedMove}
 import bot/score
+import chess/color.{type Color, Black, White}
 import chess/game.{type Game}
+import chess/move.{type Move}
 import gleam/int
 import gleam/list
 import legal/apply
 import legal/generate
-import piece/color.{type Color, Black, White}
-import position/move.{type Move}
 import utils/utilist
 
 /// Run minimax on some game, to some specified depth. With alpha beta pruining!

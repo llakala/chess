@@ -1,9 +1,9 @@
 import birdie
 import chess/board
+import chess/color.{Black, White}
+import chess/piece.{King, Pawn, Piece, Queen}
+import chess/position
 import gleam/string
-import piece/color.{Black, White}
-import piece/piece.{King, Pawn, Piece, Queen}
-import position/position
 
 pub fn white_queen_test() {
   let piece = Piece(Queen, White)

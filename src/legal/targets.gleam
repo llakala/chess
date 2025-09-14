@@ -1,28 +1,24 @@
 import chess/board
-import chess/game.{type Game}
-import gleam/set.{type Set}
-import piece/color.{Black, White}
-import piece/piece.{
-  type Piece, type PieceKind, Bishop, Knight, Pawn, Piece, Queen, Rook,
-}
-
-import piece/sliding.{type SlidingPiece}
-import piece/square
-import position/direction.{
+import chess/color.{Black, White}
+import chess/direction.{
   type Direction, Down, DownLeft, DownRight, Up, UpLeft, UpRight,
 }
-import position/offset
-import position/position.{type Position}
-
-import gleam/option.{type Option}
-
-import utils/choose
-
+import chess/game.{type Game}
+import chess/move
+import chess/offset
+import chess/piece.{
+  type Piece, type PieceKind, Bishop, Knight, Pawn, Piece, Queen, Rook,
+}
+import chess/position.{type Position}
+import chess/sliding.{type SlidingPiece}
+import chess/square
 import gleam/bool
 import gleam/int
 import gleam/list
+import gleam/option.{type Option}
 import gleam/result
-import position/move
+import gleam/set.{type Set}
+import utils/choose
 
 pub type Target {
   Target(destination: Position, kind: move.MoveKind)

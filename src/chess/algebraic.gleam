@@ -1,14 +1,14 @@
 import chess/board
+import chess/change.{type Change}
+import chess/file
 import chess/game.{type Game}
-import gleam/result
-import piece/piece.{type Piece}
-import piece/square
-import position/change.{type Change}
-import position/file
-import position/move.{
+import chess/move.{
   type Move, Capture, KingCastle, Promotion, PromotionCapture, QueenCastle,
 }
-import position/position
+import chess/piece.{type Piece}
+import chess/position
+import chess/square
+import gleam/result
 
 /// Creates a representation of the move in algebraic notation, for sending as our
 /// HTTP response

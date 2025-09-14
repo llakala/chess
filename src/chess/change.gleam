@@ -1,7 +1,7 @@
+import chess/offset.{type Offset}
+import chess/position.{type Position}
 import gleam/order.{type Order}
 import gleam/result
-import position/offset.{type Offset}
-import position/position.{type Position}
 
 pub type Change {
   Change(from: Position, to: Position)

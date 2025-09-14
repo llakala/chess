@@ -1,8 +1,8 @@
+import chess/direction
 import chess/game
 import gleam/set
 import glychee/benchmark
 import glychee/configuration
-import position/direction
 
 pub fn main() {
   configuration.initialize()

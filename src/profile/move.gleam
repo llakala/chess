@@ -1,7 +1,7 @@
+import chess/color
 import erlang_template/chess
 import glychee/benchmark
 import glychee/configuration
-import piece/color
 
 pub fn main() {
   configuration.initialize()

@@ -1,15 +1,13 @@
+import chess/color.{type Color}
 import chess/constants
+import chess/direction.{
+  type Direction, Down, DownLeft, DownRight, Left, Right, Up, UpLeft, UpRight,
+}
+import chess/piece.{type Piece, Piece}
+import chess/square.{type Square}
 import gleam/int
 import gleam/list
 import gleam/result
-
-import piece/color.{type Color}
-import piece/piece.{type Piece, Piece}
-import piece/square.{type Square}
-
-import position/direction.{
-  type Direction, Down, DownLeft, DownRight, Left, Right, Up, UpLeft, UpRight,
-}
 
 /// For when you want a function to only take sliding pieces
 pub type SlidingPiece {

@@ -1,14 +1,12 @@
 import birdie
-import chess/game
-import gleam/list
-import piece/color
-import piece/piece.{Pawn, Piece}
-import position/move.{Passant}
-
 import chess/board
-import piece/square
-import position/position
-
+import chess/color
+import chess/game
+import chess/move.{Passant}
+import chess/piece.{Pawn, Piece}
+import chess/position
+import chess/square
+import gleam/list
 import legal/generate
 
 pub fn white_pawn_test() {

@@ -1,12 +1,12 @@
 import birdie
 import chess/board
+import chess/color.{White}
 import chess/game
+import chess/move
+import chess/piece.{Piece, Queen}
+import chess/position
+import chess/square
 import legal/generate
-import piece/color.{White}
-import piece/piece.{Piece, Queen}
-import piece/square
-import position/move
-import position/position
 
 pub fn all_options_test() {
   // Empty board, other than a knight on d4

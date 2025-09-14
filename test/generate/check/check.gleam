@@ -1,13 +1,13 @@
 import birdie
+import chess/change
 import chess/game
+import chess/move
+import chess/position
 import gleam/list
 import gleam/string
 import gleeunit/should
 import legal/check
 import legal/generate
-import position/change
-import position/move
-import position/position
 
 pub fn initial_test() {
   let game = game.initial()

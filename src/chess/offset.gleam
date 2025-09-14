@@ -1,4 +1,4 @@
-import position/direction.{
+import chess/direction.{
   type Direction, Down, DownLeft, DownRight, Left, Right, Up, UpLeft, UpRight,
 }
 

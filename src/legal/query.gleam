@@ -1,12 +1,12 @@
 import chess/board
+import chess/change
 import chess/game.{type Game}
+import chess/move.{type Move}
+import chess/position.{type Position}
+import chess/square
 import gleam/list
 import gleam/set.{type Set}
 import legal/targets
-import piece/square
-import position/change
-import position/move.{type Move}
-import position/position.{type Position}
 
 /// Given some game, return all the positions that the enemy can
 /// attack.

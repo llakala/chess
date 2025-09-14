@@ -1,14 +1,12 @@
+import chess/change
 import chess/game.{type Game}
-import gleam/set
-import legal/check
-
-import legal/targets
-import position/change
-import position/move.{type Move}
-import position/position.{type Position}
-
+import chess/move.{type Move}
+import chess/position.{type Position}
 import gleam/list
 import gleam/result
+import gleam/set
+import legal/check
+import legal/targets
 
 /// Generates all the legal moves for the current player based on a game state.
 pub fn legal_moves(game: Game) -> List(Move) {

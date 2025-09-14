@@ -1,18 +1,17 @@
 import chess/board
+import chess/change.{type Change}
+import chess/color.{Black, White}
 import chess/game.{type Game, Game}
-import gleam/bool
-import gleam/result
-import piece/color.{Black, White}
-import piece/square
-import position/move.{
+import chess/move.{
   type Move, Basic, KingCastle, Passant, Promotion, PromotionCapture,
   QueenCastle,
 }
-import position/position
-
-import piece/piece.{type Piece}
-import position/change.{type Change}
-import position/offset.{Offset}
+import chess/offset.{Offset}
+import chess/piece.{type Piece}
+import chess/position
+import chess/square
+import gleam/bool
+import gleam/result
 
 /// Apply some move to the current game, getting a new Game as the output.
 /// Returns an error if the Change tried to start from a None position, or

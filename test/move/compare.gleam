@@ -1,7 +1,7 @@
 import birdie
+import chess/change
+import chess/move.{Move}
 import gleam/string
-import position/change
-import position/move.{Move}
 
 pub fn basic_then_capture_test() {
   let assert Ok(a1_to_a2) = change.new("a1", "a2")

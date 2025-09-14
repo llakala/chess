@@ -1,11 +1,11 @@
 import birdie
 import chess/algebraic
+import chess/change
+import chess/color.{Black}
 import chess/game
+import chess/move.{Move, PromotionCapture}
+import chess/piece.{Bishop, Piece, Queen}
 import gleeunit/should
-import piece/color.{Black}
-import piece/piece.{Bishop, Piece, Queen}
-import position/change
-import position/move.{Move, PromotionCapture}
 
 pub fn promotion_test() {
   // Empty board, other than a black pawn on f2

@@ -1,8 +1,8 @@
 import birdie
+import chess/direction
+import chess/offset
+import chess/position
 import gleam/string
-import position/direction
-import position/offset
-import position/position
 
 pub fn one_forward_test() {
   let one_up = offset.in_direction(direction.Up, 1)

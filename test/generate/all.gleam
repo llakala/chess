@@ -1,9 +1,9 @@
 import birdie
 import chess/board
+import chess/color
 import chess/game
+import chess/move
 import legal/generate
-import piece/color
-import position/move
 
 pub fn white_pawns_test() {
   // Empty board, other than rank 2 being full of white pawns

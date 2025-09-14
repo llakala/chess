@@ -1,5 +1,5 @@
+import chess/color.{type Color, Black, White}
 import gleam/string
-import piece/color.{type Color, Black, White}
 
 /// A Piece stores what kind of piece it is, and the color of the piece.
 /// Notably, a Piece cannot be None - if you want that, you should use the

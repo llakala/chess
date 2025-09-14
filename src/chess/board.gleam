@@ -1,21 +1,17 @@
 // My own helper functions for working with `iv` arrays
+import chess/constants.{num_cols, num_rows}
+import chess/piece.{type Piece}
+import chess/position.{type Position}
+import chess/square.{type Square}
 import gleam/dict.{type Dict}
 import gleam/int
 import gleam/list
 import gleam/result
 import gleam/set.{type Set}
 import gleam/string
-
-import utils/text
-
-import chess/constants.{num_cols, num_rows}
-import piece/piece.{type Piece}
-import piece/square.{type Square}
-import position/position.{type Position}
-
-import utils/choose
-
 import iv.{type Array}
+import utils/choose
+import utils/text
 
 pub opaque type Board {
   Board(data: Array(Square))

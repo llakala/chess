@@ -1,12 +1,12 @@
 import chess/board
+import chess/change.{type Change}
 import chess/game.{type Game}
+import chess/piece
+import chess/position
+import chess/square
 import gleam/list
 import gleam/order.{type Order}
 import gleam/string
-import piece/piece
-import piece/square
-import position/change.{type Change}
-import position/position
 import utils/text
 
 pub type Move {

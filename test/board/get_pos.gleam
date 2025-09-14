@@ -1,7 +1,7 @@
 import birdie
 import chess/board
+import chess/position
 import gleam/string
-import position/position
 
 pub fn white_pawn_test() {
   let board = board.initial()

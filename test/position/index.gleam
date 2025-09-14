@@ -1,5 +1,5 @@
 import birdie
-import position/position
+import chess/position
 
 pub fn top_left_test() {
   let assert Ok(pos) = position.from_index(0)

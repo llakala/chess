@@ -1,8 +1,8 @@
 import bot/bot
 import chess/game
+import chess/move
 import gleam/io
 import gleam/list
-import position/move
 
 // Most of these are here because they fail with the existing logic (probably
 // because of check)

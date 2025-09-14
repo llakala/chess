@@ -1,11 +1,10 @@
 import chess/constants
-import gleam/order.{type Order}
-import position/direction.{type Direction}
-import position/file
-import position/offset.{type Offset}
-import position/rank
-
+import chess/direction.{type Direction}
+import chess/file
+import chess/offset.{type Offset}
+import chess/rank
 import gleam/bool
+import gleam/order.{type Order}
 import gleam/result
 import gleam/string
 

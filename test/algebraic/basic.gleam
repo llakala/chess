@@ -1,9 +1,9 @@
 import birdie
 import chess/algebraic
 import chess/board
+import chess/change
 import chess/game
-import position/change
-import position/move.{Move}
+import chess/move.{Move}
 
 pub fn pawn_forward_test() {
   let game = game.initial()

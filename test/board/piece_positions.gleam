@@ -1,10 +1,10 @@
 import birdie
 import chess/board
+import chess/piece.{type Piece}
+import chess/position.{type Position}
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/string
-import piece/piece.{type Piece}
-import position/position.{type Position}
 
 fn map_keys(
   dict: Dict(key, value),

@@ -1,8 +1,8 @@
 import birdie
 import chess/board
+import chess/color
 import chess/game.{Game}
 import legal/check
-import piece/color
 
 pub fn initial_test() {
   let game = Game(..game.initial(), color: color.Black)

@@ -1,15 +1,15 @@
 import chess/board
+import chess/change.{type Change, Change}
+import chess/color
 import chess/game.{type Game}
-import gleam/int
-import gleam/order.{type Order}
-import piece/color
-import piece/piece.{type Piece}
-import piece/square
-import position/change.{type Change, Change}
-import position/move.{
+import chess/move.{
   type Move, Basic, Capture, KingCastle, Passant, Promotion, PromotionCapture,
   QueenCastle,
 }
+import chess/piece.{type Piece}
+import chess/square
+import gleam/int
+import gleam/order.{type Order}
 
 /// Returns the value of some piece. Value is positive for white pieces, and
 /// negative for black pieces.

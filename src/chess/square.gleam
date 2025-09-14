@@ -4,7 +4,7 @@
 //// take a Square. If your function actually expects a piece, it should take a
 //// Piece.
 
-import piece/piece.{type Piece}
+import chess/piece.{type Piece}
 
 pub type Square {
   Some(piece: Piece)

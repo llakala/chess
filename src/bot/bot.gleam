@@ -1,9 +1,9 @@
 import bot/mini
 import chess/game.{type Game}
+import chess/move.{type Move}
 import gleam/int
 import iv
 import legal/generate
-import position/move.{type Move}
 
 /// Always choose the first move in the list of moves
 pub fn first(game: Game) -> Move {

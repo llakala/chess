@@ -1,6 +1,6 @@
 import birdie
+import chess/position
 import gleam/string
-import position/position
 
 pub fn different_rank_test() {
   let assert Ok(a1) = position.new("a1")

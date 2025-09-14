@@ -1,10 +1,10 @@
 import birdie
 import bot/score
 import chess/game
+import chess/move
 import gleam/list
 import gleam/string
 import legal/generate
-import position/move
 
 pub fn score_test() {
   let assert Ok(game) =

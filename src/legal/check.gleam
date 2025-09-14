@@ -1,6 +1,11 @@
 import chess/board
+import chess/color
 import chess/constants
 import chess/game.{type Game}
+import chess/move.{type Move}
+import chess/piece.{King, Piece}
+import chess/position.{type Position}
+import chess/square
 import gleam/list
 import gleam/result
 import gleam/set
@@ -9,11 +14,6 @@ import iv.{type Array}
 import legal/apply
 import legal/query
 import legal/targets
-import piece/color
-import piece/piece.{King, Piece}
-import piece/square
-import position/move.{type Move}
-import position/position.{type Position}
 import utils/text
 
 /// Given some game, return all the squares the current player could attack. We
